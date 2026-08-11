@@ -1,0 +1,6 @@
+{
+  "name": "Aura Routine & Success Companion",
+  "description": "Personalized daily schedule, victory journal, weekly progress tracker, study planner, focus timer, and notepad tailored for Bangre Neo Lab, Cinema, and Academic studies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

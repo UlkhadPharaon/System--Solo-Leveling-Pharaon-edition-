@@ -1,0 +1,17 @@
+{
+  "name": "Pharaoh System",
+  "short_name": "Pharaoh",
+  "description": "The ultimate Pharaoh-themed Solo Leveling productivity system.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#040D1A",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "/icon.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

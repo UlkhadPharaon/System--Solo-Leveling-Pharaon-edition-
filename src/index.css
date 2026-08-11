@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sl-primary: #040D1A;
+  --color-sl-primary-alpha: rgba(4, 13, 26, 0.95);
+  --color-sl-lapis: #102C54;
+  --color-sl-lapis-light: #1E4D8C;
+  --color-sl-gold: #D4AF37;
+  --color-sl-gold-dark: #B8860B;
+  --color-sl-gold-light: #F9E076;
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Cinzel', serif; /* Regal Heading Font */
+}
+
+@layer utilities {
+  .accent-gold {
+    color: var(--color-sl-gold);
+  }
+  .bg-gold-glow {
+    background-color: rgba(212, 175, 55, 0.1);
+  }
+  .border-soft {
+    border-color: rgba(212, 175, 55, 0.2);
+  }
+  .border-gold {
+    border-color: var(--color-sl-gold);
+  }
+  .bg-card {
+    background-color: rgba(16, 44, 84, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+  }
+  .bg-card-hover {
+    background-color: rgba(212, 175, 55, 0.05);
+    border-color: rgba(212, 175, 55, 0.4);
+  }
+  .shadow-gold {
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+  }
+  .glass-panel {
+    background: rgba(16, 44, 84, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.05), 0 8px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #040D1A;
+  color: #F8F9FA;
+  background-image: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+}
+
+/* Custom Scrollbar for Pharaoh Look */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #040D1A;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
