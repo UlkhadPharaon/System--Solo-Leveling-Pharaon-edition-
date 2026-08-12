@@ -117,6 +117,8 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
 
   const activeChapter = CHAPTERS[currentChapterIndex];
 
+  if (!player) return null;
+
   const handleClaimChapterReward = () => {
     if (!activeChapter) return;
 

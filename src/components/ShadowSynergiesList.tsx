@@ -51,6 +51,8 @@ const SYNERGIES: SynergyTemplate[] = [
 ];
 
 export const ShadowSynergiesList: React.FC<ShadowSynergiesListProps> = ({ player }) => {
+  if (!player) return null;
+
   const shadows = player.shadows || [];
 
   return (

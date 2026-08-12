@@ -7,6 +7,7 @@ import {
   Clock, 
   Plus, 
   Trash2, 
+  Edit2,
   Dumbbell, 
   Mic, 
   Sparkles, 
@@ -31,6 +32,7 @@ interface ScheduleViewProps {
   personalization: UserPersonalization;
   onToggleComplete: (id: string) => void;
   onAddBlock: (block: RoutineBlock) => void;
+  onEditBlock: (block: RoutineBlock) => void;
   onDeleteBlock: (id: string) => void;
   onStartFocusSession: (category: Category) => void;
   openPersonalizationModal?: () => void;
@@ -43,6 +45,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   personalization,
   onToggleComplete,
   onAddBlock,
+  onEditBlock,
   onDeleteBlock,
   onStartFocusSession,
   openPersonalizationModal,
@@ -110,6 +113,28 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   const completedCount = blocks.filter((b) => b.isCompleted).length;
   const progressPercent = blocks.length > 0 ? Math.round((completedCount / blocks.length) * 100) : 0;
 
+  const [editingBlock, setEditingBlock] = useState<RoutineBlock | null>(null);
+
+  const openAddModal = () => {
+    setEditingBlock(null);
+    setNewTitle('');
+    setNewStartTime('14:00');
+    setNewEndTime('15:00');
+    setNewCategory('bangre_neo');
+    setNewDescription('');
+    setShowAddModal(true);
+  };
+
+  const openEditModal = (block: RoutineBlock) => {
+    setEditingBlock(block);
+    setNewTitle(block.title);
+    setNewStartTime(block.startTime);
+    setNewEndTime(block.endTime);
+    setNewCategory(block.category);
+    setNewDescription(block.description);
+    setShowAddModal(true);
+  };
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle) return;
@@ -119,22 +144,33 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
     const [eh, em] = newEndTime.split(':').map(Number);
     const duration = Math.max(15, (eh * 60 + em) - (sh * 60 + sm));
 
-    const newBlock: RoutineBlock = {
-      id: 'custom-' + Date.now(),
-      title: newTitle,
-      startTime: newStartTime,
-      endTime: newEndTime,
-      durationMinutes: duration,
-      category: newCategory,
-      description: newDescription || 'Bloc d’emploi du temps personnalisé',
-      isCompleted: false,
-      tagline: 'Bloc Personnalisé',
-      iconName: newCategory === 'bangre_neo' ? 'Code' : newCategory === 'cinema' ? 'Film' : 'BookOpen',
-    };
+    if (editingBlock) {
+      onEditBlock({
+        ...editingBlock,
+        title: newTitle,
+        startTime: newStartTime,
+        endTime: newEndTime,
+        durationMinutes: duration,
+        category: newCategory,
+        description: newDescription,
+        iconName: newCategory === 'bangre_neo' ? 'Code' : newCategory === 'cinema' ? 'Film' : 'BookOpen',
+      });
+    } else {
+      const newBlock: RoutineBlock = {
+        id: 'custom-' + Date.now(),
+        title: newTitle,
+        startTime: newStartTime,
+        endTime: newEndTime,
+        durationMinutes: duration,
+        category: newCategory,
+        description: newDescription || 'Bloc d’emploi du temps personnalisé',
+        isCompleted: false,
+        tagline: 'Bloc Personnalisé',
+        iconName: newCategory === 'bangre_neo' ? 'Code' : newCategory === 'cinema' ? 'Film' : 'BookOpen',
+      };
+      onAddBlock(newBlock);
+    }
 
-    onAddBlock(newBlock);
-    setNewTitle('');
-    setNewDescription('');
     setShowAddModal(false);
   };
 
@@ -345,7 +381,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={openAddModal}
           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs transition-all self-end sm:self-auto"
         >
           <Plus className="w-4 h-4" />
@@ -417,6 +453,19 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2 self-end md:self-auto pt-2 md:pt-0 border-t md:border-t-0 border-soft w-full md:w-auto justify-end">
+                {/* Mark Complete */}
+                <button
+                  onClick={() => onToggleComplete(block.id)}
+                  className={`p-1.5 rounded-xl transition-all ${
+                    block.isCompleted
+                      ? 'text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20'
+                      : 'text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10'
+                  }`}
+                  title={block.isCompleted ? 'Marquer comme non terminé' : 'Marquer comme terminé'}
+                >
+                  {block.isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                </button>
+
                 {/* Start Focus Timer for this category */}
                 <button
                   onClick={() => onStartFocusSession(block.category)}
@@ -425,6 +474,15 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 >
                   <Clock className="w-3.5 h-3.5 accent-cyan" />
                   <span>Entrer en Donjon</span>
+                </button>
+
+                {/* Edit */}
+                <button
+                  onClick={() => openEditModal(block)}
+                  className="p-1.5 rounded-xl text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
+                  title="Modifier ce bloc"
+                >
+                  <Edit2 className="w-4 h-4" />
                 </button>
 
                 {/* Delete if custom */}

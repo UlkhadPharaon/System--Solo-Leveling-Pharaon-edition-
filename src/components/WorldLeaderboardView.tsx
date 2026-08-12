@@ -63,6 +63,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
 
   // Compute player's estimated total cumulative XP
   const playerTotalXp = useMemo(() => {
+    if (!player) return 0;
     let total = 0;
     // accumulate XP from level definitions
     for (let i = 1; i < player.level; i++) {
@@ -70,10 +71,11 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
     }
     total += player.xp;
     return total;
-  }, [player.level, player.xp]);
+  }, [player?.level, player?.xp]);
 
   // Combine local legendary data with player score
   const localLeaderboard = useMemo(() => {
+    if (!player) return LEGENDARY_HUNTERS;
     const playerEntry: LeaderboardEntry = {
       userId: 'current_user',
       userName: `${player.name} (Vous)`,
@@ -94,7 +96,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
 
   // Sync to Firestore if online
   const syncScoreToCloud = async () => {
-    if (isOffline || !db) return;
+    if (isOffline || !db || !player) return;
     setIsSyncing(true);
     try {
       const uId = auth?.currentUser?.uid || 'anonymous_user';
@@ -132,7 +134,9 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
 
   useEffect(() => {
     syncScoreToCloud();
-  }, [playerTotalXp, isOffline]);
+  }, [playerTotalXp, isOffline, player]);
+
+  if (!player) return null;
 
   const finalDisplayList = onlineEntries.length > 0 ? onlineEntries : localLeaderboard;
 

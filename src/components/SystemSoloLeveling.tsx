@@ -30,7 +30,8 @@ import {
   Hammer,
   Clock,
   Timer,
-  Trash2
+  Trash2,
+  Edit2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -218,6 +219,32 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   const [shopSuccessMsg, setShopSuccessMsg] = useState<string | null>(null);
   const [activeDungeonTimerBoss, setActiveDungeonTimerBoss] = useState<DungeonBoss | null>(null);
   const [confirmDungeonChallengeBoss, setConfirmDungeonChallengeBoss] = useState<DungeonBoss | null>(null);
+
+  const [editingMission, setEditingMission] = useState<any>(null);
+
+  const handleEditMissionSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMission) return;
+    
+    onUpdatePlayer(prev => {
+      const updatedQuests = prev.dailyQuests.map(q => {
+        if (q.id === editingMission.id) {
+          return {
+            ...q,
+            title: editingMission.title,
+            description: editingMission.description,
+            targetCount: editingMission.targetCount,
+            unit: editingMission.unit,
+            xpReward: editingMission.xpReward,
+            goldReward: editingMission.goldReward
+          };
+        }
+        return q;
+      });
+      return { ...prev, dailyQuests: updatedQuests };
+    });
+    setEditingMission(null);
+  };
 
   const handleDetectMysticGate = () => {
     if (player.mp < 20) {
@@ -843,7 +870,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
               {/* Anubis Progress Analytics Graphs */}
               <div className="lg:col-span-3 mt-8 border-t border-sl-gold/15 pt-8">
-                <AnubisCharts />
+                <AnubisCharts player={player} totalCompletedTasks={player.logs.filter(l => l.type === 'xp').length || 10} />
               </div>
             </motion.div>
           )}
@@ -878,9 +905,18 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             <p className="text-[10px] text-sl-gold-light/60 italic font-serif">{quest.description}</p>
                          </div>
                       </div>
-                      {quest.isCompleted && (
-                        <span className="text-[10px] font-display text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900">TERMINÉ</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {quest.isCompleted && (
+                          <span className="text-[10px] font-display text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900">TERMINÉ</span>
+                        )}
+                        <button 
+                          onClick={() => setEditingMission(quest)}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-sl-gold hover:bg-sl-gold/10 transition-all"
+                          title="Modifier la mission"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -1401,6 +1437,112 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 Je le jure, Défi Réussi !
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
+      {/* EDIT MISSION MODAL */}
+      {editingMission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-sl-primary border-2 border-sl-gold max-w-md w-full rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden shadow-gold"
+          >
+            <div className="flex items-center gap-3 border-b border-sl-gold/20 pb-4">
+              <Edit2 className="w-6 h-6 text-sl-gold" />
+              <h3 className="text-xl font-bold font-display text-white tracking-widest uppercase">
+                Modifier la Mission
+              </h3>
+            </div>
+            
+            <form onSubmit={handleEditMissionSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-display text-sl-gold tracking-widest mb-1">TITRE</label>
+                <input
+                  type="text"
+                  required
+                  value={editingMission.title}
+                  onChange={e => setEditingMission({ ...editingMission, title: e.target.value })}
+                  className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-sans"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-display text-sl-gold tracking-widest mb-1">DESCRIPTION</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={editingMission.description}
+                  onChange={e => setEditingMission({ ...editingMission, description: e.target.value })}
+                  className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-sans resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-display text-sl-gold tracking-widest mb-1">OBJECTIF</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={editingMission.targetCount}
+                    onChange={e => setEditingMission({ ...editingMission, targetCount: Number(e.target.value) })}
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-display text-sl-gold tracking-widest mb-1">UNITÉ</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingMission.unit}
+                    onChange={e => setEditingMission({ ...editingMission, unit: e.target.value })}
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-display text-sl-gold tracking-widest mb-1">RÉCOMPENSE XP</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={editingMission.xpReward}
+                    onChange={e => setEditingMission({ ...editingMission, xpReward: Number(e.target.value) })}
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-display text-sl-gold tracking-widest mb-1">RÉCOMPENSE OR</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={editingMission.goldReward}
+                    onChange={e => setEditingMission({ ...editingMission, goldReward: Number(e.target.value) })}
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-sl-gold/20">
+                <button
+                  type="button"
+                  onClick={() => setEditingMission(null)}
+                  className="px-5 py-2.5 rounded-xl font-display text-xs tracking-widest text-slate-400 hover:text-white transition-colors uppercase"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl font-display text-xs tracking-widest bg-sl-gold text-sl-primary hover:bg-sl-gold-light transition-colors font-bold uppercase shadow-gold-sm"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </form>
           </motion.div>
         </div>
       )}

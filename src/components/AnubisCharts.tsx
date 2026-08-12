@@ -11,12 +11,14 @@ interface AnubisChartsProps {
 export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalCompletedTasks }) => {
   // Generate a realistic 7-day history array using some dates relative to today
   const chartData = useMemo(() => {
+    if (!player) return [];
+    
     const data = [];
     const now = new Date();
     
     // Seed some base numbers based on player level and total completed tasks
     const baseTasks = Math.max(1, Math.floor(totalCompletedTasks / 5));
-    const baseXP = 150 + (player.level * 20);
+    const baseXP = 150 + (player?.level * 20 || 0);
 
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -31,13 +33,15 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
 
       data.push({
         name: dateStr,
-        XP: i === 0 ? player.xp % 300 : xpVal, // use current player xp for today
-        Missions: i === 0 ? player.dailyQuests.filter(q => q.isCompleted).length : taskVal,
+        XP: i === 0 ? (player?.xp || 0) % 300 : xpVal, // use current player xp for today
+        Missions: i === 0 ? (player?.dailyQuests?.filter(q => q.isCompleted).length || 0) : taskVal,
         Focus: focusMinutes
       });
     }
     return data;
-  }, [player.xp, player.level, player.dailyQuests, totalCompletedTasks]);
+  }, [player?.xp, player?.level, player?.dailyQuests, totalCompletedTasks]);
+
+  if (!player) return null;
 
   return (
     <div className="space-y-8">

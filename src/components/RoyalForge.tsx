@@ -75,6 +75,7 @@ const CRAFTABLE_ITEMS: CraftableItem[] = [
 ];
 
 export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }) => {
+  if (!player) return null;
   // Extract crafting materials currently in player's inventory
   const getMaterialQty = (matId: string) => {
     const item = player.inventory.find(i => i.id === matId);

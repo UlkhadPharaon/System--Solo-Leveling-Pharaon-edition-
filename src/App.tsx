@@ -565,6 +565,13 @@ export default function App() {
     }));
   };
 
+  const handleEditBlock = (updatedBlock: RoutineBlock) => {
+    setDaySchedules((prev) => ({
+      ...prev,
+      [selectedDay]: (prev[selectedDay] || []).map((b) => (b.id === updatedBlock.id ? updatedBlock : b)),
+    }));
+  };
+
   const handleDeleteBlock = (id: string) => {
     setDaySchedules((prev) => ({
       ...prev,
@@ -815,6 +822,7 @@ export default function App() {
                   personalization={personalization}
                   onToggleComplete={handleToggleBlockComplete}
                   onAddBlock={handleAddBlock}
+                  onEditBlock={handleEditBlock}
                   onDeleteBlock={handleDeleteBlock}
                   onStartFocusSession={handleStartFocusSession}
                   openPersonalizationModal={() => setIsPersonalizationOpen(true)}
