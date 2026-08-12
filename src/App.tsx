@@ -60,6 +60,7 @@ import { PersonalizationModal } from './components/PersonalizationModal';
 import { DataManagementModal } from './components/DataManagementModal';
 import { OnboardingModal } from './components/OnboardingModal';
 import { CelebrationBanner, CelebrationInfo } from './components/CelebrationBanner';
+import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { DailyRitual } from './components/DailyRitual';
 import { triggerVictoryConfetti, triggerAllTasksCompletedConfetti } from './lib/confetti';
 
@@ -87,7 +88,7 @@ export default function App() {
       ? todayWeekdayName
       : 'Monday'
   );
-  const [streakCount, setStreakCount] = useState<number>(7);
+  const [streakCount, setStreakCount] = useState<number>(0);
   const [focusTimerCategory, setFocusTimerCategory] = useState<Category>('bangre_neo');
   const [isAICoachOpen, setIsAICoachOpen] = useState<boolean>(false);
   const [isPersonalizationOpen, setIsPersonalizationOpen] = useState<boolean>(false);
@@ -830,6 +831,7 @@ export default function App() {
                 onTriggerVictoryConfetti={triggerVictoryConfetti}
                 totalCompletedTasks={Object.values(daySchedules).flat().filter((b: any) => b.isCompleted).length}
                 streakCount={streakCount}
+                onOpenDataManagement={() => setIsDataManagementOpen(true)}
               />
             )}
 
@@ -962,6 +964,9 @@ export default function App() {
         info={celebrationInfo}
         onClose={() => setCelebrationInfo(null)}
       />
+
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
     </div>
   );
 }

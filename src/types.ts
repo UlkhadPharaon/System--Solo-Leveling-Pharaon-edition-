@@ -172,6 +172,15 @@ export interface PlayerAttributes {
   perception: number;
 }
 
+export interface ShadowSynergy {
+  id: string;
+  name: string;
+  description: string;
+  requiredSoldierIds: string[];
+  bonus: Partial<PlayerAttributes> & { bonusXpPercent?: number; bonusGoldPercent?: number };
+  isActive: boolean;
+}
+
 export interface ShadowSoldier {
   id: string;
   name: string;
@@ -183,10 +192,18 @@ export interface ShadowSoldier {
   extractedAt: string;
 }
 
+export interface CraftingMaterial {
+  id: string;
+  name: string;
+  description: string;
+  rarity: HunterRank;
+  quantity: number;
+}
+
 export interface SystemItem {
   id: string;
   name: string;
-  type: 'weapon' | 'armor' | 'potion' | 'key' | 'elixir';
+  type: 'weapon' | 'armor' | 'potion' | 'key' | 'elixir' | 'material';
   rarity: HunterRank;
   description: string;
   statBonus?: Partial<PlayerAttributes>;
@@ -196,6 +213,46 @@ export interface SystemItem {
   iconName: string;
   isEquipped?: boolean;
   quantity?: number;
+  craftingCost?: { materialId: string; amount: number }[];
+}
+
+export interface NarrativeQuestStep {
+  id: string;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  targetCount?: number;
+  currentCount?: number;
+  type: 'focus' | 'workout' | 'task' | 'dungeon';
+}
+
+export interface NarrativeQuest {
+  id: string;
+  title: string;
+  lore: string;
+  steps: NarrativeQuestStep[];
+  isCompleted: boolean;
+  xpReward: number;
+  goldReward: number;
+  itemRewardId?: string;
+  chapter: number;
+}
+
+export interface AvatarCustomization {
+  skinTone: string;
+  auraColor: string;
+  crownType: 'none' | 'nemes' | 'pschent' | 'khepresh';
+  eyeColor: string;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  userName: string;
+  level: number;
+  rank: HunterRank;
+  hunterClass: HunterClass;
+  totalXp: number;
+  avatar: AvatarCustomization;
 }
 
 export interface DungeonBoss {
@@ -215,6 +272,10 @@ export interface DungeonBoss {
   shadowQuote?: string;
   shadowExtractable?: boolean;
   isDefeated?: boolean;
+  imageUrl?: string;
+  isLimitedTime?: boolean;
+  expiresAt?: string; // ISO string or timestamp
+  lifeImprovementGoal?: string; // Meaningful real-life challenge
 }
 
 export interface DailyMandatoryQuest {
@@ -273,14 +334,18 @@ export interface PlayerProfile {
   attributePoints: number;
   attributes: PlayerAttributes;
   shadows: ShadowSoldier[];
+  synergies: ShadowSynergy[];
   inventory: SystemItem[];
   equippedWeaponId?: string;
   equippedArmorId?: string;
   dailyQuests: DailyMandatoryQuest[];
+  narrativeQuests: NarrativeQuest[];
+  activeNarrativeQuestId?: string;
   penaltyQuest: PenaltyQuest;
   unlockedDungeons: string[]; // dungeon IDs
   logs: SystemLog[];
   badges: string[]; // List of badge IDs
+  avatar: AvatarCustomization;
 }
 
 export type TransactionType = 'income' | 'expense';

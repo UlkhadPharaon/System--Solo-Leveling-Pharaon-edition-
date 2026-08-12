@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Download, Upload, X } from 'lucide-react';
+import { Download, Upload, Trash2, X } from 'lucide-react';
 
 interface DataManagementModalProps {
   isOpen: boolean;
@@ -11,7 +11,8 @@ const STORAGE_KEYS = [
   'aura_victory_logs', 'aura_notes', 'aura_focus_sessions', 'aura_transactions',
   'aura_budget_buckets', 'aura_savings_goals', 'aura_streak_records', 'aura_project_phases',
   'aura_player_profile', 'aura_dungeons', 'aura_workout_routines',
-  'aura_completed_workout_sessions', 'aura_personal_records', 'aura_body_metrics'
+  'aura_completed_workout_sessions', 'aura_personal_records', 'aura_body_metrics',
+  'aura_onboarding_completed', 'aura_system_initialized'
 ];
 
 export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen, onClose }) => {
@@ -54,20 +55,29 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
     reader.readAsText(file);
   };
 
+  const resetAllData = () => {
+    if (window.confirm("⚠️ Attention : Êtes-vous sûr de vouloir réinitialiser toutes vos données et effacer toute votre progression (streaks, succès, niveau, quêtes) pour repartir sur une base complètement vierge ?")) {
+      STORAGE_KEYS.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      window.location.reload();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#051428] border border-cyan-500/30 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-[#051428] border border-cyan-500/30 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-6">
+        <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">Gestion des Données</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-slate-300 text-sm mb-6">
-          Exportez vos données pour les sauvegarder ou importez un fichier de sauvegarde pour restaurer votre progression.
+        <p className="text-slate-300 text-sm">
+          Exportez vos données pour les sauvegarder, importez une sauvegarde, ou réinitialisez complètement l'application pour repartir à zéro.
         </p>
 
         <div className="grid grid-cols-2 gap-4">
@@ -86,8 +96,20 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
             <span className="text-xs">Importer</span>
           </button>
         </div>
+
+        <div className="pt-2 border-t border-slate-800">
+          <button
+            onClick={resetAllData}
+            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-400 hover:bg-red-950/70 hover:border-red-500 transition-all text-xs font-bold"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Réinitialiser & Vider toutes les données</span>
+          </button>
+        </div>
+
         <input type="file" ref={fileInputRef} onChange={importData} accept=".json" className="hidden" />
       </div>
     </div>
   );
 };
+

@@ -25,7 +25,12 @@ import {
   Heart,
   Zap,
   Brain,
-  Eye
+  Eye,
+  Trophy,
+  Hammer,
+  Clock,
+  Timer,
+  Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -37,6 +42,152 @@ import {
   ShadowSoldier,
   SystemLog
 } from '../types';
+import { PharaohAvatarCustomizer } from './PharaohAvatarCustomizer';
+import { RoyalForge } from './RoyalForge';
+import { ShadowSynergiesList } from './ShadowSynergiesList';
+import { AnubisCharts } from './AnubisCharts';
+import { NarrativeQuestsView } from './NarrativeQuestsView';
+import { DungeonTimer } from './DungeonTimer';
+import { WorldLeaderboardView } from './WorldLeaderboardView';
+
+const LIFE_IMPROVEMENT_CHALLENGES = [
+  {
+    id: 'lic-1',
+    title: "Portail Mystique : Briseur de Timidité (Rang C)",
+    bossName: "Le Messager d'Outre-Tombe - Héraclius",
+    rank: "C" as const,
+    maxHp: 5000,
+    currentHp: 5000,
+    attackPower: 120,
+    description: "Les ombres du doute et du silence paralysent votre communication sociale. Pour refermer cette porte, engagez-vous sur la voie de l’éloquence.",
+    lifeImprovementGoal: "Aborder 1 parfait inconnu dans la rue ou à un café pour lui demander poliment l'heure ou un conseil de direction, et maintenir 1 minute de conversation.",
+    xpReward: 3500,
+    goldReward: 2000,
+    keyRequiredId: 'key-c',
+    keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
+    shadowName: "Héraclius l'Éloquent",
+    shadowQuote: "« Ma parole et mes ombres de persuasion s'unissent pour servir le nouveau Pharaon ! »",
+    imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600",
+  },
+  {
+    id: 'lic-2',
+    title: "Portail Mystique : Souverain du Focus (Rang A)",
+    bossName: "L'Architecte Royal - Sénènmout",
+    rank: "A" as const,
+    maxHp: 12000,
+    currentHp: 12000,
+    attackPower: 300,
+    description: "Les flux incessants de notifications parasitent votre esprit impérial. Érigez une pyramide de productivité pure.",
+    lifeImprovementGoal: "Compléter 3 heures cumulées d'études intensives ou d'écriture de projet sans aucune distraction, téléphone totalement éteint dans une autre pièce.",
+    xpReward: 8000,
+    goldReward: 5000,
+    keyRequiredId: 'key-a',
+    keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
+    shadowName: "Sénènmout le Bâtisseur",
+    shadowQuote: "« Vos plans de conquête et de développement personnel sont parfaitement échafaudés, mon Roi. »",
+    imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=600",
+  },
+  {
+    id: 'lic-3',
+    title: "Portail Mystique : Volonté d'Osiris (Rang B)",
+    bossName: "Général d'Élite - Ounas",
+    rank: "B" as const,
+    maxHp: 8000,
+    currentHp: 8000,
+    attackPower: 200,
+    description: "Un roi faible ne peut dompter les ombres. Relevez un défi de résilience physique et de force mentale pure.",
+    lifeImprovementGoal: "Faire 100 squats, 100 pompes, et terminer par une douche glacée totale de 3 minutes sans eau chaude.",
+    xpReward: 5500,
+    goldReward: 3500,
+    keyRequiredId: 'key-b',
+    keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
+    shadowName: "Ounas le Maréchal d'Ombre",
+    shadowQuote: "« Ma force brute est à votre service. J'écraserai quiconque se dresse contre votre discipline. »",
+    imageUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600",
+  },
+  {
+    id: 'lic-4',
+    title: "Portail Mystique : Étoile Circadienne (Rang E)",
+    bossName: "Gardien de la Nuit - Nephtys",
+    rank: "E" as const,
+    maxHp: 1500,
+    currentHp: 1500,
+    attackPower: 40,
+    description: "La fatigue est l'ennemi de la lucidité divine. Préparez votre corps pour les combats de demain.",
+    lifeImprovementGoal: "Éteindre TOUS vos écrans (téléphone, ordinateur, TV) à 21h30 ce soir et lire un livre physique jusqu'à vous endormir pour 8 heures de sommeil continu.",
+    xpReward: 1500,
+    goldReward: 800,
+    keyRequiredId: 'key-e',
+    keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
+    shadowName: "Nephtys l'Ombre Stellaire",
+    shadowQuote: "« Vos songes sont sous ma protection divine, mon Pharaon. Reposez-vous en paix. »",
+    imageUrl: "https://images.unsplash.com/photo-1511295742364-92767fa62d9f?auto=format&fit=crop&q=80&w=600",
+  },
+  {
+    id: 'lic-5',
+    title: "Portail Mystique : Hydratation d'Anubis (Rang D)",
+    bossName: "Le Pourvoyeur d'Eau Sacrée - Hâpy",
+    rank: "D" as const,
+    maxHp: 3000,
+    currentHp: 3000,
+    attackPower: 70,
+    description: "Nettoyez votre organisme des toxines du sucre. Purifiez votre corps avec l'eau de la sagesse.",
+    lifeImprovementGoal: "Boire un minimum de 2,5 litres d'eau plate aujourd'hui et interdire totalement tout sucre raffiné ou soda.",
+    xpReward: 2200,
+    goldReward: 1200,
+    keyRequiredId: 'key-d',
+    keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
+    shadowName: "Hâpy le Torrent d'Ombre",
+    shadowQuote: "« L'énergie coule désormais dans vos veines comme la crue impériale du Nil ! »",
+    imageUrl: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&q=80&w=600",
+  },
+  {
+    id: 'lic-6',
+    title: "Portail Mystique : Temple de la Sagesse (Rang C)",
+    bossName: "Le Conservateur de Thèbes - Philopator",
+    rank: "C" as const,
+    maxHp: 4500,
+    currentHp: 4500,
+    attackPower: 110,
+    description: "Un esprit non cultivé est un royaume vulnérable. Armez votre esprit avec la sagesse des maîtres.",
+    lifeImprovementGoal: "Lire attentivement 30 pages complètes d'un livre de non-fiction (développement personnel, psychologie ou business).",
+    xpReward: 3800,
+    goldReward: 1800,
+    keyRequiredId: 'key-c',
+    keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
+    shadowName: "Philopator le Sage",
+    shadowQuote: "« Les manuscrits anciens confirment votre destinée divine, mon Souverain. »",
+    imageUrl: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&q=80&w=600",
+  }
+];
+
+const PortalCountdown: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+  
+  useEffect(() => {
+    const updateTimer = () => {
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft("EXPIRÉ");
+        return;
+      }
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft(`${hours}h ${mins}m ${secs}s`);
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+  
+  return (
+    <span className="text-red-400 bg-red-950/40 border border-red-900/50 px-2 py-0.5 rounded font-mono text-[9px] flex items-center gap-1 animate-pulse">
+      <Clock className="w-3 h-3" /> RESTANT : {timeLeft}
+    </span>
+  );
+};
 
 interface SystemSoloLevelingProps {
   player: PlayerProfile;
@@ -46,9 +197,10 @@ interface SystemSoloLevelingProps {
   onTriggerVictoryConfetti: () => void;
   streakCount: number;
   totalCompletedTasks: number;
+  onOpenDataManagement?: () => void;
 }
 
-type SystemTab = 'statut' | 'quetes' | 'donjons' | 'ombres' | 'boutique' | 'logs' | 'personnalisation';
+type SystemTab = 'statut' | 'quetes' | 'donjons' | 'ombres' | 'forge' | 'boutique' | 'logs' | 'personnalisation' | 'leaderboard';
 
 export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   player,
@@ -57,12 +209,124 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   onUpdateDungeons,
   onTriggerVictoryConfetti,
   streakCount,
-  totalCompletedTasks
+  totalCompletedTasks,
+  onOpenDataManagement
 }) => {
   const [activeTab, setActiveTab] = useState<SystemTab>('statut');
   const [ariseModalBoss, setAriseModalBoss] = useState<DungeonBoss | null>(null);
   const [ariseSuccess, setAriseSuccess] = useState(false);
   const [shopSuccessMsg, setShopSuccessMsg] = useState<string | null>(null);
+  const [activeDungeonTimerBoss, setActiveDungeonTimerBoss] = useState<DungeonBoss | null>(null);
+  const [confirmDungeonChallengeBoss, setConfirmDungeonChallengeBoss] = useState<DungeonBoss | null>(null);
+
+  const handleDetectMysticGate = () => {
+    if (player.mp < 20) {
+      setShopSuccessMsg("Énergie magique (MP) insuffisante ! Consomme 20 MP. Veuillez acheter une Potion de Mana dans la boutique.");
+      setTimeout(() => setShopSuccessMsg(null), 5000);
+      return;
+    }
+
+    // Deduct 20 MP from player
+    onUpdatePlayer(prev => ({
+      ...prev,
+      mp: Math.max(0, prev.mp - 20)
+    }));
+
+    // Choose random challenge
+    const randomIndex = Math.floor(Math.random() * LIFE_IMPROVEMENT_CHALLENGES.length);
+    const template = LIFE_IMPROVEMENT_CHALLENGES[randomIndex];
+
+    const newId = `dun-mystic-${template.id}-${Date.now()}`;
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours from now
+
+    const newDungeon: DungeonBoss = {
+      ...template,
+      id: newId,
+      isLimitedTime: true,
+      expiresAt: expiresAt,
+      isDefeated: false,
+    };
+
+    onUpdateDungeons(prev => {
+      const nowTime = new Date().getTime();
+      const filtered = prev.filter(d => {
+        if (d.isLimitedTime && d.expiresAt) {
+          const exp = new Date(d.expiresAt).getTime();
+          return exp > nowTime || d.isDefeated;
+        }
+        return true;
+      });
+      return [...filtered, newDungeon];
+    });
+
+    onUpdatePlayer(prev => ({
+      ...prev,
+      logs: [
+        {
+          id: `log-detect-${Date.now()}`,
+          text: `[DÉTECTION] Porte dimensionnelle détectée : « ${template.title} » s'est ouverte dans votre zone !`,
+          type: 'shadow',
+          timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        },
+        ...prev.logs
+      ]
+    }));
+
+    setShopSuccessMsg(`PORTE DÉTECTÉE ! « ${template.title} » est ouverte pendant 24h !`);
+    setTimeout(() => setShopSuccessMsg(null), 6000);
+  };
+
+  const handleConfirmDungeonChallenge = (dungeonId: string) => {
+    const dungeon = dungeons.find(d => d.id === dungeonId);
+    if (!dungeon) return;
+
+    onTriggerVictoryConfetti();
+    
+    // Mark as defeated
+    onUpdateDungeons(prev => prev.map(d => d.id === dungeonId ? { ...d, isDefeated: true } : d));
+
+    onUpdatePlayer(prev => {
+      let newXp = prev.xp + dungeon.xpReward;
+      let newLevel = prev.level;
+      let newXpNext = prev.xpToNextLevel;
+      let newAp = prev.attributePoints;
+      let leveledUp = false;
+
+      while (newXp >= newXpNext) {
+        newXp -= newXpNext;
+        newLevel += 1;
+        newXpNext = Math.floor(newXpNext * 1.5);
+        newAp += 5;
+        leveledUp = true;
+      }
+
+      const log: SystemLog = {
+        id: `log-lic-complete-${Date.now()}`,
+        text: `[DÉFI SURMONTÉ] Félicitations ! Défi accompli : « ${dungeon.title} ». Vous gagnez +${dungeon.xpReward} XP et +${dungeon.goldReward} Or !`,
+        type: 'loot',
+        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      return {
+        ...prev,
+        xp: newXp,
+        level: newLevel,
+        xpToNextLevel: newXpNext,
+        attributePoints: newAp,
+        gold: prev.gold + dungeon.goldReward,
+        logs: [log, ...prev.logs]
+      };
+    });
+
+    // If extractable, open the ARISE modal immediately so they can claim their shadow soldier!
+    if (dungeon.shadowName) {
+      setTimeout(() => {
+        setAriseModalBoss(dungeon);
+      }, 1000);
+    }
+
+    setConfirmDungeonChallengeBoss(null);
+  };
 
   const showSystemMessage = (text: string) => {
     // Logic to show a system-wide notification if available
@@ -270,35 +534,68 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
       return;
     }
 
-    // Logic for dungeon combat would go here
-    // For now, let's just simulate a victory if it's not defeated
-    if (!dungeon.isDefeated) {
-      onTriggerVictoryConfetti();
-      onUpdateDungeons(prev => prev.map(d => d.id === dungeon.id ? { ...d, isDefeated: true } : d));
-      
-      onUpdatePlayer(prev => ({
-        ...prev,
-        xp: prev.xp + dungeon.xpReward,
-        gold: prev.gold + dungeon.goldReward,
-        logs: [
-          {
-            id: `log-vic-${Date.now()}`,
-            text: `[VICTOIRE] Vous avez exploré ${dungeon.title}. +${dungeon.xpReward} XP, +${dungeon.goldReward} Or.`,
-            type: 'loot',
-            timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-          },
-          ...prev.logs
-        ]
-      }));
-
-      if (dungeon.shadowExtractable) {
-        setAriseModalBoss(dungeon);
-      } else {
-        showSystemMessage(`DONJON NETTOYÉ !`);
-      }
-    } else {
+    if (dungeon.isDefeated) {
       showSystemMessage("Ce tombeau est déjà vide.");
+      return;
     }
+
+    // Launch focus timer dungeon clearance
+    setActiveDungeonTimerBoss(dungeon);
+  };
+
+  const handleDungeonTimerComplete = (dungeonId: string) => {
+    const dungeon = dungeons.find(d => d.id === dungeonId);
+    if (!dungeon) return;
+
+    onTriggerVictoryConfetti();
+    onUpdateDungeons(prev => prev.map(d => d.id === dungeonId ? { ...d, isDefeated: true } : d));
+    
+    onUpdatePlayer(prev => ({
+      ...prev,
+      xp: prev.xp + dungeon.xpReward,
+      gold: prev.gold + dungeon.goldReward,
+      logs: [
+        {
+          id: `log-vic-${Date.now()}`,
+          text: `[DONJON] Vous avez conquis ${dungeon.title} après une séance de concentration intense ! +${dungeon.xpReward} XP, +${dungeon.goldReward} Or.`,
+          type: 'loot',
+          timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        },
+        ...prev.logs
+      ]
+    }));
+
+    if (dungeon.shadowExtractable) {
+      setAriseModalBoss(dungeon);
+    } else {
+      showSystemMessage(`DONJON NETTOYÉ !`);
+    }
+    setActiveDungeonTimerBoss(null);
+  };
+
+  const handleUpdateQuestProgress = (questId: string, amount: number) => {
+    onUpdatePlayer(prev => {
+      const updatedQuests = prev.dailyQuests.map(q => {
+        if (q.id === questId) {
+          const newCount = Math.min(q.targetCount, q.currentCount + amount);
+          return { ...q, currentCount: newCount };
+        }
+        return q;
+      });
+      return { ...prev, dailyQuests: updatedQuests };
+    });
+  };
+
+  const handleCompleteQuestInstantly = (questId: string) => {
+    onUpdatePlayer(prev => {
+      const updatedQuests = prev.dailyQuests.map(q => {
+        if (q.id === questId) {
+          return { ...q, currentCount: q.targetCount };
+        }
+        return q;
+      });
+      return { ...prev, dailyQuests: updatedQuests };
+    });
   };
 
   const handleClaimQuestReward = (questId: string) => {
@@ -310,15 +607,36 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
         q.id === questId ? { ...q, isCompleted: true, currentCount: q.targetCount } : q
       );
 
+      let newXp = prev.xp + quest.xpReward;
+      let newLevel = prev.level;
+      let newXpNext = prev.xpToNextLevel;
+      let newAp = prev.attributePoints;
+
+      while (newXp >= newXpNext) {
+        newXp -= newXpNext;
+        newLevel += 1;
+        newXpNext = Math.floor(newXpNext * 1.5);
+        newAp += 5;
+      }
+
+      if (newLevel > prev.level) {
+        onTriggerVictoryConfetti();
+      }
+
+      onTriggerVictoryConfetti();
+
       return {
         ...prev,
-        xp: prev.xp + quest.xpReward,
+        xp: newXp,
+        level: newLevel,
+        xpToNextLevel: newXpNext,
+        attributePoints: newAp,
         gold: prev.gold + quest.goldReward,
         dailyQuests: updatedQuests,
         logs: [
           {
             id: `log-quest-${Date.now()}`,
-            text: `[MISSION] Récompense obtenue pour « ${quest.title} ».`,
+            text: `[MISSION] Récompense obtenue pour « ${quest.title} » : +${quest.xpReward} XP, +${quest.goldReward} Or.`,
             type: 'xp',
             timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
           },
@@ -398,7 +716,9 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             { id: 'quetes', icon: CheckCircle2, label: 'Missions' },
             { id: 'donjons', icon: Skull, label: 'Donjons' },
             { id: 'ombres', icon: Crown, label: 'Armée Divine' },
+            { id: 'forge', icon: Hammer, label: 'Forge Royale' },
             { id: 'boutique', icon: ShoppingCart, label: 'Boutique' },
+            { id: 'leaderboard', icon: Trophy, label: 'Classement' },
             { id: 'logs', icon: History, label: 'Journal' },
             { id: 'personnalisation', icon: Settings, label: 'Custom' },
           ].map((tab) => (
@@ -418,6 +738,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
       </div>
 
       <div className="max-w-5xl mx-auto p-4 md:p-6">
+        {shopSuccessMsg && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-sl-gold-dark/40 to-sl-lapis/80 border-2 border-sl-gold/80 text-white font-display font-bold text-center text-xs tracking-wider rounded-2xl shadow-gold flex items-center justify-center gap-3">
+            <Sparkles className="w-5 h-5 text-sl-gold animate-bounce" />
+            <span>{shopSuccessMsg}</span>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {/* TAB 1: STATUT */}
           {activeTab === 'statut' && (
@@ -513,6 +840,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                    </div>
                 </div>
               </div>
+
+              {/* Anubis Progress Analytics Graphs */}
+              <div className="lg:col-span-3 mt-8 border-t border-sl-gold/15 pt-8">
+                <AnubisCharts />
+              </div>
             </motion.div>
           )}
 
@@ -522,11 +854,14 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               key="quetes"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
+              {/* Story Narrative Campaign Quests */}
+              <NarrativeQuestsView player={player} onUpdatePlayer={onUpdatePlayer} />
+
+              <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4 pt-4">
                 <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
-                  <CheckCircle2 className="w-6 h-6 text-sl-gold" /> MISSIONS QUOTIDIENNES
+                  <CheckCircle2 className="w-6 h-6 text-sl-gold" /> MISSIONS QUOTIDIENNES DU SYSTÈME
                 </h2>
               </div>
 
@@ -559,6 +894,30 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                           style={{ width: `${Math.min(100, (quest.currentCount / quest.targetCount) * 100)}%` }}
                         />
                       </div>
+                      
+                      {!quest.isCompleted && (
+                        <div className="flex items-center gap-1.5 pt-1.5">
+                          <span className="text-[9px] text-slate-500 font-display">AJOUTER :</span>
+                          <button 
+                            onClick={() => handleUpdateQuestProgress(quest.id, quest.unit === 'km' ? 1 : 10)}
+                            className="px-2 py-0.5 bg-sl-gold/5 border border-sl-gold/20 text-sl-gold hover:bg-sl-gold hover:text-sl-primary text-[9px] font-mono rounded transition-all"
+                          >
+                            +{quest.unit === 'km' ? '1' : '10'}
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateQuestProgress(quest.id, quest.unit === 'km' ? 5 : 25)}
+                            className="px-2 py-0.5 bg-sl-gold/5 border border-sl-gold/20 text-sl-gold hover:bg-sl-gold hover:text-sl-primary text-[9px] font-mono rounded transition-all"
+                          >
+                            +{quest.unit === 'km' ? '5' : '25'}
+                          </button>
+                          <button 
+                            onClick={() => handleCompleteQuestInstantly(quest.id)}
+                            className="ml-auto px-2 py-0.5 bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white text-[9px] font-display rounded transition-all"
+                          >
+                            Remplir Direct
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex justify-between items-center pt-2 border-t border-sl-gold/10">
@@ -593,52 +952,129 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               animate={{ opacity: 1, x: 0 }}
               className="space-y-6"
             >
+              {/* Portal Detection System Header banner */}
+              <div className="bg-gradient-to-r from-sl-lapis/60 via-sl-primary/90 to-sl-lapis/60 border border-sl-gold/30 rounded-3xl p-6 relative overflow-hidden group shadow-gold-sm">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-sl-gold/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="space-y-2 text-center md:text-left">
+                    <div className="flex items-center justify-center md:justify-start gap-2">
+                      <div className="p-1.5 bg-sl-gold/15 rounded-lg border border-sl-gold/30">
+                        <Timer className="w-5 h-5 text-sl-gold animate-pulse" />
+                      </div>
+                      <h3 className="text-md font-bold text-white font-display tracking-widest uppercase">
+                        Radar de Portes Dimensionnelles
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                      L'énergie mystique s'accumule. Utilisez <strong className="text-sl-gold">20 points d'énergie (MP)</strong> pour forcer la détection d'une porte dimensionnelle de vie réelle à durée limitée (24h) et obtenir des récompenses colossales et de fidèles soldats d'ombres !
+                    </p>
+                    <div className="text-[10px] text-sl-gold-light/60 font-mono tracking-wide">
+                      Votre Énergie : <span className="text-white font-bold">{player.mp} / {player.maxMp} MP</span>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={handleDetectMysticGate}
+                    disabled={player.mp < 20}
+                    className="px-6 py-3 bg-sl-gold text-sl-primary font-display font-bold text-xs tracking-widest rounded-xl hover:scale-105 active:scale-95 disabled:opacity-30 disabled:grayscale transition-all shadow-gold whitespace-nowrap"
+                  >
+                    DÉTECTER UNE PORTE (-20 MP)
+                  </button>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
                 <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
-                  <Skull className="w-6 h-6 text-red-500" /> TOMBEAUX ÉTERNELS
+                  <Skull className="w-6 h-6 text-red-500" /> TOMBEAUX & PORTES ÉTABLIS
                 </h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {dungeons.map(dungeon => (
-                  <div key={dungeon.id} className="bg-sl-primary border border-sl-gold/20 rounded-3xl overflow-hidden shadow-gold-sm group hover:border-sl-gold/60 transition-all">
-                    <div className="h-32 relative overflow-hidden">
-                       <img src={dungeon.rank === 'S' ? 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600' : dungeon.rank === 'A' ? 'https://images.unsplash.com/photo-1547234935-80c7145ec969?auto=format&fit=crop&q=80&w=600' : 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&q=80&w=600'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-sl-primary to-transparent" />
-                       <div className="absolute top-3 right-3">
+                  <div key={dungeon.id} className="bg-sl-primary border border-sl-gold/20 rounded-3xl overflow-hidden shadow-gold-sm group hover:border-sl-gold/60 transition-all flex flex-col justify-between">
+                    <div>
+                      <div className="h-36 relative overflow-hidden">
+                        <img 
+                          src={dungeon.imageUrl || 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&q=80&w=600'} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                          alt="" 
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-sl-primary to-transparent" />
+                        <div className="absolute top-3 right-3 flex flex-wrap items-center gap-2">
+                          {dungeon.isLimitedTime && dungeon.expiresAt && !dungeon.isDefeated && (
+                            <PortalCountdown expiresAt={dungeon.expiresAt} />
+                          )}
                           <span className={`text-[10px] font-display px-2 py-0.5 rounded border ${getRankBadgeStyle(dungeon.rank)}`}>
                             RANG {dungeon.rank}
                           </span>
-                       </div>
-                    </div>
-                    <div className="p-5 space-y-4">
-                       <div>
-                          <h3 className="font-bold text-white font-display text-lg tracking-wide">{dungeon.title}</h3>
-                          <div className="flex items-center gap-2 text-xs text-red-400 font-serif italic">
-                             <Skull className="w-3.5 h-3.5" /> Boss : {dungeon.bossName}
+                        </div>
+                      </div>
+                      
+                      <div className="p-5 space-y-4">
+                        <div>
+                          <h3 className="font-bold text-white font-display text-lg tracking-wide leading-tight">{dungeon.title}</h3>
+                          <div className="flex items-center gap-2 text-xs text-red-400 font-serif italic mt-1">
+                            <Skull className="w-3.5 h-3.5" /> Boss : {dungeon.bossName}
                           </div>
-                       </div>
-                       <div className="flex justify-between items-center text-[10px] font-display text-sl-gold-light/60">
+                        </div>
+
+                        {dungeon.lifeImprovementGoal && (
+                          <div className="bg-sl-gold/5 border border-sl-gold/25 rounded-2xl p-4 space-y-2 shadow-inner">
+                            <span className="text-[10px] font-display text-sl-gold font-bold flex items-center gap-1 uppercase tracking-wider">
+                              <Sparkles className="w-3.5 h-3.5" /> Défi d'amélioration de vie :
+                            </span>
+                            <p className="text-xs text-slate-100 font-medium leading-relaxed">
+                              {dungeon.lifeImprovementGoal}
+                            </p>
+                            <p className="text-[9px] text-slate-400 italic">
+                              Objectif : {dungeon.description}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between items-center text-[10px] font-display text-sl-gold-light/60 pt-2 border-t border-sl-gold/5">
                           <div className="flex gap-4">
                             <span>REMPLIS : {dungeon.xpReward} XP</span>
                             <span>BUTIN : {dungeon.goldReward} Or</span>
                           </div>
                           {dungeon.isDefeated && (
-                            <span className="text-emerald-500 flex items-center gap-1">
-                               <CheckCircle2 className="w-3 h-3" /> NETTOYÉ
+                            <span className="text-emerald-400 flex items-center gap-1 font-bold">
+                              <CheckCircle2 className="w-3 h-3 fill-emerald-950 text-emerald-400" /> NETTOYÉ
                             </span>
                           )}
-                       </div>
-                       <button 
-                         onClick={() => handleEnterDungeon(dungeon)}
-                         className={`w-full py-2.5 rounded-xl font-display text-sm tracking-widest transition-all border ${
-                           dungeon.isDefeated 
-                           ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-500' 
-                           : 'bg-sl-gold/10 border-sl-gold text-sl-gold hover:bg-sl-gold hover:text-sl-primary'
-                         }`}
-                       >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-5 pt-0">
+                      {dungeon.lifeImprovementGoal ? (
+                        <div className="space-y-2">
+                          {!dungeon.isDefeated ? (
+                            <button 
+                              onClick={() => setConfirmDungeonChallengeBoss(dungeon)}
+                              className="w-full py-2.5 rounded-xl font-display text-xs tracking-widest bg-gradient-to-r from-sl-gold-dark via-sl-gold to-sl-gold-light text-sl-primary hover:scale-[1.02] active:scale-[0.98] transition-all shadow-gold font-bold flex items-center justify-center gap-2"
+                            >
+                              <CheckCircle2 className="w-4 h-4 fill-current" /> VALIDER LA RÉUSSITE DU DÉFI
+                            </button>
+                          ) : (
+                            <div className="w-full py-2 text-center rounded-xl bg-emerald-950/20 border border-emerald-900/50 text-emerald-400 text-xs font-display tracking-widest uppercase font-bold">
+                              DÉFI ACCOMPLI AVEC SUCCÈS
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleEnterDungeon(dungeon)}
+                          className={`w-full py-2.5 rounded-xl font-display text-sm tracking-widest transition-all border ${
+                            dungeon.isDefeated 
+                            ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-500' 
+                            : 'bg-sl-gold/10 border-sl-gold text-sl-gold hover:bg-sl-gold hover:text-sl-primary'
+                          }`}
+                        >
                           {dungeon.isDefeated ? 'EXPLORÉ' : 'PÉNÉTRER LE TOMBEAU'}
-                       </button>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -687,6 +1123,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   ))}
                 </div>
               )}
+
+              {/* Shadow Synergies List */}
+              <div className="border-t border-sl-gold/15 pt-8 mt-10">
+                <ShadowSynergiesList player={player} />
+              </div>
             </motion.div>
           )}
 
@@ -801,59 +1242,88 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   <Settings className="w-8 h-8 text-sl-gold" /> SALLE DU TRÔNE DIVIN
                 </h2>
                 <p className="text-sm text-sl-gold-light/60 mt-1 italic font-serif">
-                  Configurez l'interface et l'ambiance de votre Système.
+                  Configurez l'interface et personnalisez l'aura de votre Pharaon divin.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-sl-lapis/20 border border-sl-gold/20 rounded-3xl p-6 space-y-6">
-                  <h3 className="font-display text-lg text-white border-l-4 border-sl-gold pl-3">Identité Visuelle</h3>
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-32 h-32 rounded-full border-4 border-sl-gold bg-sl-primary shadow-gold overflow-hidden relative group">
-                      <img 
-                        src="https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?auto=format&fit=crop&q=80&w=300" 
-                        alt="Profile" 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                        <Camera className="w-8 h-8 text-white" />
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white font-display">Pharaon Ulrich</div>
-                      <div className="text-xs text-sl-gold font-display tracking-widest mt-1 uppercase">Souverain des Cieux</div>
-                    </div>
-                  </div>
-                </div>
+              <PharaohAvatarCustomizer 
+                customization={player.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#00F0FF' }}
+                equippedWeaponName={player.inventory.find(i => i.id === player.equippedWeaponId)?.name}
+                equippedArmorName={player.inventory.find(i => i.id === player.equippedArmorId)?.name}
+                onUpdateCustomization={(update) => {
+                  onUpdatePlayer(prev => ({
+                    ...prev,
+                    avatar: {
+                      ...(prev.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#00F0FF' }),
+                      ...update
+                    }
+                  }));
+                }}
+              />
 
-                <div className="bg-sl-lapis/20 border border-sl-gold/20 rounded-3xl p-6 space-y-6">
-                   <h3 className="font-display text-lg text-white border-l-4 border-sl-gold pl-3">Ambiance Sonore</h3>
-                   <div className="space-y-4">
-                     {[
-                       { name: 'Sables du Temps', desc: 'Thème Principal', active: true },
-                       { name: 'Mystère du Nil', desc: 'Ambiance Calme', active: false },
-                       { name: 'Bataille de Gizeh', desc: 'Musique de Combat', active: false },
-                     ].map((music, i) => (
-                       <div key={i} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${music.active ? 'bg-sl-gold/20 border-sl-gold shadow-gold-sm' : 'bg-sl-primary border-sl-gold/5 opacity-50'}`}>
-                         <div className="flex items-center gap-3">
-                           <Music className={`w-5 h-5 ${music.active ? 'text-sl-gold' : 'text-slate-500'}`} />
-                           <div>
-                             <div className="text-sm font-bold text-white font-display">{music.name}</div>
-                             <div className="text-[10px] text-slate-500 font-serif">{music.desc}</div>
-                           </div>
+              {/* Sound Ambiance Section */}
+              <div className="bg-sl-lapis/20 border border-sl-gold/20 rounded-3xl p-6 mt-8 space-y-6">
+                 <h3 className="font-display text-lg text-white border-l-4 border-sl-gold pl-3 flex items-center gap-2">
+                   <Music className="w-5 h-5 text-sl-gold" /> Ambiance Sonore du Temple
+                 </h3>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                   {[
+                     { name: 'Sables du Temps', desc: 'Thème Principal', active: true },
+                     { name: 'Mystère du Nil', desc: 'Ambiance Calme', active: false },
+                     { name: 'Bataille de Gizeh', desc: 'Musique de Combat', active: false },
+                   ].map((music, i) => (
+                     <div key={i} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${music.active ? 'bg-sl-gold/20 border-sl-gold shadow-gold-sm' : 'bg-sl-primary border-sl-gold/5 opacity-50'}`}>
+                       <div className="flex items-center gap-3">
+                         <Music className={`w-5 h-5 ${music.active ? 'text-sl-gold' : 'text-slate-500'}`} />
+                         <div>
+                           <div className="text-sm font-bold text-white font-display">{music.name}</div>
+                           <div className="text-[10px] text-slate-500 font-serif">{music.desc}</div>
                          </div>
-                         <button className={`p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-slate-800 text-slate-500'}`}>
-                           {music.active ? <Play className="w-4 h-4 fill-current" /> : <Lock className="w-4 h-4" />}
-                         </button>
                        </div>
-                     ))}
-                   </div>
-                </div>
+                       <button className={`p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-slate-800 text-slate-500'}`}>
+                         {music.active ? <Play className="w-4 h-4 fill-current" /> : <Lock className="w-4 h-4" />}
+                       </button>
+                     </div>
+                   ))}
+                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {/* TAB 8: FORGE ROYALE */}
+          {activeTab === 'forge' && (
+            <motion.div
+              key="forge"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <RoyalForge player={player} onUpdatePlayer={onUpdatePlayer} />
+            </motion.div>
+          )}
+
+          {/* TAB 9: LEADERBOARD CLASSEMENT */}
+          {activeTab === 'leaderboard' && (
+            <motion.div
+              key="leaderboard"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <WorldLeaderboardView player={player} isOffline={false} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* DUNGEON FOCUS TIMER OVERLAY */}
+      {activeDungeonTimerBoss && (
+        <DungeonTimer 
+          dungeon={activeDungeonTimerBoss}
+          onComplete={handleDungeonTimerComplete}
+          onCancel={() => setActiveDungeonTimerBoss(null)}
+        />
+      )}
 
       {/* REVIS MODAL */}
       {ariseModalBoss && (
@@ -875,6 +1345,62 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             >
               {ariseSuccess ? 'SUCCÈS' : 'REVIS !'}
             </button>
+          </motion.div>
+        </div>
+      )}
+
+      {/* CONFIRM REAL CHALLENGE MODAL */}
+      {confirmDungeonChallengeBoss && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-sl-primary border-2 border-sl-gold max-w-lg w-full rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden shadow-gold"
+          >
+            {/* Decorative Background Aura */}
+            <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sl-gold/10 to-transparent pointer-events-none" />
+            
+            <div className="text-center space-y-3 relative z-10">
+              <div className="w-16 h-16 bg-sl-gold/10 border-2 border-sl-gold rounded-2xl flex items-center justify-center mx-auto shadow-gold-sm">
+                <Skull className="w-8 h-8 text-sl-gold animate-pulse" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-bold font-display text-white tracking-widest uppercase">
+                SERMENT DE DISCIPLINE
+              </h3>
+              <p className="text-xs text-sl-gold-light italic font-serif">
+                « Devant la Balance de Maât, le vrai souverain reste loyal envers lui-même. »
+              </p>
+            </div>
+
+            <div className="bg-sl-lapis/40 border border-sl-gold/20 rounded-2xl p-5 space-y-3 relative z-10">
+              <div className="text-[10px] font-display text-sl-gold tracking-widest uppercase">Épreuve active :</div>
+              <h4 className="font-bold text-white text-md font-display leading-snug">{confirmDungeonChallengeBoss.title}</h4>
+              <p className="text-sm text-slate-100 leading-relaxed font-sans font-medium">
+                {confirmDungeonChallengeBoss.lifeImprovementGoal}
+              </p>
+              <div className="text-[10px] text-slate-400 font-sans italic mt-1 bg-sl-primary/50 p-2 rounded-lg border border-sl-gold/15">
+                <strong>Objectif de vie :</strong> {confirmDungeonChallengeBoss.description}
+              </div>
+            </div>
+
+            <div className="text-center text-xs text-slate-400 max-w-sm mx-auto relative z-10 leading-relaxed">
+              En prêtant serment, vous certifiez de manière intègre avoir relevé ce défi d'amélioration personnelle dans votre vie réelle aujourd'hui.
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
+              <button
+                onClick={() => setConfirmDungeonChallengeBoss(null)}
+                className="flex-1 py-3 border border-slate-700 hover:border-slate-500 rounded-xl font-display text-xs text-slate-400 transition-all uppercase tracking-widest"
+              >
+                Y travailler encore
+              </button>
+              <button
+                onClick={() => handleConfirmDungeonChallenge(confirmDungeonChallengeBoss.id)}
+                className="flex-1 py-3 bg-gradient-to-r from-sl-gold-dark to-sl-gold text-sl-primary hover:scale-105 active:scale-95 rounded-xl font-display text-xs font-bold transition-all shadow-gold uppercase tracking-widest"
+              >
+                Je le jure, Défi Réussi !
+              </button>
+            </div>
           </motion.div>
         </div>
       )}

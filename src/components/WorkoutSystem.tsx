@@ -403,7 +403,8 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-[#030914] text-slate-200 pb-24">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex flex-col h-full">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-xl bg-card border border-soft p-6 shadow-xl">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
@@ -1314,6 +1315,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

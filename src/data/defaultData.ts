@@ -25,13 +25,13 @@ export const INITIAL_PLAYER_PROFILE: PlayerProfile = {
   xpToNextLevel: 100,
   rank: 'E',
   hunterClass: 'Chasseur de Rang E (Débutant)',
-  title: 'Le Chasseur le Plus Faible',
+  title: 'Le Chasseur Débutant',
   hp: 100,
   maxHp: 100,
   mp: 50,
   maxMp: 50,
-  gold: 150,
-  attributePoints: 3,
+  gold: 0,
+  attributePoints: 0,
   attributes: {
     force: 10,
     agilite: 10,
@@ -40,136 +40,83 @@ export const INITIAL_PLAYER_PROFILE: PlayerProfile = {
     perception: 10,
   },
   shadows: [],
-  inventory: [
-    {
-      id: 'inv-1',
-      name: 'Dague de Chasseur Émoussée',
-      type: 'weapon',
-      rarity: 'E',
-      description: 'Une petite dague basique pour les chasseurs débutants de Rang E. [+2 Force]',
-      statBonus: { force: 2 },
-      goldValue: 50,
-      iconName: 'Sword',
-      isEquipped: true,
-      quantity: 1,
-    },
-    {
-      id: 'inv-2',
-      name: 'Veste de Cuir Renforcée',
-      type: 'armor',
-      rarity: 'E',
-      description: 'Armure légère de débutant apportant une protection minimale. [+2 Vitalité]',
-      statBonus: { vitalite: 2 },
-      goldValue: 60,
-      iconName: 'Shield',
-      isEquipped: true,
-      quantity: 1,
-    },
-    {
-      id: 'inv-3',
-      name: 'Potion de Soin Vital de Rang E',
-      type: 'potion',
-      rarity: 'E',
-      description: 'Restaure immédiatement 50 HP au Chasseur.',
-      hpRestore: 50,
-      goldValue: 20,
-      iconName: 'FlaskConical',
-      quantity: 3,
-    },
-    {
-      id: 'inv-4',
-      name: 'Clé de Donjon Instantané (Rang E)',
-      type: 'key',
-      rarity: 'E',
-      description: 'Débloque l’accès à la Porte de Rang E : La Caverne des Gobelins.',
-      goldValue: 100,
-      iconName: 'Key',
-      quantity: 2,
-    },
-  ],
-  equippedWeaponId: 'inv-1',
-  equippedArmorId: 'inv-2',
+  synergies: [],
+  narrativeQuests: [],
+  activeNarrativeQuestId: undefined,
+  avatar: { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#00F0FF' },
+  inventory: [],
+  equippedWeaponId: undefined,
+  equippedArmorId: undefined,
   dailyQuests: [
     {
       id: 'dq-1',
-      title: 'Préparation Physique (Pompes)',
-      description: 'Faire 100 Pompes.',
+      title: 'Renforcement Physique & Musculation',
+      description: 'Compléter la séance de musculation ou 100 exercices de renforcement.',
       category: 'morning_routine',
       targetCount: 100,
       currentCount: 0,
-      unit: 'réps',
+      unit: 'reps',
+      xpReward: 300,
+      goldReward: 150,
       isCompleted: false,
-      xpReward: 50,
-      goldReward: 20,
       iconName: 'Dumbbell',
     },
     {
       id: 'dq-2',
-      title: 'Préparation Physique (Abdos)',
-      description: 'Faire 100 Abdos.',
-      category: 'morning_routine',
-      targetCount: 100,
+      title: 'Travail Profond & Ingénierie Lab',
+      description: 'Accumuler 3 heures de concentration sur Bangre Neo ou vos études.',
+      category: 'bangre_neo',
+      targetCount: 180,
       currentCount: 0,
-      unit: 'réps',
+      unit: 'min',
+      xpReward: 400,
+      goldReward: 200,
       isCompleted: false,
-      xpReward: 50,
-      goldReward: 20,
-      iconName: 'Dumbbell',
+      iconName: 'Code',
     },
     {
       id: 'dq-3',
-      title: 'Préparation Physique (Squats)',
-      description: 'Faire 100 Squats.',
-      category: 'morning_routine',
-      targetCount: 100,
+      title: 'Hydratation & Santé Divine',
+      description: 'Boire 2,5 Litres d’eau et veiller à une récupération de qualité.',
+      category: 'personal',
+      targetCount: 2500,
       currentCount: 0,
-      unit: 'réps',
+      unit: 'ml',
+      xpReward: 200,
+      goldReward: 100,
       isCompleted: false,
-      xpReward: 50,
-      goldReward: 20,
-      iconName: 'Dumbbell',
+      iconName: 'Heart',
     },
     {
       id: 'dq-4',
-      title: 'Préparation Physique (Course)',
-      description: 'Courir 10 km.',
+      title: 'Maîtrise de l’Art Oratoire',
+      description: '10 minutes d’élocution et d’expression vocale quotidienne.',
       category: 'morning_routine',
       targetCount: 10,
       currentCount: 0,
-      unit: 'km',
+      unit: 'min',
+      xpReward: 250,
+      goldReward: 120,
       isCompleted: false,
-      xpReward: 100,
-      goldReward: 40,
-      iconName: 'Zap',
+      iconName: 'Mic',
     },
   ],
   penaltyQuest: {
     isActive: false,
-    title: 'QUÊTE DE CHÂTIMENT : SURVIE DANS LE DÉSERT DES CENT-PATTES',
-    description: 'Vous n’avez pas accompli toutes vos quêtes obligatoires quotidiennes. Vous avez été déporté dans la Zone de Châtiment ! Survivez pendant 4 heures ou accomplissez les exercices d’urgence sous peine d’élimination.',
-    reason: 'Manquement aux Quêtes Obligatoires de la Journée',
-    timeRemainingSeconds: 14400, // 4 hours
-    hpPenalty: 30,
-    xpPenalty: 100,
-    tasks: [
-      { id: 'pt-1', title: '100 Pompes d’Urgence', target: 100, current: 0, unit: 'reps', isCompleted: false },
-      { id: 'pt-2', title: '100 Abdos & Gainage', target: 100, current: 0, unit: 'reps', isCompleted: false },
-      { id: 'pt-3', title: '100 Squats Explosifs', target: 100, current: 0, unit: 'reps', isCompleted: false },
-      { id: 'pt-4', title: 'Course de Survie 10 km', target: 10, current: 0, unit: 'km', isCompleted: false },
-    ],
+    title: 'QUÊTE DE CHÂTIMENT',
+    description: 'Aucune pénalité active.',
+    reason: 'Aucun manquement',
+    timeRemainingSeconds: 0,
+    hpPenalty: 0,
+    xpPenalty: 0,
+    tasks: [],
   },
-  unlockedDungeons: ['dun-e1', 'dun-d1'],
+  unlockedDungeons: ['dun-e1'],
   badges: [],
   logs: [
     {
       id: 'log-1',
-      text: 'Le Système s’est éveillé ! Vous êtes actuellement un Chasseur de Rang E.',
-      type: 'quest',
-      timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-    },
-    {
-      id: 'log-2',
-      text: 'Quêtes quotidiennes obligatoires générées. Accomplissez-les avant la fin de journée sous peine de Châtiment.',
+      text: 'Le Système s’est éveillé ! Préparez votre progression sur une page blanche.',
       type: 'quest',
       timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     },
@@ -194,6 +141,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'Kiii ! L’Ombre Gobeline s’incline devant son nouveau maître.',
     shadowExtractable: true,
     isDefeated: false,
+    imageUrl: 'https://images.unsplash.com/photo-1507041957456-9c397ce39c97?auto=format&fit=crop&q=80&w=600',
   },
   {
     id: 'dun-d1',
@@ -212,6 +160,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'Grrr... Le féroce Rasaka rejoint l’Armée des Ombres !',
     shadowExtractable: true,
     isDefeated: false,
+    imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=600',
   },
   {
     id: 'dun-c1',
@@ -230,6 +179,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'Chhh... L’armée arachnide fige vos ennemis dans la toile des ombres !',
     shadowExtractable: true,
     isDefeated: false,
+    imageUrl: 'https://images.unsplash.com/photo-1542401886-65d6c61db217?auto=format&fit=crop&q=80&w=600',
   },
   {
     id: 'dun-b1',
@@ -248,6 +198,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: '« Mon Épée appartient désormais au Pharaon des Dieux. Mon Seigneur, ordonnez ! »',
     shadowExtractable: true,
     isDefeated: false,
+    imageUrl: 'https://images.unsplash.com/photo-1600577916048-804c9191e36c?auto=format&fit=crop&q=80&w=600',
   },
   {
     id: 'dun-a1',
@@ -266,6 +217,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'ROAAAAR ! Le Dragon Kaisel déploie ses ailes d’Ombre dans les cieux !',
     shadowExtractable: true,
     isDefeated: false,
+    imageUrl: 'https://images.unsplash.com/photo-1608976478335-e102dbd66e76?auto=format&fit=crop&q=80&w=600',
   },
   {
     id: 'dun-s1',
@@ -284,6 +236,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: '« Mon Roi... Mon précieux Roi ! Je dévorerai quiconque vous manque de respect ! »',
     shadowExtractable: true,
     isDefeated: false,
+    imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=600',
   },
 ];
 
@@ -523,215 +476,13 @@ export const INITIAL_SCHOOL_SUBJECTS: SubjectGoal[] = [
   },
 ];
 
-export const INITIAL_VICTORY_LOGS: VictoryLog[] = [
-  {
-    id: 'vl-1',
-    date: new Date().toISOString().split('T')[0],
-    successes: [
-      'Accompli 45 minutes de musculation intense le matin sans hésitation.',
-      'RÉUSSI 10 minutes d’entraînement à l’art oratoire avec résonance vocale.',
-      'Enregistré 3 heures de travail continu sur l’architecture du module Bangre Neo Lab.',
-      'Finalisé 2 pages de dialogues de la scène 4 pour le projet de film.',
-    ],
-    improvements: [
-      'Éviter de consulter les notifications pendant la pause lecture de 13h00.',
-      'Boire plus d’eau directement après la séance de sport du matin.',
-    ],
-    energyRating: 5,
-    moodRating: 5,
-    highlights: 'Excellente dynamique sur la séquence de l’acte II du scénario et grande énergie physique !',
-    gratitude: 'Reconnaissant pour la bonne santé, la vision claire pour Bangre Neo et le soutien de la famille.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'vl-2',
-    date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-    successes: [
-      'Résolu 4 problèmes complexes de calcul intégral en Mathématiques.',
-      'Soutenu papa pour la gestion du planning et des courriels du studio.',
-      'Suivi la routine de soin du visage de 30 minutes avec régularité.',
-    ],
-    improvements: [
-      'Démarrer la séance de sport du matin plus tôt à 06h30 précises.',
-    ],
-    energyRating: 4,
-    moodRating: 4,
-    highlights: 'Session de l’après-midi très productive sur les équations de Physique-Chimie.',
-    gratitude: 'Reconnaissant pour la concentration et la clarté d’esprit.',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
+export const INITIAL_VICTORY_LOGS: VictoryLog[] = [];
 
-export const INITIAL_NOTES: NoteItem[] = [
-  {
-    id: 'note-1',
-    title: '🎬 Projet Cinéma : Découpage de Scène & Concept de Dialogue',
-    content: `# Titre du Film : Échos de Neo
+export const INITIAL_NOTES: NoteItem[] = [];
 
-## Arc du Personnage & Exercices de Diction
-- Débit de parole du protagoniste : Mesuré, confiant, articulation précise.
-- Plan d’ouverture : Travelling en heure dorée dans le lever de soleil urbain, contraste avec la solitude intérieure.
+export const INITIAL_FOCUS_SESSIONS: FocusSession[] = [];
 
-## Thèmes Clés
-- Ambition vs Identité
-- Innovation technique à la rencontre de l’émotion humaine brute
-
-## Tâches de Production
-1. Rédiger le brouillon de la Scène 4 pendant le bloc scénario de 17h00.
-2. Établir le storyboard d’éclairage pour la scène extérieure de nuit.`,
-    category: 'cinema',
-    tags: ['Scénario', 'Cinéma', 'Storytelling'],
-    isPinned: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'note-2',
-    title: '🚀 Bangre Neo Lab : Architecture & Feuille de Route',
-    content: `# Bangre Neo Lab - Étape Q3
-
-## Objectifs d’Ingénierie Majeurs
-1. Gestion d’état hors-ligne haute performance avec synchronisation fluide.
-2. Composants UI modulaires sans latence.
-3. Télémétrie automatique & analyses de concentration.
-
-## Stratégie Quotidienne
-- Consacrer 3h chaque après-midi (14h00 - 17h00) aux modules centraux.
-- S’assurer que l’engagement hebdomadaire de 15h - 20h est systématiquement atteint.`,
-    category: 'bangre_neo',
-    tags: ['Bangre Neo', 'Architecture', 'Ingénierie'],
-    isPinned: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'note-3',
-    title: '📚 Fiches Révisions : SVT & Formules de Mathématiques',
-    content: `# SVT (Sciences de la Vie et de la Terre)
-- Respiration cellulaire vs voies de fermentation
-- Bilan ATP : 36 à 38 molécules d’ATP par glucose en respiration aérobie
-
-# Mathématiques (Calcul Intégral & Fonctions)
-- Règles de dérivation : (u/v)' = (u'v - uv') / v^2
-- Formule d’intégration par parties : \\int u dv = uv - \\int v du
-
-# Physique & Chimie (PC)
-- Seconde loi de Newton : \\vec{F} = m \\vec{a}
-- Calcul du pH : pH = -log[H_3O^+]`,
-    category: 'school',
-    schoolSubject: 'math',
-    tags: ['Maths', 'SVT', 'PC', 'Examens'],
-    isPinned: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-export const INITIAL_FOCUS_SESSIONS: FocusSession[] = [
-  {
-    id: 'fs-1',
-    date: new Date().toISOString().split('T')[0],
-    title: 'Algorithme Central Bangre Neo',
-    category: 'bangre_neo',
-    durationMinutes: 90,
-    notes: 'Conception de la machine d’état et des gestionnaires de synchro de données.',
-    completedAt: '15:30',
-  },
-  {
-    id: 'fs-2',
-    date: new Date().toISOString().split('T')[0],
-    title: 'Écriture du Scénario de Film',
-    category: 'cinema',
-    durationMinutes: 60,
-    notes: 'Rédaction du dialogue entre le rôle principal et le mentor.',
-    completedAt: '18:00',
-  },
-  {
-    id: 'fs-3',
-    date: new Date().toISOString().split('T')[0],
-    title: 'Exercices de Calcul Intégral',
-    category: 'school',
-    schoolSubject: 'math',
-    durationMinutes: 45,
-    notes: 'Entraînement sur les équations différentielles et limites.',
-    completedAt: '19:45',
-  },
-];
-
-export const INITIAL_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'tx-1',
-    title: 'Contrat Prestation Tech Bangre Neo',
-    amount: 1200,
-    type: 'income',
-    bucket: 'bangre_neo_tech',
-    sourceOrVendor: 'Contrat Client / Services Logiciels',
-    date: new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0],
-    isRecurring: true,
-    notes: 'Allocation mensuelle de développement pour la plateforme Bangre Neo.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tx-2',
-    title: 'Indemnité Opérationnelle - Entreprise Familiale',
-    amount: 600,
-    type: 'income',
-    bucket: 'must_do_work' as any,
-    sourceOrVendor: 'Engagement Entreprise Familiale',
-    date: new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0],
-    isRecurring: true,
-    notes: 'Allocation bimensuelle pour la gestion administrative du studio.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tx-3',
-    title: 'Location Équipement Cinéma & Éclairage',
-    amount: 250,
-    type: 'expense',
-    bucket: 'cinema_production',
-    sourceOrVendor: 'Centre CineEquipment',
-    date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    isRecurring: false,
-    notes: 'Lumières Softbox et kit micro HF pour tournage de court-métrage.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tx-4',
-    title: 'Serveurs Cloud & Calcul GPU',
-    amount: 120,
-    type: 'expense',
-    bucket: 'bangre_neo_tech',
-    sourceOrVendor: 'Hébergement Cloud Provider',
-    date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
-    isRecurring: true,
-    notes: 'Serveurs de déploiement lab et environnement de test base de données.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tx-5',
-    title: 'Manuels Révision Examens & Livres Scientifiques',
-    amount: 85,
-    type: 'expense',
-    bucket: 'school_education',
-    sourceOrVendor: 'Librairie Académique',
-    date: new Date().toISOString().split('T')[0],
-    isRecurring: false,
-    notes: 'Guide de révision SVT et livre d’exercices de calcul Mathématiques.',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'tx-6',
-    title: 'Épargne Réserve Mensuelle Rendement',
-    amount: 400,
-    type: 'expense',
-    bucket: 'savings_investment',
-    sourceOrVendor: 'Coffre d’Urgence & Croissance',
-    date: new Date(Date.now() - 4 * 86400000).toISOString().split('T')[0],
-    isRecurring: true,
-    notes: 'Virement automatique vers le fonds de croissance.',
-    createdAt: new Date().toISOString(),
-  },
-];
+export const INITIAL_TRANSACTIONS: Transaction[] = [];
 
 export const INITIAL_BUDGET_BUCKETS: BudgetBucketGoal[] = [
   {
@@ -1125,353 +876,10 @@ export const INITIAL_STREAK_RECORDS: StreakDayRecord[] = [
   }
 ];
 
-export const INITIAL_WORKOUT_ROUTINES: WorkoutRoutine[] = [
-  {
-    id: 'rt-1',
-    name: 'Push : Pectoraux, Épaules & Triceps',
-    category: 'hypertrophy',
-    description: 'Séance axée sur la poussée pour développer la masse pectorale, les épaules et les triceps.',
-    estimatedDurationMin: 55,
-    exercises: [
-      {
-        id: 'ex-1',
-        name: 'Développé Couché à la Barre',
-        muscleGroup: 'pecs',
-        restSeconds: 90,
-        notes: 'Garder les omoplates resserrées et pieds ancrés au sol.',
-        sets: [
-          { id: 'set-1', setNumber: 1, targetReps: 10, weightKg: 70, isCompleted: false },
-          { id: 'set-2', setNumber: 2, targetReps: 8, weightKg: 75, isCompleted: false },
-          { id: 'set-3', setNumber: 3, targetReps: 8, weightKg: 80, isCompleted: false },
-          { id: 'set-4', setNumber: 4, targetReps: 6, weightKg: 85, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-2',
-        name: 'Développé Incliné aux Halères',
-        muscleGroup: 'pecs',
-        restSeconds: 75,
-        notes: 'Banc incliné à 30°, contrôler la descente.',
-        sets: [
-          { id: 'set-5', setNumber: 1, targetReps: 10, weightKg: 26, isCompleted: false },
-          { id: 'set-6', setNumber: 2, targetReps: 10, weightKg: 28, isCompleted: false },
-          { id: 'set-7', setNumber: 3, targetReps: 8, weightKg: 30, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-3',
-        name: 'Développé Militaire Assis (Épaules)',
-        muscleGroup: 'epaules',
-        restSeconds: 90,
-        notes: 'Pousser au-dessus de la tête sans cambrer le bas du dos.',
-        sets: [
-          { id: 'set-8', setNumber: 1, targetReps: 10, weightKg: 45, isCompleted: false },
-          { id: 'set-9', setNumber: 2, targetReps: 8, weightKg: 50, isCompleted: false },
-          { id: 'set-10', setNumber: 3, targetReps: 8, weightKg: 55, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-4',
-        name: 'Élévations Latérales à la Poulie/Haltères',
-        muscleGroup: 'epaules',
-        restSeconds: 60,
-        notes: 'Mouvement fluide axé sur le deltoïde moyen.',
-        sets: [
-          { id: 'set-11', setNumber: 1, targetReps: 12, weightKg: 12, isCompleted: false },
-          { id: 'set-12', setNumber: 2, targetReps: 12, weightKg: 14, isCompleted: false },
-          { id: 'set-13', setNumber: 3, targetReps: 15, weightKg: 14, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-5',
-        name: 'Extensions Triceps à la Poulie Haute',
-        muscleGroup: 'triceps',
-        restSeconds: 60,
-        notes: 'Garder les coudes collés au corps.',
-        sets: [
-          { id: 'set-14', setNumber: 1, targetReps: 12, weightKg: 35, isCompleted: false },
-          { id: 'set-15', setNumber: 2, targetReps: 10, weightKg: 40, isCompleted: false },
-          { id: 'set-16', setNumber: 3, targetReps: 10, weightKg: 45, isCompleted: false },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'rt-2',
-    name: 'Pull : Dos, Trapèzes & Biceps',
-    category: 'hypertrophy',
-    description: 'Séance de tirage pour construire un dos large en V, des trapèzes et des biceps massifs.',
-    estimatedDurationMin: 50,
-    exercises: [
-      {
-        id: 'ex-6',
-        name: 'Tractions Prise Pronation (Lestées)',
-        muscleGroup: 'dos',
-        restSeconds: 90,
-        notes: 'Amener le menton au-dessus de la barre à chaque répétition.',
-        sets: [
-          { id: 'set-17', setNumber: 1, targetReps: 10, weightKg: 0, isCompleted: false },
-          { id: 'set-18', setNumber: 2, targetReps: 8, weightKg: 10, isCompleted: false },
-          { id: 'set-19', setNumber: 3, targetReps: 8, weightKg: 15, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-7',
-        name: 'Rowing Buste Penché à la Barre',
-        muscleGroup: 'dos',
-        restSeconds: 90,
-        notes: 'Tirer la barre vers le bas du ventre.',
-        sets: [
-          { id: 'set-20', setNumber: 1, targetReps: 10, weightKg: 60, isCompleted: false },
-          { id: 'set-21', setNumber: 2, targetReps: 8, weightKg: 70, isCompleted: false },
-          { id: 'set-22', setNumber: 3, targetReps: 8, weightKg: 75, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-8',
-        name: 'Tirage Horizontal à la Poulie Basse',
-        muscleGroup: 'dos',
-        restSeconds: 60,
-        notes: 'Resserrer fortement les omoplates en fin de mouvement.',
-        sets: [
-          { id: 'set-23', setNumber: 1, targetReps: 12, weightKg: 50, isCompleted: false },
-          { id: 'set-24', setNumber: 2, targetReps: 10, weightKg: 60, isCompleted: false },
-          { id: 'set-25', setNumber: 3, targetReps: 10, weightKg: 65, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-9',
-        name: 'Curl Biceps Incliné aux Haltères',
-        muscleGroup: 'biceps',
-        restSeconds: 60,
-        notes: 'Étirer complètement le biceps en bas.',
-        sets: [
-          { id: 'set-26', setNumber: 1, targetReps: 10, weightKg: 14, isCompleted: false },
-          { id: 'set-27', setNumber: 2, targetReps: 10, weightKg: 16, isCompleted: false },
-          { id: 'set-28', setNumber: 3, targetReps: 8, weightKg: 18, isCompleted: false },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'rt-3',
-    name: 'Legs & Abs : Cuisses, Ischios & Sangle Abdominale',
-    category: 'strength',
-    description: 'Séance jambes lourde pour développer la puissance athlétique des membres inférieurs.',
-    estimatedDurationMin: 60,
-    exercises: [
-      {
-        id: 'ex-10',
-        name: 'Squat Arrière à la Barre',
-        muscleGroup: 'jambes',
-        restSeconds: 120,
-        notes: 'Descendre sous la parallèle, fessiers engagés.',
-        sets: [
-          { id: 'set-29', setNumber: 1, targetReps: 10, weightKg: 80, isCompleted: false },
-          { id: 'set-30', setNumber: 2, targetReps: 8, weightKg: 95, isCompleted: false },
-          { id: 'set-31', setNumber: 3, targetReps: 6, weightKg: 105, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-11',
-        name: 'Soulevé de Terre Jambes Tendues (RDL)',
-        muscleGroup: 'jambes',
-        restSeconds: 90,
-        notes: 'Ressentir le bon étirement des ischios-jambiers.',
-        sets: [
-          { id: 'set-32', setNumber: 1, targetReps: 10, weightKg: 70, isCompleted: false },
-          { id: 'set-33', setNumber: 2, targetReps: 8, weightKg: 85, isCompleted: false },
-          { id: 'set-34', setNumber: 3, targetReps: 8, weightKg: 90, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-12',
-        name: 'Relevé de Jambes Suspendu (Abdominaux)',
-        muscleGroup: 'abdos',
-        restSeconds: 60,
-        notes: 'Monter le bassin sans balancer le corps.',
-        sets: [
-          { id: 'set-35', setNumber: 1, targetReps: 15, weightKg: 0, isCompleted: false },
-          { id: 'set-36', setNumber: 2, targetReps: 15, weightKg: 0, isCompleted: false },
-          { id: 'set-37', setNumber: 3, targetReps: 12, weightKg: 0, isCompleted: false },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'rt-4',
-    name: 'Programme Calisthenique Solo Leveling (Poids du Corps)',
-    category: 'calisthenics',
-    description: 'Entraînement commando au poids du corps inspiré de Sung Jinwoo (Pompes, Squats, Gainage).',
-    estimatedDurationMin: 40,
-    exercises: [
-      {
-        id: 'ex-13',
-        name: 'Pompes Strictes & Diamant',
-        muscleGroup: 'pecs',
-        restSeconds: 60,
-        notes: 'Sangle abdominale verrouillée, poitrine contre sol.',
-        sets: [
-          { id: 'set-38', setNumber: 1, targetReps: 25, weightKg: 0, isCompleted: false },
-          { id: 'set-39', setNumber: 2, targetReps: 25, weightKg: 0, isCompleted: false },
-          { id: 'set-40', setNumber: 3, targetReps: 25, weightKg: 0, isCompleted: false },
-          { id: 'set-41', setNumber: 4, targetReps: 25, weightKg: 0, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-14',
-        name: 'Squats Explosifs & Sautés',
-        muscleGroup: 'jambes',
-        restSeconds: 60,
-        notes: 'Impulsion maximale sur chaque saut.',
-        sets: [
-          { id: 'set-42', setNumber: 1, targetReps: 25, weightKg: 0, isCompleted: false },
-          { id: 'set-43', setNumber: 2, targetReps: 25, weightKg: 0, isCompleted: false },
-          { id: 'set-44', setNumber: 3, targetReps: 25, weightKg: 0, isCompleted: false },
-          { id: 'set-45', setNumber: 4, targetReps: 25, weightKg: 0, isCompleted: false },
-        ]
-      },
-      {
-        id: 'ex-15',
-        name: 'Gainage Ventral & Obliques',
-        muscleGroup: 'abdos',
-        restSeconds: 45,
-        notes: 'Maintien de 60 secondes par série.',
-        sets: [
-          { id: 'set-46', setNumber: 1, targetReps: 60, weightKg: 0, isCompleted: false },
-          { id: 'set-47', setNumber: 2, targetReps: 60, weightKg: 0, isCompleted: false },
-          { id: 'set-48', setNumber: 3, targetReps: 60, weightKg: 0, isCompleted: false },
-        ]
-      }
-    ]
-  }
-];
+export const INITIAL_WORKOUT_ROUTINES: WorkoutRoutine[] = [];
 
-export const INITIAL_PERSONAL_RECORDS: PersonalRecord[] = [
-  {
-    id: 'pr-1',
-    exerciseName: 'Développé Couché à la Barre',
-    muscleGroup: 'pecs',
-    maxWeightKg: 85,
-    maxReps: 6,
-    estimated1RM: 100,
-    date: '2026-08-08',
-  },
-  {
-    id: 'pr-2',
-    exerciseName: 'Soulevé de Terre (Deadlift)',
-    muscleGroup: 'dos',
-    maxWeightKg: 130,
-    maxReps: 4,
-    estimated1RM: 145,
-    date: '2026-08-05',
-  },
-  {
-    id: 'pr-3',
-    exerciseName: 'Squat Arrière (Barbell Squat)',
-    muscleGroup: 'jambes',
-    maxWeightKg: 105,
-    maxReps: 6,
-    estimated1RM: 120,
-    date: '2026-08-06',
-  },
-  {
-    id: 'pr-4',
-    exerciseName: 'Développé Militaire Assis',
-    muscleGroup: 'epaules',
-    maxWeightKg: 58,
-    maxReps: 6,
-    estimated1RM: 68,
-    date: '2026-08-01',
-  },
-  {
-    id: 'pr-5',
-    exerciseName: 'Tractions Lestées',
-    muscleGroup: 'dos',
-    maxWeightKg: 15,
-    maxReps: 8,
-    estimated1RM: 20,
-    date: '2026-08-07',
-  },
-];
+export const INITIAL_PERSONAL_RECORDS: PersonalRecord[] = [];
 
-export const INITIAL_BODY_METRICS: BodyMetricLog[] = [
-  {
-    id: 'bm-1',
-    date: '2026-08-11',
-    weightKg: 76.5,
-    bodyFatPercentage: 13.8,
-    muscleMassPercentage: 45.2,
-    chestCm: 104,
-    waistCm: 79,
-    bicepsCm: 38.5,
-    notes: 'Condition physique optimale, bonne définition musculaire et énergie constante.',
-  },
-  {
-    id: 'bm-2',
-    date: '2026-08-04',
-    weightKg: 76.1,
-    bodyFatPercentage: 14.2,
-    muscleMassPercentage: 44.8,
-    chestCm: 103.5,
-    waistCm: 79.5,
-    bicepsCm: 38.0,
-    notes: 'Légère hausse de masse sèche suite à la régularité des séances Push/Pull.',
-  },
-  {
-    id: 'bm-3',
-    date: '2026-07-28',
-    weightKg: 75.8,
-    bodyFatPercentage: 14.5,
-    muscleMassPercentage: 44.5,
-    chestCm: 103,
-    waistCm: 80,
-    bicepsCm: 37.8,
-    notes: 'Début du cycle de surcharge progressive.',
-  },
-];
+export const INITIAL_BODY_METRICS: BodyMetricLog[] = [];
 
-export const INITIAL_COMPLETED_WORKOUTS: CompletedWorkoutSession[] = [
-  {
-    id: 'cws-1',
-    routineId: 'rt-1',
-    routineName: 'Push : Pectoraux, Épaules & Triceps',
-    date: '2026-08-10',
-    startTime: '06:30',
-    durationMinutes: 52,
-    totalVolumeKg: 3850,
-    totalSetsCompleted: 16,
-    caloriesBurned: 420,
-    rating: 5,
-    notes: 'Séance incroyable ! Nouveau record battu au développé couché (85kg x 6 reps).',
-    exercisesLog: []
-  },
-  {
-    id: 'cws-2',
-    routineId: 'rt-2',
-    routineName: 'Pull : Dos, Trapèzes & Biceps',
-    date: '2026-08-08',
-    startTime: '06:30',
-    durationMinutes: 48,
-    totalVolumeKg: 3400,
-    totalSetsCompleted: 13,
-    caloriesBurned: 390,
-    rating: 4,
-    notes: 'Très bonnes sensations sur le rowing barre et les tractions lestées à +15kg.',
-    exercisesLog: []
-  },
-  {
-    id: 'cws-3',
-    routineId: 'rt-3',
-    routineName: 'Legs & Abs : Cuisses, Ischios & Sangle Abdominale',
-    date: '2026-08-06',
-    startTime: '06:30',
-    durationMinutes: 58,
-    totalVolumeKg: 4200,
-    totalSetsCompleted: 12,
-    caloriesBurned: 480,
-    rating: 5,
-    notes: 'Squats à 105kg contrôlés. Congestion fessiers & quadriceps au top.',
-    exercisesLog: []
-  }
-];
+export const INITIAL_COMPLETED_WORKOUTS: CompletedWorkoutSession[] = [];

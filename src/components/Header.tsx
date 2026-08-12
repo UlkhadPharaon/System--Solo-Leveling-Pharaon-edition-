@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ActiveTab, PlayerProfile } from '../types';
 import { 
   Calendar, 
@@ -13,7 +13,8 @@ import {
   Sliders,
   Crown,
   Dumbbell,
-  Download
+  Download,
+  Trash2
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -39,6 +40,13 @@ export const Header: React.FC<HeaderProps> = ({
   openDataManagement,
   isOffline,
 }) => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const navItems: { id: ActiveTab; label: string; icon: React.FC<{ className?: string }>; highlight?: boolean }[] = [
     { id: 'system_solo', label: 'SYSTÈME', icon: Crown, highlight: true },
     { id: 'dashboard', label: 'Quêtes', icon: Calendar },
@@ -70,6 +78,10 @@ export const Header: React.FC<HeaderProps> = ({
                     </span>
                   )}
                 </h1>
+                <div className="flex items-center gap-2 text-[10px] md:text-xs text-cyan-400/90 mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  {currentTime.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })} • {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </div>
               </div>
             </div>
 
@@ -104,10 +116,10 @@ export const Header: React.FC<HeaderProps> = ({
             {openDataManagement && (
               <button
                 onClick={openDataManagement}
-                className="p-2 md:px-3 md:py-1.5 rounded-lg bg-slate-900/50 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs flex items-center gap-1.5 transition-all"
+                className="px-3 py-1.5 rounded-lg bg-red-950/30 hover:bg-red-950/50 border border-red-500/30 text-red-400 text-xs flex items-center gap-1.5 transition-all font-medium"
               >
-                <Download className="w-4 h-4" />
-                <span className="hidden md:inline">Data</span>
+                <Trash2 className="w-4 h-4" />
+                <span>Données & Reset</span>
               </button>
             )}
             <button
