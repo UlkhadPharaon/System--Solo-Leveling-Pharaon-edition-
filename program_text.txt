@@ -1,0 +1,80 @@
+{
+  "status": "success",
+  "data": {
+    "total_pages": 14,
+    "extracted_pages": 14,
+    "total_chars": 12091,
+    "pages": [
+      {
+        "page": 1,
+        "chars": 125,
+        "text": "PROGRAMME DE MUSCU\nPROGRAMME DE MUSCU\nProgramme optimale sur 10 mois pour Ulkhad\n01 AOUT 2025\nULKHAD PHARAON\n+226 05 83 05 99"
+      },
+      {
+        "page": 2,
+        "chars": 1211,
+        "text": "Programme de Musculation Ulkhad sur 10 Mois\nObjectifs : Prendre 30kg de muscle, et développer la force sur les pompes, les\ntractions, et les squats tout en prenant 10cm de tour de bras, de poitrine, et de tour de\ncuisse et développer un six packs\nNote : 1. Surcharge progressive = clé de la croissance\n• Augmente chaque mois un ou plusieurs paramètres :\no +1 à 2 répétitions par série\no -15s de repos\no +1 niveau de difficulté (ex : pompes → pompes déclinées → pompes\narchers → pompes à une main)\n• Utilise des variantes plus dures à mesure que tu progresses.\n2. Organisation en cycles structurés\n• 2 Mésocycles (5 mois chacun) :\no Mésocycle 1 : Prise de masse (hypertrophie)\no Mésocycle 2 : Prise de force (puissance et résistance)\n• Chaque mésocycle contient :\no Microcycle Mécanique (6 semaines) → peu de reps, repos longs, tempo\nlent, variantes lourdes\no Microcycle Métabolique (6 semaines) → beaucoup de reps, repos courts,\ncircuits, congestion\no Overreaching (4 semaines) → surcharge extrême avant repos\no Deload (1 semaine) → récupération active\nSTRUCTURE HEBDOMADAIRE\nJour Groupes musculaires Fréquence\nJ1 Pecs + Dos Lundi / Jeudi\nJ2 Épaules + Bras Mardi / Vendredi\nJ3 Jambes + Abdos Mercredi / Samedi\n1"
+      },
+      {
+        "page": 3,
+        "chars": 1236,
+        "text": "Jour Groupes musculaires Fréquence\nJ4 Repos complet Dimanche\nDurée de séance : 1h max, environ 4 exos principaux + 1–2 accessoires.\nTECHNIQUES D’INTENSIFICATION (à appliquer selon le cycle)\n• Superset : enchaîner 2 exos opposés ou complémentaires (pousser ↔ tirer).\n• Tempo lent : surtout sur la descente (3–5 s), montée explosive.\n• Isométrie : pause en bas du mouvement ou en fin de série (30s de squat statique\npar ex).\n• Pliométrie : pompes sautées, fentes sautées, jump squats.\n• Rest-pause : mini repos de 10–15s entre mini-séries à l’échec.\n• Pyramide : 6-8-10-8-6 reps → progression puis retour.\nZONE DE TRAVAIL OPTIMALE\n• Pour hypertrophie : 6–15 répétitions par série OU jusqu’à 40 à l’échec poids du\ncorps.\n• Minimum 4 séries par muscle par semaine (tu fais en moyenne 10–12 = parfait).\n• Respecte les temps de repos selon le cycle :\no Mécanique : 2–3 min\no Métabolique : 30–60 s\no Overreaching : 1–2 min max (charge + fatigue volontaire)\no Deload : 2–3 min, sans forcer\nASTUCES À NOTER POUR EXPLOSER TES RÉSULTATS\nProgression intelligente\n• Évite de tout augmenter en même temps. Choisis une seule variable à booster\npar semaine (ex : +1 rep ou + difficulté).\n• Garde un carnet d’entraînement ou un tableau de progression.\n2"
+      },
+      {
+        "page": 4,
+        "chars": 992,
+        "text": "Maîtrise du mouvement\n• L’objectif n’est pas juste de faire 10 pompes, mais 10 pompes parfaites :\no Contrôle\no Amplitude\no Posture\no Gainage\nImportance du Deload\n• N’ignore JAMAIS la semaine de deload.\n• Ton corps a besoin de ça pour supercompenser = gros boost de force & muscle\naprès récupération.\nExploite le poids du corps à fond\n• Tu n’as pas besoin de matériel pour devenir un monstre.\n• Les variantes avancées (pompes à une main, handstand push-ups, pistols) sont\nplus difficiles que des machines.\nOptimise ton alimentation\n• Tu veux de la masse → mange plus que ce que tu dépenses (sans junk food).\n• Focus sur : protéines (œufs, poulet, arachides), glucides lents (patates\ndouces, riz), lipides sains (huile d’arachide, avocat).\nPHILOSOPHIE DE CE PROGRAMME\n\"Devenir fort avec rien, c’est être fort pour tout.\"\n1er Mésocycle : Prise de Masse musculaire (5mois)\nMicrocycle 1(6semaine) : Mécanique\nTemps de repos : Longues (3min)\nRépétition : Courtes (4reps)\nCharge de travail : élevé\n3"
+      },
+      {
+        "page": 5,
+        "chars": 881,
+        "text": "Jour 1 : Pecs et dos (Lundi et jeudi)\nExercices Séries Répétitions Repos Intensification/Progression\n2–3\nPompes déclinées 4 6–8 Tempo excentrique 3–4 s\nmin\nPompes arche → 1\n3 3–5 3 min Variante difficile\nmain (progressif)\nTractions pronation / 2–3\n4 6–8 Descente lente, gainage fessiers\nRow inversé min\nSuperman ou Cobra 3 10–12 2 min Isométrie 2 s en haut\nGainage planche 1–2 Variante : jambe levée ou surface\n3 30–45 s\nunilatérale min instable\nJour 2 : Epaules et Bras (Mardi et vendredi)\nExercices Séries Répétitions Repos Intensification/Progression\n2–3\nPompes diamant 4 6–8 Tempo contrôlé\nmin\n2–3\nPike push-ups 4 6–8 Vers handstand push-up\nmin\nPompes une main assistée 2–3\n3 3–5 / 6–8 Progression technique\n/ Dips min\n2–3\nCurl inversé (serviette) 3 6–8 Curl isométrique\nmin\n1–2\nPlanche latérale 3 20–30 s Travail des obliques\nmin\nJour 3 : Jambes et abdo (Mercredi et samedi)\n4"
+      },
+      {
+        "page": 6,
+        "chars": 987,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\n2–3 Descente lente / évolution vers\nSquats complets 4 8–10\nmin pistol squat\nFentes bulgares 2–3\n3 8–10/jambe Progressif\nsur chaise min\nPont fessier 3 10–12 2 min Pause isométrique 2 s\nMollets sur 1–2\n4 12–15 Contraction max\nmarche min\nCrunch + Relevé 15 / 8–10 / 30– 1–2 Enchaînement abdominal\n3\njambes + Planche 45s min intensif\nJour 4 : repos complet (Dimanche)\nMicrocycle 2(6semaine) : Métabolique\nTemps de repos : court\nRépétition : longues\nCharge de travail : modéré\nJour 1 : Pecs et dos (Lundi et jeudi)\nExercices Séries Répétitions Repos Intensification/Progression\nSuperset : Pompes 12–15 Repos après superset : 1\n3 ↔ 0s\nclassiques + Row inversé chaque min\nPompes mains larges 3 15–20 1 min Pas d’arrêt en bas\nTractions négatives\n3 6–8 1 min Assistance montée\n(descente lente)\nPont fessier + Squat jump\n3 12 + 10 ↔ 0s Congestion + explosivité\n(enchaînés)\nAbdos roue ou ab-wheel\n3 8–12 1 min Forme stricte\nimprovisé\n5"
+      },
+      {
+        "page": 7,
+        "chars": 941,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\nGainage dynamique\n3 30–45s 1 min Mobilité oblique\n(rotation gauche-droite)\nJour 2 : Epaules et Bras (Mardi et vendredi)\nExercices Séries Répétitions Repos Intensification/Progression\nCircuit : Pompes diamant 10–15\n3 1 min Enchaînement type triset\n+ Dips + Curl inversé chaque\nJour 3 : Jambes et abdo (Mercredi et samedi)\nExercices Séries Répétitions Repos Intensification/Progression\nCircuit : Squat + Fente + Maximisation du stress\n3 15 chaque 1 min\nFente sautée + Planche métabolique\nJour 4 : repos complet (Dimanche)\nMicrocycle 3(4semaine) : Overreaching\n+ plus de Volume d’entrainement\n+ plus d’Intensité de travail\n+Technique d’intensification\nJour 1 : Pecs et dos (Lundi et jeudi)\nExercices Séries Répétitions Repos Intensification/Progression\nPompes 5 8–10–12–10–\n2 min Superset avec pompes sautées\nclassiques pyramides 8\nPompes\nsautées 3 6–8 90 s Pliométrie\n(clapping)\n6"
+      },
+      {
+        "page": 8,
+        "chars": 1015,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\nTractions 5 Superset avec unilatéral ou\n6–8–10–8–6 2 min\npronation pyramides pompes explosifs\nPompes une\n4 3–5 2 min Variante force maximale\nmain\nGainage\nPosture maximale, fusible en fin\nsuperman 3 15–20 1 min\nde séance\nfessier\nJour 2 : Epaules et Bras (Mardi et vendredi)\nExercices Séries Répétitions Repos Intensification/Progression\nchin-ups 4 6 2min Tempo contrôlé et lent\nDescente lente montée\nPike push-ups 5 8 2 min\nexplosive\nrow inversés pronation\n4 8 2min Progression technique\nsupination\nCurl inversé (serviette) 3 6–8 2 min Curl isométrique\n1–2\nPlanche latérale 3 20–30 s Travail des obliques\nmin\nJour 3 : Jambes et abdo (Mercredi et samedi)\nExercices Séries Répétitions Repos Intensification/Progression\n2–3 Descente lente / évolution vers\nSquats complets 4 8–10\nmin pistol squat\nFentes bulgares 2–3\n3 8–10/jambe Progressif\nsur chaise min\nPont fessier 3 10–12 2 min Pause isométrique 2 s\nMollets sur 1–2\n4 12–15 Contraction max\nmarche min\n7"
+      },
+      {
+        "page": 9,
+        "chars": 702,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\nCrunch + Relevé 15 / 8–10 / 30– 1–2 Enchaînement abdominal\n3\njambes + Planche 45s min intensif\nJour 4 : repos complet (Dimanche)\nDeloade(1semaine)\n- moins d’Intensité\n- moins de Volume\nTous les jours (1 à 3)\nExercices Séries Répétitions Repos Intensification/Progression\n2–3\nPompes classiques 2 12 Version simplifiée\nmin\nRow inversé / Squats 2–3 Aucune intensification, repos\n2 12–15\n/ Dips min actif\n2–3\nAbdos / gainage 2 modéré Mobilité, routine légère\nmin\n2e Mésocycle : Prise de Force (5mois)\nMicrocycle 1(6semaine) : Debut\nTemps de repos : modéré\nRépétition : Courtes\nCharge de travail : faible\nJour 1 : Pecs et dos (Lundi et jeudi)\n8"
+      },
+      {
+        "page": 10,
+        "chars": 1005,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\nPompes pieds\nsurélevés max 4 4–6 2 min Variante très difficile\nhauteur\nTractions pronation\n4 5–6 2 min Gainage + contraction dorsale\nlestées (si possible)\nRow inversé explosif Accent phase concentrique ou\n4 6 2 min\nou tempo lent excentrique\n1–2\nSuperman 3 10–12 Isométrie fin de mouvement\nmin\nJour 2 : Epaules et Bras (Mardi et vendredi)\nExercices Séries Répétitions Repos Intensification/Progression\nPike push-ups (tête\n4 6 2 min Tension continue\nau sol)\nPompes surélevées\n3 6 2 min Variante force\nsur poings\nDips entre deux Descente contrôlée, montée\n4 6 2 min\nchaises puissante\nChin-ups lents 3 5–6 2 min Phase excentrique ralentie\nJour 3 : Jambes et abdo (Mercredi et samedi)\nExercices Séries Répétitions Repos Intensification/Progression\nSquats unilatéraux Progression vers pistol\n3 6/jambe 2 min\nassistés complet\nFentes bulgares\n4 6/jambe 2 min Variation pliométrique\nexplosives\nPont fessier jambes\n3 10 2 min Isométrie + tempo\nlevées\n9"
+      },
+      {
+        "page": 11,
+        "chars": 854,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\n1–2\nCrunch + Planche 3 15 + 30s Contraction max sur le crunch\nmin\nJour 4 : repos complet (Dimanche)\nMicrocycle 2(6semaine) : Métabolique\nTemps de repos : modéré\nRépétition : Courtes\nCharge de travail : modéré\nJour 1 : Pecs et dos (Lundi et jeudi)\nExercices Séries Répétitions Repos Intensification/Progression\n1,5\nPompes déclinées 4 8 Accent vitesse concentrique\nmin\nRow inversé 1,5 Contracter le dos, tirer\n4 8–10\npronation min explosivement\nSuperman + Gainage\n3 12 + 30s 1 min Superset\ndynamique\nJour 2 : Epaules et Bras (Mardi et vendredi)\nExercices Séries Répétitions Repos Intensification/Progression\n1,5 Phase excentrique +\nPike push-ups 4 8\nmin amplitude\n1,5\nPompes diamant 4 10 Superset dips possibles\nmin\nCurl inversé (tirage 1,5\n3 10–12 Isométrie de fin de course\nserviette) min\n10"
+      },
+      {
+        "page": 12,
+        "chars": 986,
+        "text": "Jour 3 : Jambes et abdo (Mercredi et samedi)\nExercices Séries Répétitions Repos Intensification/Progression\nFentes sautées 4 8/jambe 1,5m Plyo + équilibre\nSquats unilatéraux ou Alternance pliométrie et\n4 8–10 1,5m\nJump Squats isométrie\nMollets surélevés 3 15 1 min Contraction max\nAbdos gainage +\n3 30–45 s 1 min Travail complet\nrotations\nJour 4 : repos complet (Dimanche)\nMicrocycle 3(4semaine) : Overreaching\nTemps de repos : modéré\nRépétition : Courtes\n+Volume d’entrainement\n+Intensité de travail\n+Technique d’intensification\nCharge de travail : élevé\nJour 1 : Pecs et dos (Lundi et jeudi)\nExercices Séries Répétitions Repos Intensification/Progression\nPompes classiques 8, 10, 12, 10, Superset avec pompes\n5 1–2m\n(pyramide 8→12→8) 8 pliométriques\nPompes sautées +\n3 + 4 6–8 / 3–5 90s Superset explosif + unilatéral\nPompes à une main\nContraction max + tempo\nRow inversé rapide 4 10 1 min\ndynamique\nGainage dynamique Mobilité + engagement\n3 30–45s 1 min\n(mouvements lents) profond\n11"
+      },
+      {
+        "page": 13,
+        "chars": 827,
+        "text": "Jour 2 : Epaules et Bras (Mardi et vendredi)\nExercices Séries Répétitions Repos Intensification/Progression\nPike push-ups tempo lent Travail contrasté (force +\n5 8 1 min\n/ explosif vitesse)\nPompes surélevées sur\n4 10–12 1 min Superset lourd\npoings + dips (superset)\nCurl inversé supination /\n4 8 + 8 1 min Amplitude max\npronation (superset)\nJour 3 : Jambes et abdo (Mercredi et samedi)\nExercices Séries Répétitions Repos Intensification/Progression\nSquats statiques (30s) Pliométrie + isométrie\n3 30s + 10 1 min\n+ squats sautés enchaînée\nDescente lente, montée\nFentes bulgares lentes 3 8/jambe 1 min\ndynamique\nPont fessier jambe\n3 10/jambe 1 min Phase haute tenue 2s\nlevée\nAbdos roue ou crunch\n3 12 1 min Tension continue\navancé\nJour 4 : repos complet (Dimanche)\nDeloade(1semaine)\n- Intensité\n- Volume\nTous les jours (1 à 3)\n12"
+      },
+      {
+        "page": 14,
+        "chars": 329,
+        "text": "Exercices Séries Répétitions Repos Intensification/Progression\nPompes standard 2 10–12 2 min Pas d’échec, technique propre\nSquats / Fentes 2 12–15 2 min Variante assistée ou lente\nTractions négatives / Descente lente, amplitude\n2 6–8 2 min\nRow complète\nAbdos au sol +\n2 12 / 30s 2 min Contrôle, pas d'intensité extrême\nplanche\n13"
+      }
+    ]
+  }
+}
