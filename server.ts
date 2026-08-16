@@ -51,7 +51,17 @@ function getLlmConfig(): LlmConfig | null {
   };
 }
 
-async function llmChatJson(config: LlmConfig, systemPrompt: string, userPrompt: string): Promise<string> {
+interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+async function chatCompletion(
+  config: LlmConfig,
+  messages: ChatMessage[],
+  opts: { temperature?: number; maxTokens?: number; jsonMode?: boolean } = {}
+): Promise<string> {
+  const { temperature = 0.7, maxTokens = 2000, jsonMode = false } = opts;
   const res = await fetch(`${config.baseUrl}/chat/completions`, {
     // Hard timeout: the client falls back to deterministic templates when the
     // provider is unreachable — a hung request must never block onboarding.
@@ -66,13 +76,10 @@ async function llmChatJson(config: LlmConfig, systemPrompt: string, userPrompt: 
     },
     body: JSON.stringify({
       model: config.model,
-      temperature: 0.7,
-      max_tokens: 2000,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
+      temperature,
+      max_tokens: maxTokens,
+      ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
+      messages,
     }),
   });
   if (!res.ok) {
@@ -80,6 +87,17 @@ async function llmChatJson(config: LlmConfig, systemPrompt: string, userPrompt: 
   }
   const json = await res.json();
   return json?.choices?.[0]?.message?.content ?? '';
+}
+
+async function llmChatJson(config: LlmConfig, systemPrompt: string, userPrompt: string): Promise<string> {
+  return chatCompletion(
+    config,
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    { jsonMode: true }
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,24 +126,6 @@ interface QuestSpec {
   description: string;
   xpReward: number;
   difficulty: string;
-}
-
-function validateQuests(raw: any, validDomainIds: Set<string>): QuestSpec[] {
-  const quests: QuestSpec[] = [];
-  const list = Array.isArray(raw?.quests) ? raw.quests : [];
-  for (const q of list) {
-    if (!q || typeof q.domainId !== 'string' || !validDomainIds.has(q.domainId)) continue;
-    const xp = Math.min(120, Math.max(20, Math.round(Number(q.xpReward) || 40)));
-    const difficulty = ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium';
-    quests.push({
-      domainId: q.domainId,
-      title: String(q.title || 'Quête').slice(0, 120),
-      description: String(q.description || '').slice(0, 600),
-      xpReward: xp,
-      difficulty,
-    });
-  }
-  return quests;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -242,6 +242,184 @@ if (typeof setInterval !== 'undefined') {
       }
     }
   }, 60 * 1000);
+}
+
+function validateQuests(raw: any, validDomainIds: Set<string>): QuestSpec[] {
+  const quests: QuestSpec[] = [];
+  const list = Array.isArray(raw?.quests) ? raw.quests : [];
+  for (const q of list) {
+    if (!q || typeof q.domainId !== 'string' || !validDomainIds.has(q.domainId)) continue;
+    const xp = Math.min(120, Math.max(20, Math.round(Number(q.xpReward) || 40)));
+    const difficulty = ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium';
+    quests.push({
+      domainId: q.domainId,
+      title: String(q.title || 'Quête').slice(0, 120),
+      description: String(q.description || '').slice(0, 600),
+      xpReward: xp,
+      difficulty,
+    });
+  }
+  return quests;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI Mentor "agent" actions — structured mutations the LLM proposes and the
+// client turns into real state changes (after user confirmation). Mirror of the
+// validateQuests pipeline: whitelist the action type, coerce/clamp every field,
+// drop anything that fails. Bad output must never crash the client.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Local copy of the client-side AgentAction shape (server.ts is bundled
+// standalone and intentionally does not import src/types.ts).
+interface AgentAction {
+  action: string;
+  payload: any;
+}
+
+const AGENT_ACTION_TYPES = new Set([
+  'update_personalization',
+  'add_schedule_block',
+  'delete_schedule_block',
+  'toggle_schedule_block',
+  'add_victory_log',
+  'add_quest',
+  'update_weekly_target',
+  'add_habit_check',
+  'add_note',
+  'update_note',
+  'delete_note',
+  'award_xp',
+]);
+
+const DAYS_OF_WEEK = new Set(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** Clamp hours to 0..168 and round to 0.5 steps (sane weekly budgets). */
+function clampHours(n: number): number {
+  const val = Math.max(0, Math.min(168, Math.round(Number(n) * 2) / 2));
+  return val;
+}
+
+function sliceStr(v: any, max: number): string {
+  return typeof v === 'string' ? v.trim().slice(0, max) : '';
+}
+
+function noBadChars(s: string): boolean {
+  // Allow letters (incl. accents), digits, spaces, and common punctuation —
+  // reject anything dangerous like <script> or control chars.
+  return !/[<>{}\\]/u.test(s);
+}
+
+function validateAgentActions(raw: any, validDomainIds: Set<string>): AgentAction[] {
+  if (!raw || !Array.isArray(raw.actions)) return [];
+  const out: AgentAction[] = [];
+
+  for (const a of raw.actions) {
+    if (!a || typeof a !== 'object') continue;
+    const type = a.action;
+    if (typeof type !== 'string' || !AGENT_ACTION_TYPES.has(type)) continue;
+    const p = a.payload && typeof a.payload === 'object' ? a.payload : {};
+
+    switch (type) {
+      case 'update_personalization': {
+        const field = p.field;
+        const value = sliceStr(p.value, 80);
+        if (!['userName', 'userTagline', 'hunterTitle', 'dailyQuote'].includes(field) || !value || !noBadChars(value)) continue;
+        out.push({ action: type, payload: { field, value } });
+        break;
+      }
+      case 'add_schedule_block': {
+        const day = p.day;
+        const startTime = sliceStr(p.startTime, 5);
+        const endTime = sliceStr(p.endTime, 5);
+        const category = sliceStr(p.category, 60);
+        const title = sliceStr(p.title, 90);
+        if (!DAYS_OF_WEEK.has(day) || !TIME_RE.test(startTime) || !TIME_RE.test(endTime) || !title || !noBadChars(title)) continue;
+        // Category is either a fixed value or `dom:<id>` — accept both.
+        out.push({
+          action: type,
+          payload: {
+            day,
+            title,
+            startTime,
+            endTime,
+            category,
+            description: sliceStr(p.description, 300),
+          },
+        });
+        break;
+      }
+      case 'delete_schedule_block':
+      case 'toggle_schedule_block': {
+        const day = p.day;
+        const blockId = sliceStr(p.blockId, 80);
+        if (!DAYS_OF_WEEK.has(day) || !blockId) continue;
+        out.push({ action: type, payload: { day, blockId } });
+        break;
+      }
+      case 'add_victory_log': {
+        const successes = Array.isArray(p.successes) ? p.successes.map((s: any) => sliceStr(s, 200)).filter(Boolean) : [];
+        const improvements = Array.isArray(p.improvements) ? p.improvements.map((s: any) => sliceStr(s, 200)).filter(Boolean) : [];
+        if (successes.length === 0) continue;
+        out.push({ action: type, payload: { successes, improvements, highlights: sliceStr(p.highlights, 300) } });
+        break;
+      }
+      case 'add_quest': {
+        const title = sliceStr(p.title, 120);
+        const description = sliceStr(p.description, 600);
+        const xpReward = Math.min(120, Math.max(5, Math.round(Number(p.xpReward) || 20)));
+        const difficulty = ['easy', 'medium', 'hard'].includes(p.difficulty) ? p.difficulty : 'medium';
+        const domainId = typeof p.domainId === 'string' && validDomainIds.has(p.domainId) ? p.domainId : undefined;
+        if (!title || !noBadChars(title)) continue;
+        out.push({ action: type, payload: { title, description, xpReward, difficulty, domainId } });
+        break;
+      }
+      case 'update_weekly_target': {
+        const targetId = sliceStr(p.targetId, 80);
+        if (!targetId) continue;
+        const payload: any = { targetId };
+        if (typeof p.minHours === 'number' && isFinite(p.minHours)) payload.minHours = clampHours(p.minHours);
+        if (typeof p.maxHours === 'number' && isFinite(p.maxHours)) payload.maxHours = clampHours(p.maxHours);
+        if (typeof p.targetHours === 'number' && isFinite(p.targetHours)) payload.targetHours = clampHours(p.targetHours);
+        out.push({ action: type, payload });
+        break;
+      }
+      case 'add_habit_check': {
+        const domainId = sliceStr(p.domainId, 80);
+        if (!validDomainIds.has(domainId)) continue;
+        out.push({ action: type, payload: { domainId } });
+        break;
+      }
+      case 'add_note':
+      case 'update_note':
+      case 'delete_note': {
+        const id = sliceStr(p.id, 80);
+        const title = sliceStr(p.title, 120);
+        const content = sliceStr(p.content, 2000);
+        const tags = Array.isArray(p.tags) ? p.tags.map((t: any) => sliceStr(t, 40)).filter(Boolean).slice(0, 10) : [];
+        if (type === 'delete_note' || type === 'update_note') {
+          if (!id) continue;
+          out.push({ action: type, payload: { id, title, content, tags } });
+        } else {
+          if (!title || !content) continue;
+          out.push({ action: type, payload: { id: id || undefined, title, content, tags } });
+        }
+        break;
+      }
+      case 'award_xp': {
+        const xp = Math.min(200, Math.max(1, Math.round(Number(p.xp) || 10)));
+        const gold = Math.max(0, Math.round(Number(p.gold) || 0));
+        const reason = sliceStr(p.reason, 200);
+        if (!reason || !noBadChars(reason)) continue;
+        out.push({ action: type, payload: { xp, gold, reason } });
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  return out;
 }
 
 async function startServer() {
@@ -366,19 +544,15 @@ async function startServer() {
   // mentor also works when only LLM_PROVIDER keys are set.
   app.post('/api/ai-coach', async (req, res) => {
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return res.status(400).json({
-          error: 'GEMINI_API_KEY environment variable is missing. Please set it in secrets.',
-        });
-      }
-
-      const { prompt, context } = req.body;
+      const { prompt, context, history, agentMode } = req.body as {
+        prompt?: string;
+        context?: any;
+        history?: { role: 'user' | 'assistant'; text: string }[];
+        agentMode?: boolean;
+      };
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required' });
       }
-
-      const ai = new GoogleGenAI({ apiKey });
 
       // Domain-driven when the client provides its domains (onboarding v2);
       // otherwise fall back to the legacy hardcoded profile.
@@ -400,26 +574,123 @@ async function startServer() {
         )
         .join('\n');
 
-      const systemInstruction = `You are a personalized elite productivity, academic, and creative AI mentor.
+      const systemInstruction = `You are a personalized elite productivity, academic, and creative AI mentor ("Le Mentor du Système") inside a Solo Leveling-themed self-development app.
 ${domainsInstruction ? `The user's life domains (defined by the user themselves — never assume other domains):\n${domainsInstruction}` : `The user's core goals & schedule constraints:\n${legacyInstruction}`}
 
-Provide concise, inspiring, practical advice anchored to the user's own domains. Keep your tone encouraging, sharp, and structured.`;
+RULES:
+1. ALWAYS respond in French — the app's entire UI is French.
+2. Be concise, inspiring, practical. Anchor advice to the user's own domains and live progress context.
+3. Never give medical, injury or diet advice.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: `${systemInstruction}\n\nCurrent User Progress Context: ${JSON.stringify(context || {})}\n\nUser Question/Request: ${prompt}` },
-            ],
-          },
-        ],
+      // Agent mode: the mentor proposes structured state mutations (schedule
+      // blocks, notes, quests, victory logs, XP…) that the client shows the
+      // user for approval. The LLM must answer with a strict JSON object.
+      const agentInstruction = `
+MODE AGENT ACTIVE : vous pouvez PROPOSER des actions concrètes dans l'appli pour aider l'utilisateur. Répondez UNIQUEMENT avec un objet JSON valide, sans texte autour :
+{"reply": "votre réponse en français, concise et motivante (résumez ce que vous proposez de faire)", "actions": [ ... ]}
+
+Schéma d'une action : {"action": "<type>", "payload": {...}}
+
+Types d'actions autorisés (utilisez-les UNIQUEMENT si l'utilisateur demande explicitement une modification) :
+1. {"action":"update_personalization","payload":{"field":"userName"|"userTagline"|"hunterTitle"|"dailyQuote","value":"nouvelle valeur"}}
+2. {"action":"add_schedule_block","payload":{"day":"Monday".."Sunday","title":"...","startTime":"HH:MM","endTime":"HH:MM","category":"bangre_neo|cinema|school|must_do_work|morning_routine|learning|sleep|personal (ou dom:<id>)","description":"facultatif"}}
+3. {"action":"delete_schedule_block","payload":{"day":"...","blockId":"<id exact existant>"}}
+4. {"action":"toggle_schedule_block","payload":{"day":"...","blockId":"<id exact existant>"}}
+5. {"action":"add_victory_log","payload":{"successes":["..."], "improvements":["..."], "highlights":"..."}}
+6. {"action":"add_quest","payload":{"title":"...","description":"...","xpReward":20..120,"difficulty":"easy|medium|hard","domainId":"<id domaine existant (facultatif)>"}}
+7. {"action":"update_weekly_target","payload":{"targetId":"<id exact>","minHours":n,"maxHours":n,"targetHours":n}}
+8. {"action":"add_habit_check","payload":{"domainId":"<id domaine existant>"}}
+9. {"action":"add_note","payload":{"title":"...","content":"...","tags":["..."]}}
+10. {"action":"update_note","payload":{"id":"<id existant>","title":"...","content":"..."}}
+11. {"action":"delete_note","payload":{"id":"<id existant>"}}
+12. {"action":"award_xp","payload":{"xp":1..200,"gold":0..100,"reason":"pourquoi en ≤200 chars"}}
+
+RÈGLES STRICTES :
+- N'inventez JAMAIS un id (blockId, targetId, note id, domainId) qui n'est pas présent dans le contexte fourni ci-dessous. Si vous ne connaissez pas l'id exact, mettez actions: [].
+- Ne proposez que des actions réellement utiles et demandées. Si l'utilisateur pose juste une question, actions: [].
+- Contexte disponible (ids réels à réutiliser) : ${JSON.stringify(context || {})} (tronqué si nécessaire).`;
+
+      const systemForProvider = agentMode
+        ? `${systemInstruction}\n\n${agentInstruction}`
+        : `${systemInstruction}\n\nCurrent User Progress Context: ${JSON.stringify(context || {})}`;
+
+      // Multi-turn: replay recent client history (capped) before the new prompt.
+      const priorMessages: ChatMessage[] = (Array.isArray(history) ? history : [])
+        .slice(-10)
+        .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string' && m.text.trim())
+        .map((m) => ({ role: m.role, content: m.text }));
+
+      const geminiKey = process.env.GEMINI_API_KEY;
+      const llmConfig = getLlmConfig();
+      const validDomainIds = new Set((context?.domains as any[] | undefined)?.map((d) => String(d.id || '')) || []);
+
+      if (geminiKey) {
+        const ai = new GoogleGenAI({ apiKey: geminiKey });
+        const transcript = priorMessages.map((m) => `${m.role === 'user' ? 'Chasseur' : 'Mentor'}: ${m.content}`).join('\n');
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: `${systemForProvider}\n\n${transcript ? `Conversation so far:\n${transcript}\n\n` : ''}User Question/Request: ${prompt}`,
+                },
+              ],
+            },
+          ],
+          ...(agentMode ? { generationConfig: { responseMimeType: 'application/json' } } : {}),
+        });
+
+        const rawReply = response.text || '';
+        if (!agentMode) {
+          return res.json({ reply: rawReply || 'No response generated.', source: 'gemini' });
+        }
+        try {
+          const parsed = JSON.parse(rawReply);
+          return res.json({
+            reply: typeof parsed?.reply === 'string' && parsed.reply ? parsed.reply : 'Aucune réponse générée.',
+            actions: validateAgentActions(parsed, validDomainIds),
+            source: 'gemini',
+          });
+        } catch {
+          return res.json({ reply: rawReply || 'Aucune réponse générée.', actions: [], source: 'gemini' });
+        }
+      }
+
+      if (llmConfig) {
+        const reply = await chatCompletion(
+          llmConfig,
+          [
+            { role: 'system', content: systemForProvider },
+            ...priorMessages,
+            { role: 'user', content: prompt },
+          ],
+          { temperature: 0.6, maxTokens: agentMode ? 2500 : 1200, jsonMode: !!agentMode }
+        );
+
+        if (!agentMode) {
+          return res.json({ reply: reply || 'Aucune réponse générée.', source: llmConfig.provider });
+        }
+        try {
+          const parsed = JSON.parse(reply);
+          return res.json({
+            reply: typeof parsed?.reply === 'string' && parsed.reply ? parsed.reply : 'Aucune réponse générée.',
+            actions: validateAgentActions(parsed, validDomainIds),
+            source: llmConfig.provider,
+          });
+        } catch {
+          return res.json({ reply: reply || 'Aucune réponse générée.', actions: [], source: llmConfig.provider });
+        }
+      }
+
+      return res.status(503).json({
+        error: 'Aucun fournisseur IA configuré. Définissez GEMINI_API_KEY, ou NVIDIA_NIM_API_KEY / OPENROUTER_API_KEY pour le fournisseur de repli.',
       });
-
-      const reply = response.text || 'No response generated.';
-      return res.json({ reply });
     } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'TimeoutError') {
+        return res.status(503).json({ error: 'AI provider unreachable (timeout).' });
+      }
       console.error('Error in AI Coach API:', error);
       const errorMessage = error instanceof Error ? error.message : 'Internal server error';
       return res.status(500).json({ error: errorMessage });

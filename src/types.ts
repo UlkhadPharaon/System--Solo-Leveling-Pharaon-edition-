@@ -605,3 +605,113 @@ export interface StreakDayRecord {
   completedCategories?: Category[];
 }
 
+
+// ── AI Mentor Agent Actions ────────────────────────────────────────────────
+// Structured operations the AI Mentor (speaking through /api/ai-coach) can
+// propose. The server validates each action against whitelists before sending
+// them back; the client renders them as confirmation cards the user approves
+// before App.tsx applies them via the existing state setters.
+
+export interface AgentUpdatePersonalizationAction {
+  action: 'update_personalization';
+  payload: {
+    field: 'userName' | 'userTagline' | 'hunterTitle' | 'dailyQuote';
+    value: string;
+  };
+}
+
+export interface AgentAddScheduleBlockAction {
+  action: 'add_schedule_block';
+  payload: {
+    day: DayOfWeek;
+    title: string;
+    startTime: string; // HH:MM
+    endTime: string; // HH:MM
+    category: Category;
+    description?: string;
+  };
+}
+
+export interface AgentDeleteScheduleBlockAction {
+  action: 'delete_schedule_block';
+  payload: {
+    day: DayOfWeek;
+    blockId: string;
+  };
+}
+
+export interface AgentToggleScheduleBlockAction {
+  action: 'toggle_schedule_block';
+  payload: {
+    day: DayOfWeek;
+    blockId: string;
+  };
+}
+
+export interface AgentAddVictoryLogAction {
+  action: 'add_victory_log';
+  payload: {
+    successes: string[];
+    improvements?: string[];
+    highlights?: string;
+  };
+}
+
+export interface AgentAddQuestAction {
+  action: 'add_quest';
+  payload: {
+    title: string;
+    description: string;
+    xpReward: number;
+    difficulty: 'easy' | 'medium' | 'hard';
+    domainId?: string;
+  };
+}
+
+export interface AgentUpdateWeeklyTargetAction {
+  action: 'update_weekly_target';
+  payload: {
+    targetId: string;
+    minHours?: number;
+    maxHours?: number;
+    targetHours?: number;
+  };
+}
+
+export interface AgentAddHabitCheckAction {
+  action: 'add_habit_check';
+  payload: {
+    domainId: string;
+  };
+}
+
+export interface AgentNoteCrudAction {
+  action: 'add_note' | 'update_note' | 'delete_note';
+  payload: {
+    id?: string; // required for update/delete
+    title?: string;
+    content?: string;
+    tags?: string[];
+  };
+}
+
+export interface AgentAwardXpAction {
+  action: 'award_xp';
+  payload: {
+    xp: number;
+    gold?: number;
+    reason: string;
+  };
+}
+
+export type AgentAction =
+  | AgentUpdatePersonalizationAction
+  | AgentAddScheduleBlockAction
+  | AgentDeleteScheduleBlockAction
+  | AgentToggleScheduleBlockAction
+  | AgentAddVictoryLogAction
+  | AgentAddQuestAction
+  | AgentUpdateWeeklyTargetAction
+  | AgentAddHabitCheckAction
+  | AgentNoteCrudAction
+  | AgentAwardXpAction;
