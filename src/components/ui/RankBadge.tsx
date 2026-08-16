@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Star, Sparkles, Crown, Skull, Dragon, Wolf, Medal, Shield, Target, Zap, Flame } from './PharaohIcons';
+import { Star, Sparkles, Crown, Skull, Dragon, Wolf, Medal, Shield, Target, Zap, Flame, type PharaohIcon } from './PharaohIcons';
+import type { HunterRank } from '../../types';
 
+// Superset of the profile-side HunterRank: saved profiles may carry the French
+// 'Pharaon' spelling, while the XP ladder below uses 'Pharaoh'. Both must render.
 export type Rank =
-  | 'E' | 'D' | 'C' | 'B' | 'A' | 'S'
+  | HunterRank
   | 'Pharaoh' | 'ShadowMonarch' | 'DragonKnight' | 'WolfPack';
 
 export interface RankInfo {
@@ -11,7 +14,7 @@ export interface RankInfo {
   label: string;
   color: string;
   glowColor: string;
-  icon: React.ComponentType<{ size?: number; color?: string; className?: string }>;
+  icon: PharaohIcon;
   badgeImage?: string;
   description: string;
   xpThreshold: number;
@@ -82,6 +85,18 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
   Pharaoh: {
     rank: 'Pharaoh',
     label: 'Pharaoh',
+    color: '#F0C42D',
+    glowColor: 'rgba(240, 196, 45, 0.7)',
+    icon: Crown,
+    badgeImage: '/UI element and references/badge rang Pharaon.png',
+    description: 'Ruler of the System. The throne is yours.',
+    xpThreshold: 50000,
+  },
+  // French spelling stored in player profiles (getRankAndClassForLevel) —
+  // same visuals as 'Pharaoh' so legacy saves render identically.
+  Pharaon: {
+    rank: 'Pharaon',
+    label: 'Pharaon',
     color: '#F0C42D',
     glowColor: 'rgba(240, 196, 45, 0.7)',
     icon: Crown,

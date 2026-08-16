@@ -9,7 +9,7 @@ import {
 import {
   Target, Code, Film, GraduationCap, BookOpen, CheckCircle2, Circle,
   Plus, Minus, Sparkles, Award, Settings, Calendar, Flame, Zap, Sword, Shield, Star,
-  Dumbbell, Wallet, Users, BarChart3
+  Dumbbell, Wallet, Users, BarChart3,  type PharaohIcon,
 } from './ui/PharaohIcons';
 import { RankBadgeInline, RankBadgeCard, getRankFromXP, RANK_DEFINITIONS } from './ui/RankBadge';
 import { motion, AnimatePresence } from 'motion/react';
@@ -31,7 +31,7 @@ interface ProgressDashboardProps {
   playerProfile?: { name?: string; level?: number };
 }
 
-const DomainIconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+const DomainIconMap: Record<string, PharaohIcon> = {
   physical: Dumbbell,
   creative: Film,
   intellectual: GraduationCap,
@@ -274,7 +274,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
     );
   };
 
-  const renderLegacyCategory = (target: WeeklyCategoryTarget | undefined, label: string, Icon: React.ComponentType<{ size?: number; color?: string }>, color: string, minHours: number, maxHours: number) => {
+  const renderLegacyCategory = (target: WeeklyCategoryTarget | undefined, label: string, Icon: PharaohIcon, color: string, minHours: number, maxHours: number) => {
     if (!target) return null;
     const completed = target.completedHours;
     const targetHours = target.targetHours;
@@ -509,7 +509,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
             </div>
           </div>
           <div className="flex gap-2">
-            {['core', 'all'].map((filter) => (
+            {(['core', 'all'] as const).map((filter) => (
               <button
                 key={filter}
                 onClick={() => setChartCategoryFilter(filter)}
@@ -596,7 +596,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {subjectGoals.map((subject) => (
               <motion.div
-                key={subject.id}
+                key={subject.subject}
                 className="relative overflow-hidden rounded-xl bg-panel border border-lapis-border p-4 hover-lift"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -632,7 +632,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                   <div className="flex justify-between text-[10px] font-mono">
                     <span className="text-pharaoh-subtle">{subject.targetWeeklyHours}h cible</span>
                     <button
-                      onClick={() => onUpdateSubjectHours(subject.subjectKey, 0.5)}
+                      onClick={() => onUpdateSubjectHours(subject.subject, 0.5)}
                       className="btn-press text-gold-bright hover:text-gold text-xs"
                     >
                       +0.5h
@@ -767,9 +767,11 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                   <option value="completed">Terminé</option>
                 </select>
                 <span className="font-display text-sm text-pharaoh truncate flex-1 min-w-0">{lesson.title}</span>
-                <span className="font-mono text-[10px] text-pharaoh-subtle px-2 py-0.5 rounded-full bg-obsidian border border-lapis-border">
-                  {lesson.estimatedHours}h
-                </span>
+                {lesson.estimatedHours !== undefined && (
+                  <span className="font-mono text-[10px] text-pharaoh-subtle px-2 py-0.5 rounded-full bg-obsidian border border-lapis-border">
+                    {lesson.estimatedHours}h
+                  </span>
+                )}
               </motion.div>
             ))}
           </div>

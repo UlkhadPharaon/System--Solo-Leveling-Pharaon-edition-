@@ -9,7 +9,8 @@ import {
 import {
   Wallet, ArrowUpRight, ArrowDownRight, TrendingUp, Plus, Filter, Trash,
   Sparkles, Code, Film, GraduationCap, ShieldCheck, ShoppingBag, Tag, Calendar,
-  PiggyBank, Layers, ChevronDown, ChevronUp, Eye, EyeOff, X, Search, ListMusic
+  PiggyBank, Layers, ChevronDown, ChevronUp, Eye, EyeOff, X, Search, ListMusic,
+  Pie as PieIcon, type PharaohIcon,
 } from './ui/PharaohIcons';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, CartesianGrid
@@ -29,7 +30,7 @@ interface BudgetTrackerProps {
   onDeleteSavingsGoal: (id: string) => void;
 }
 
-const BucketIconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+const BucketIconMap: Record<string, PharaohIcon> = {
   bangre_neo_tech: Code,
   cinema_production: Film,
   school_education: GraduationCap,
@@ -436,7 +437,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-panel-gold">
-                <Pie size={20} color="var(--color-gold)" />
+                <PieIcon size={20} color="var(--color-gold)" />
               </div>
               <div>
                 <h3 className="font-display text-xl font-light text-pharaoh">Répartition des Dépenses</h3>

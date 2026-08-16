@@ -484,7 +484,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
         }] };
       } else if (rng < 0.4) {
         prize = "Élixir de Force (+5 STR)";
-        return { ...base, attributes: { ...(prev?.attributes || {}), force: ((prev?.attributes?.force) || 10) + 5 } };
+        return { ...base, attributes: { ...prev.attributes, force: ((prev.attributes?.force) || 10) + 5 } };
       } else if (rng < 0.7) {
         prize = "Potion de Soin Majeure (HP Max)";
         return { ...base, hp: prev?.maxHp || 100 };

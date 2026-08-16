@@ -4,7 +4,8 @@ import {
   Crown, Sword, Shield, Orb, Portal,
   Dumbbell, Film, GraduationCap, Code, BookOpen, Briefcase, Wallet, Users, Flame,
   Target, Trophy, FileText, Calendar, Clock, Zap, Sparkles, Plus, Settings, Trash,
-  ArrowLeft, ChevronDown, Eye, EyeOff, Star, Skull, Dragon, Wolf
+  ArrowLeft, ChevronDown, Eye, EyeOff, Star, Skull, Dragon, Wolf,
+  type PharaohIcon
 } from './ui/PharaohIcons';
 import { RankBadgeInline, getRankFromXP, RANK_DEFINITIONS } from './ui/RankBadge';
 import { motion, AnimatePresence } from 'motion/react';
@@ -122,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
   const rank = playerProfile ? getRankFromXP(totalXP) : 'E';
   const rankInfo = RANK_DEFINITIONS[rank];
 
-  const navItems: { id: ActiveTab; label: string; icon: React.ComponentType<{ size?: number; color?: string; className?: string }>; highlight?: boolean; domainColor?: string }[] = [
+  const navItems: { id: ActiveTab; label: string; icon: PharaohIcon; highlight?: boolean; domainColor?: string }[] = [
     { id: 'system_solo', label: 'SYSTÈME', icon: Crown, highlight: true, domainColor: rankInfo.color },
     { id: 'dashboard', label: 'Quêtes', icon: Calendar, domainColor: '#1D6FA5' },
     ...(showWorkoutTab ? [{ id: 'workout' as ActiveTab, label: 'Entraînement', icon: Dumbbell, domainColor: '#C0392B' }] : []),
@@ -276,7 +277,7 @@ export const Header: React.FC<HeaderProps> = ({
                     )}
                   </div>
                   <div className="hidden sm:block text-left min-w-0">
-                    <p className="font-display text-sm font-light text-gold-bright truncate">{playerProfile.name || 'Hunter'}</p>
+                    <p className="font-display text-sm font-light text-gold-bright truncate">{playerProfile.title || 'Hunter'}</p>
                     <p className="text-[10px] text-pharaoh-subtle font-mono">NIV {playerProfile.level || 1} • {totalXP.toLocaleString()} XP</p>
                   </div>
                   <ChevronDown size={16} className="text-pharaoh-muted group-hover:text-gold transition-colors" />
@@ -292,7 +293,7 @@ export const Header: React.FC<HeaderProps> = ({
                       transition={{ duration: 0.15 }}
                     >
                       <div className="px-4 py-3 border-b border-lapis-border">
-                        <p className="font-display text-sm text-gold-bright truncate">{playerProfile.name || 'Hunter'}</p>
+                        <p className="font-display text-sm text-gold-bright truncate">{playerProfile.title || 'Hunter'}</p>
                         <p className="text-xs text-pharaoh-subtle font-mono">{rankInfo.label} • NIV {playerProfile.level || 1}</p>
                       </div>
                       <div className="px-3 py-2 space-y-1">

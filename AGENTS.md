@@ -125,6 +125,14 @@ npm run dev &
 sleep 5
 curl -s http://localhost:3000/api/health | grep '"status":"ok"'
 kill %1
+
+# 4. PRODUCTION bundle actually boots — the dev test does NOT cover this.
+#    (Catches CJS/esbuild issues like the import.meta crash fixed 2026-08-16.)
+NODE_ENV=production PORT=3999 node dist/server.cjs &
+sleep 4
+curl -s http://localhost:3999/api/health | grep '"status":"ok"'
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3999/   # expect 200
+kill %1
 ```
 
 If any step fails, fix before pushing.

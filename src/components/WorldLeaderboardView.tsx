@@ -78,10 +78,10 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
     if (!player) return LEGENDARY_HUNTERS;
     const playerEntry: LeaderboardEntry = {
       userId: 'current_user',
-      userName: `${player?.name || 'Souverain'} (Vous)`,
+      userName: `${player?.title || 'Souverain'} (Vous)`,
       level: player?.level || 1,
       rank: player?.rank || 'E',
-      hunterClass: player?.hunterClass || 'Chasseur Débutant',
+      hunterClass: player?.hunterClass || 'Chasseur de Rang E (Débutant)',
       totalXp: playerTotalXp,
       avatar: player?.avatar
     };
@@ -103,14 +103,14 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
       const { data: { user } } = await supabase.auth.getUser();
       setSelfUid(user?.id ?? null);
       const uId = user?.id || 'anonymous_user';
-      const uName = (player as any)?.name || 'Souverain anonyme';
+      const uName = player?.title || 'Souverain anonyme';
 
       const entry: LeaderboardEntry = {
         userId: uId,
         userName: uName,
         level: player?.level || 1,
         rank: player?.rank || 'E',
-        hunterClass: player?.hunterClass || 'Chasseur Débutant',
+        hunterClass: player?.hunterClass || 'Chasseur de Rang E (Débutant)',
         totalXp: playerTotalXp,
         avatar: player?.avatar || { skinTone: '#D4A81E', auraColor: 'cyan', crownType: 'none', eyeColor: '#1D6FA5' }
       };

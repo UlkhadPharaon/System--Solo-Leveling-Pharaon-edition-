@@ -452,8 +452,8 @@ export interface PlayerProfile {
   streakDays: number;
   /** Total gold spent via the system. */
   goldSpent: number;
-  /** List of unlocked item IDs. */
-  unlockedItems?: string[];
+  /** Unlocked rewards — plain item IDs or full narrative chapter reward records. */
+  unlockedItems?: Array<string | { id: string; name: string; type: string; statBonus?: string; unlockedAt?: number }>;
 }
 
 export type TransactionType = 'income' | 'expense';
@@ -510,6 +510,8 @@ export interface AcademicLesson {
   status: LessonStatus;
   targetExamDate?: string;
   notes?: string;
+  /** Optional planned workload — lessons without an estimate simply hide the badge. */
+  estimatedHours?: number;
 }
 
 export interface ProjectMilestone {

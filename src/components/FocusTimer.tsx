@@ -16,7 +16,7 @@ import { ConfirmDialog } from './ui/ConfirmDialog';
 import {
   Clock, Play, Pause, RotateCcw, Volume2, VolumeX,
   Code, Film, GraduationCap, Briefcase, BookOpen,
-  Target, Zap, Sparkles, Shield, Crown, Dumbbell, Wallet, Users, Flame
+  Target, Zap, Sparkles, Shield, Crown, Dumbbell, Wallet, Users, Flame,  type PharaohIcon,
 } from './ui/PharaohIcons';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -31,7 +31,7 @@ interface FocusTimerProps {
   domains?: Domain[];
 }
 
-const DomainIconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+const DomainIconMap: Record<string, PharaohIcon> = {
   physical: Dumbbell,
   creative: Film,
   intellectual: GraduationCap,

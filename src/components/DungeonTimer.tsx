@@ -66,7 +66,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
       const log = {
         id: `flee-log-${Date.now()}`,
         text: `[FUITE] Vous avez abandonné le défi du Tombeau « ${dungeon.title} ». Vous subissez ${damage} dégâts physiques.`,
-        type: 'expense' as const,
+        type: 'penalty' as const,
         timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
       };
       return {

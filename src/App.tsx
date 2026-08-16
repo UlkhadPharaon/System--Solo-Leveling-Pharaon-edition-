@@ -172,8 +172,8 @@ export default function App() {
     }
   }, []);
 
-  const handleCompleteOnboarding = (data: { userName: string; mainGoal: string; intensity: string }) => {
-    setPersonalization((prev) => ({ ...prev, userName: data.userName }));
+  const handleCompleteOnboarding = (data?: { userName: string; mainGoal: string; intensity: string }) => {
+    setPersonalization((prev) => ({ ...prev, userName: data?.userName }));
     localStorage.setItem('aura_onboarding_completed', 'true');
     setIsOnboardingOpen(false);
   };

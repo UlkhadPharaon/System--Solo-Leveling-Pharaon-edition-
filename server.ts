@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
@@ -11,8 +10,6 @@ if (existsSync('.env.local')) {
   dotenv.config({ path: '.env.local', override: true });
 }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LLM provider abstraction — NVIDIA NIM (dev) / OpenRouter (prod).
@@ -424,7 +421,8 @@ function validateAgentActions(raw: any, validDomainIds: Set<string>): AgentActio
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  // Cloud Run injects PORT and expects the app to bind it; fall back to 3000 locally.
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
 

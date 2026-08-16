@@ -32,6 +32,9 @@ const createIcon = (paths: React.ReactNode) =>
     )
   );
 
+/** Type of every exported icon — accepts full SVG props (style, onClick, …). */
+export type PharaohIcon = ReturnType<typeof createIcon>;
+
 // ── Navigation / Core Icons ──
 
 export const Crown = createIcon((

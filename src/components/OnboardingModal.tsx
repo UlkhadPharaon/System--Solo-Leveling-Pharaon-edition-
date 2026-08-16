@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   User, Target, Zap, Check, Plus, Trash, Sparkles, ArrowLeft, Wand,
   Crown, Dumbbell, Film, GraduationCap, Briefcase, BookOpen,
-  Shield, Sword, Star, Flame, Eye, X, ChevronRight
+  Shield, Sword, Star, Flame, Eye, X, ChevronRight,  type PharaohIcon,
 } from './ui/PharaohIcons';
 import {
   Domain,
@@ -42,17 +42,17 @@ interface DomainDraft {
 
 interface OnboardingModalProps {
   isOpen: boolean;
-  onComplete?: (legacy: { userName: string; mainGoal: string; intensity: string }) => void;
+  onComplete?: (legacy?: { userName: string; mainGoal: string; intensity: string }) => void;
   onCompleteV2?: (result: OnboardingV2Result) => void;
 }
 
-const INTENSITIES: { value: CoachingIntensity; label: string; hint: string; icon: React.ComponentType<{ size?: number; color?: string }>; color: string }[] = [
+const INTENSITIES: { value: CoachingIntensity; label: string; hint: string; icon: PharaohIcon; color: string }[] = [
   { value: 'gentle', label: 'Doux', hint: 'Quêtes accessibles, progression lente. Idéal pour débuter.', icon: Shield, color: '#10b981' },
   { value: 'balanced', label: 'Équilibré', hint: 'Mélange facile/moyen/difficile. Progression naturelle.', icon: Target, color: '#06b6d4' },
   { value: 'demanding', label: 'Exigeant', hint: 'Majorité de quêtes difficiles. Pour chasseurs expérimentés.', icon: Sword, color: '#ef4444' },
 ];
 
-const PENALTIES: { value: PenaltyCategory; label: string; hint: string; icon: React.ComponentType<{ size?: number; color?: string }>; color: string }[] = [
+const PENALTIES: { value: PenaltyCategory; label: string; hint: string; icon: PharaohIcon; color: string }[] = [
   { value: 'creative_makeup', label: 'Rattrapage Créatif', hint: 'Tâche artistique/écriture pour compenser.', icon: Sparkles, color: '#f59e0b' },
   { value: 'physical_penalty', label: 'Pénalité Physique', hint: 'Exercice corporel (pompes, squats, marche).', icon: Flame, color: '#ef4444' },
   { value: 'xp_loss', label: 'Perte d\'XP', hint: 'Le Système retranche de l\'expérience.', icon: Star, color: '#8b5cf6' },
@@ -66,7 +66,7 @@ const newDraft = (): DomainDraft => ({
   weeklyTimeBudget: 3,
 });
 
-const TRACKING_ICON_MAP: Record<TrackingType, React.ComponentType<{ size?: number; color?: string }>> = {
+const TRACKING_ICON_MAP: Record<TrackingType, PharaohIcon> = {
   workout_log: Dumbbell,
   project_phases: Film,
   study_subjects: GraduationCap,
@@ -119,7 +119,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-2xl font-light text-gradient-gold">Bienvenue, Chasseur</h2>
-            <button onClick={onComplete} className="btn-press p-2 rounded-lg text-pharaoh-subtle hover:text-pharaoh hover:bg-panel-hover"><X size={20} /></button>
+            <button onClick={() => onComplete?.()} className="btn-press p-2 rounded-lg text-pharaoh-subtle hover:text-pharaoh hover:bg-panel-hover"><X size={20} /></button>
           </div>
 
           {step === 1 && (
