@@ -7,4 +7,5 @@ coverage/
 .env*
 !.env.example
 # Web Push subscription storage (contains device push endpoint — treat as a secret)
-data/
+# Root-anchored so it does NOT ignore src/data/ (tracked source files)
+/data/
