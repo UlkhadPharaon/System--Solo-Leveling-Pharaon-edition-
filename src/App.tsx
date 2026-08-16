@@ -27,8 +27,9 @@ import {
   Domain,
   HabitCheck
 } from './types';
+// Push notification helpers
+import { sendPushViaServer, showLocalNotification } from './lib/pushNotifications';
 import { 
-  INITIAL_ROUTINE_BLOCKS, 
   INITIAL_DAY_SCHEDULES,
   INITIAL_PERSONALIZATION,
   INITIAL_CATEGORY_TARGETS, 
@@ -385,7 +386,7 @@ export default function App() {
   });
 
   // Current day blocks derived from daySchedules
-  const currentDayBlocks = daySchedules[selectedDay] || INITIAL_DAY_SCHEDULES[selectedDay] || INITIAL_ROUTINE_BLOCKS;
+  const currentDayBlocks = daySchedules[selectedDay] || INITIAL_DAY_SCHEDULES[selectedDay] || [];
 
   const [categoryTargets, setCategoryTargets] = useState<WeeklyCategoryTarget[]>(() => {
     return loadJson('aura_category_targets', INITIAL_CATEGORY_TARGETS);
@@ -689,6 +690,15 @@ export default function App() {
                 icon: '/icon.jpg',
                 tag: notificationKey,
               });
+              // Also fire server-relayed push (works even when tab is closed)
+              sendPushViaServer({
+                title: `Session à venir : ${block.title}`,
+                body: `Début dans ${displayMins} min (${block.startTime}). Catégorie : ${categoryLabel}`,
+                tag: notificationKey,
+                url: '/',
+                icon: '/icon.jpg',
+                data: {},
+              }).catch(() => {/* non-fatal */});
             } catch (err) {
               console.error('Notification trigger error:', err);
             }

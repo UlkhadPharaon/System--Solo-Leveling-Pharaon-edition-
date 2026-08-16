@@ -1,5 +1,6 @@
-const CACHE_NAME = 'pharaoh-system-v3';
+const CACHE_NAME = 'pharaoh-system-v4';
 const APP_SHELL = ['/', '/index.html', '/manifest.json', '/icon.jpg'];
+const DEFAULT_ICON = '/icon.jpg';
 
 // Install Event - Caching the app shell + tous les bundles hashés référencés
 // par index.html (JS/CSS générés par Vite) pour un offline complet dès
@@ -69,5 +70,87 @@ self.addEventListener('fetch', (event) => {
         }
       });
     })
+  );
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Push Notifications
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Receives server-relayed pushes (delivered even when the app/browser is closed)
+// and surfaces them as system notifications on the device.
+self.addEventListener('push', (event) => {
+  let data = { title: 'Le Système', body: '', tag: '', url: '/', icon: DEFAULT_ICON, extras: {} };
+  try {
+    if (event.data) {
+      const parsed = typeof event.data.json === 'function' ? event.data.json() : JSON.parse(event.data.text());
+      if (parsed && typeof parsed === 'object') {
+        data = {
+          title: parsed.title || data.title,
+          body: parsed.body || '',
+          tag: parsed.tag || '',
+          url: parsed.url || '/',
+          icon: parsed.icon || DEFAULT_ICON,
+          extras: parsed.data || {},
+        };
+      }
+    }
+  } catch (e) {
+    // Malformed payload — show a generic fallback.
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: DEFAULT_ICON,
+    tag: data.tag,
+    renotify: !!data.tag,
+    data: { url: data.url, ...data.extras },
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+// Handles in-app local notifications relayed from the client tab via postMessage.
+self.addEventListener('message', (event) => {
+  const msg = event.data;
+  if (msg && msg.type === 'show-notification' && msg.payload) {
+    const p = msg.payload || {};
+    event.waitUntil(
+      self.registration.showNotification(p.title || 'Le Système', {
+        body: p.body || '',
+        icon: p.icon || DEFAULT_ICON,
+        badge: DEFAULT_ICON,
+        tag: p.tag || '',
+        renotify: !!p.tag,
+        data: { url: p.url || '/' },
+      })
+    );
+  }
+});
+
+// Notification click — open (or focus) the app on the route encoded in the payload.
+self.addEventListener('notificationclick', (event) => {
+  const notification = event.notification;
+  notification.close();
+
+  const targetUrl = (notification.data && notification.data.url) || '/';
+  event.waitUntil(
+    (async () => {
+      const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of allClients) {
+        // Focus an existing tab pointing at the desired route.
+        if (client.url.includes(targetUrl)) {
+          await client.focus();
+          return;
+        }
+      }
+      // Otherwise open a new window for the route, falling back to the app root.
+      try {
+        await self.clients.openWindow(targetUrl);
+      } catch {
+        await self.clients.openWindow('/');
+      }
+    })()
   );
 });

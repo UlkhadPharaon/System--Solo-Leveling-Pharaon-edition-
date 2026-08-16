@@ -3,7 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import webpush from 'web-push';
 
 dotenv.config();
 if (existsSync('.env.local')) {
@@ -127,6 +128,122 @@ function validateQuests(raw: any, validDomainIds: Set<string>): QuestSpec[] {
   return quests;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Web Push Notifications (web-push + VAPID)
+//  - Single-user personal app: the device's push subscription is stored in a
+//    JSON file under ./data (gitignored), not a DB.
+//  - Scheduled pushes are kept in memory; the client re-registers them on boot
+//    so they survive server restarts.
+//  - If VAPID keys are absent the server still starts, just with push disabled.
+// ─────────────────────────────────────────────────────────────────────────────
+const PUSH_DATA_DIR = path.join(process.cwd(), 'data');
+const SUBSCRIPTION_FILE = path.join(PUSH_DATA_DIR, 'push-subscription.json');
+
+type PushSubscriptionJSON = {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  expirationTime?: number | null;
+};
+
+interface ScheduledPush {
+  id: string;
+  fireAt: number; // epoch ms
+  payload: { title: string; body?: string; tag?: string; icon?: string; url?: string; data?: any };
+  subscription?: PushSubscriptionJSON;
+}
+
+const vapid = {
+  publicKey: process.env.VAPID_PUBLIC_KEY || '',
+  privateKey: process.env.VAPID_PRIVATE_KEY || '',
+  subject: process.env.VAPID_SUBJECT || 'mailto:pharaon@system-solo-leveling.local',
+};
+const pushEnabled = !!(vapid.publicKey && vapid.privateKey);
+if (pushEnabled) {
+  webpush.setVapidDetails(vapid.subject, vapid.publicKey, vapid.privateKey);
+}
+
+// in-memory scheduled pushes keyed by id (client re-registers on boot)
+const scheduledPushes = new Map<string, ScheduledPush>();
+
+function loadSubscription(): PushSubscriptionJSON | null {
+  try {
+    if (!existsSync(SUBSCRIPTION_FILE)) return null;
+    return JSON.parse(readFileSync(SUBSCRIPTION_FILE, 'utf-8')) as PushSubscriptionJSON;
+  } catch {
+    return null;
+  }
+}
+
+function saveSubscription(sub: PushSubscriptionJSON | null) {
+  try {
+    mkdirSync(PUSH_DATA_DIR, { recursive: true });
+    if (!sub) {
+      writeFileSync(SUBSCRIPTION_FILE, JSON.stringify({}), 'utf-8');
+      return;
+    }
+    writeFileSync(SUBSCRIPTION_FILE, JSON.stringify(sub, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('[push] failed to persist subscription:', e);
+  }
+}
+
+function normalizeSubscription(raw: any): PushSubscriptionJSON | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const endpoint = raw.endpoint || raw.subscription?.endpoint;
+  const endpointRef = raw.subscription ?? raw;
+  const p256dh = endpointRef?.keys?.p256dh;
+  const auth = endpointRef?.keys?.auth;
+  if (!endpoint || !p256dh || !auth) return null;
+  return { endpoint, keys: { p256dh, auth }, expirationTime: endpointRef.expirationTime ?? null };
+}
+
+/** Send a notification to the stored subscription. Returns true on success. */
+async function sendPush(subscription: PushSubscriptionJSON, payload: any): Promise<{ ok: boolean; recoverable: boolean }> {
+  if (!pushEnabled) return { ok: false, recoverable: true };
+  try {
+    await webpush.sendNotification(
+      { endpoint: subscription.endpoint, keys: subscription.keys, expirationTime: subscription.expirationTime ?? null },
+      JSON.stringify(payload),
+      { TTL: 7 * 24 * 3600 } // 7 days for delayed content
+    );
+    return { ok: true, recoverable: true };
+  } catch (err: any) {
+    // 404 / 410 → the subscription is gone; drop it.
+    if (err?.statusCode === 404 || err?.statusCode === 410) {
+      return { ok: false, recoverable: false };
+    }
+    return { ok: false, recoverable: true };
+  }
+}
+
+function purgeScheduledFor(tagPrefix: string) {
+  for (const [id, s] of scheduledPushes) {
+    if (s.payload?.tag?.startsWith(tagPrefix)) scheduledPushes.delete(id);
+  }
+}
+
+// Background scheduler: every 60s fire any due scheduled push.
+if (typeof setInterval !== 'undefined') {
+  setInterval(async () => {
+    const now = Date.now();
+    const due: ScheduledPush[] = [];
+    for (const [, s] of scheduledPushes) {
+      if (s.fireAt <= now) due.push(s);
+    }
+    for (const s of due) {
+      scheduledPushes.delete(s.id);
+      const sub = loadSubscription();
+      const target = s.subscription || sub;
+      if (!target) continue;
+      const { recoverable } = await sendPush(target, s.payload);
+      if (!recoverable) {
+        saveSubscription(null);
+        break;
+      }
+    }
+  }, 60 * 1000);
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -138,7 +255,115 @@ async function startServer() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // Gemini AI Routine Advisor & Study Coach endpoint
+  // ── Web Push Notification routes ──────────────────────────────────────────
+  // Public config: hands the VAPID_PUBLIC_KEY to the client for subscribe().
+  app.get('/api/push/config', (req, res) => {
+    res.json({
+      enabled: pushEnabled,
+      vapidPublicKey: vapid.publicKey || null,
+    });
+  });
+
+  // Store this device's push subscription.
+  app.post('/api/push/subscribe', (req, res) => {
+    const sub = normalizeSubscription(req.body);
+    if (!sub) {
+      return res.status(400).json({ error: 'Invalid push subscription.' });
+    }
+    saveSubscription(sub);
+    res.json({ ok: true });
+  });
+
+  // Remove the stored subscription (usually on explicit logout/unsubscribe).
+  app.delete('/api/push/unsubscribe', (req, res) => {
+    const existing = loadSubscription();
+    const bodyEndpoint = req.body?.endpoint as string | undefined;
+    // Only clear if no endpoint given, or it matches the one we stored.
+    if (!existing || !bodyEndpoint || existing.endpoint === bodyEndpoint) {
+      saveSubscription(null);
+    }
+    scheduledPushes.clear();
+    res.json({ ok: true });
+  });
+
+  // Immediately send a push to the stored subscription.
+  app.post('/api/push/send', async (req, res) => {
+    if (!pushEnabled) {
+      return res.status(503).json({ error: 'Push not configured: missing VAPID keys.' });
+    }
+    const sub = loadSubscription();
+    if (!sub) {
+      return res.status(200).json({ ok: true, skipped: true, reason: 'no-subscription' });
+    }
+    const payload = req.body?.payload;
+    if (!payload || typeof payload.title !== 'string') {
+      return res.status(400).json({ error: 'payload.title is required.' });
+    }
+    const { ok, recoverable } = await sendPush(sub, {
+      title: payload.title,
+      body: payload.body || '',
+      tag: payload.tag || '',
+      icon: payload.icon || '/icon.jpg',
+      url: payload.url || '/',
+      data: payload.data || {},
+    });
+    if (!recoverable) saveSubscription(null);
+    res.json({ ok, delivered: ok });
+  });
+
+  // Schedule a push for a future time. The client re-registers these on boot.
+  app.post('/api/push/schedule', async (req, res) => {
+    if (!pushEnabled) {
+      return res.status(503).json({ error: 'Push not configured: missing VAPID keys.' });
+    }
+    const { id, fireAt, payload } = req.body as {
+      id?: string;
+      fireAt?: string;
+      payload?: any;
+    };
+    const fireTimestamp = new Date(fireAt || '').getTime();
+    if (!id || !payload || typeof payload.title !== 'string' || isNaN(fireTimestamp)) {
+      return res.status(400).json({ error: 'id, fireAt (ISO) and payload.title are required.' });
+    }
+    const sub = loadSubscription();
+    if (!sub) {
+      return res.json({ ok: true, id, skipped: true });
+    }
+    scheduledPushes.set(id, {
+      id,
+      fireAt: fireTimestamp,
+      payload: {
+        title: payload.title,
+        body: payload.body || '',
+        tag: payload.tag || '',
+        icon: payload.icon || '/icon.jpg',
+        url: payload.url || '/',
+        data: payload.data || {},
+      },
+      subscription: sub,
+    });
+    res.json({ ok: true, id });
+  });
+
+  // Cancel a previously scheduled push.
+  app.delete('/api/push/schedule/:id', (req, res) => {
+    const removed = scheduledPushes.delete(req.params.id);
+    res.json({ ok: true, removed });
+  });
+
+  // Push status for the settings UI.
+  app.get('/api/push/status', (req, res) => {
+    res.json({
+      enabled: pushEnabled,
+      hasSubscription: !!loadSubscription(),
+      scheduledCount: scheduledPushes.size,
+    });
+  });
+
+  // AI Mentor chat endpoint — provider-agnostic.
+  // Priority: Gemini (the deploy target auto-injects GEMINI_API_KEY), then the
+  // configured OpenAI-compatible provider (NVIDIA NIM / OpenRouter) so the
+  // mentor also works when only LLM_PROVIDER keys are set.
   app.post('/api/ai-coach', async (req, res) => {
     try {
       const apiKey = process.env.GEMINI_API_KEY;

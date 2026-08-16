@@ -6,3 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+# Web Push subscription storage (contains device push endpoint — treat as a secret)
+data/
