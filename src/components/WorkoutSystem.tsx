@@ -404,7 +404,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
   if (!hasPhysicalDomain) {
     return (
-      <div className="max-w-2xl mx-auto bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3 hover-lift">
+      <div className="max-w-2xl mx-auto bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3">
         <Dumbbell size={40} className="mx-auto text-pharaoh-subtle" />
         <h2 className="font-display text-2xl italic text-pharaoh tracking-wide">Aucun domaine physique déclaré</h2>
         <p className="text-sm text-pharaoh-muted">
@@ -463,7 +463,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
         </div>
 
         {/* Sub-navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 border-t border-lapis-border/60 pt-4 overflow-x-auto">
+        <div className="flex items-center gap-2 mt-6 border-t border-lapis-border/60 pt-4 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('ulkhad')}
             className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
@@ -621,7 +621,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           </div>
 
           {(routines || []).length === 0 && (
-            <div className="bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3 hover-lift">
+            <div className="bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3">
               <Dumbbell size={48} className="mx-auto text-pharaoh-subtle" />
               <h3 className="font-display text-lg font-medium text-pharaoh tracking-wide">Aucun programme d'entraînement</h3>
               <p className="text-xs text-pharaoh-muted max-w-md mx-auto leading-relaxed">
@@ -636,7 +636,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
       {activeTab === 'active_session' && (
         <div className="space-y-6">
           {!activeRoutine ? (
-            <div className="bg-panel border border-lapis-border rounded-xl p-12 text-center max-w-xl mx-auto space-y-4 hover-lift">
+            <div className="bg-panel border border-lapis-border rounded-xl p-12 text-center max-w-xl mx-auto space-y-4">
               <Dumbbell size={64} className="mx-auto text-pharaoh-subtle" />
               <h3 className="font-display text-lg font-medium text-pharaoh tracking-wide">Aucune Séance Active</h3>
               <p className="text-xs text-pharaoh-muted">
@@ -684,7 +684,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
                   <button
                     onClick={handleFinishSession}
-                    className="btn-press px-5 py-2.5 rounded-xl bg-emerald hover:brightness-110 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2"
+                    className="btn-press px-5 py-2.5 rounded-xl bg-emerald hover:brightness-110 text-inverse font-bold text-xs shadow-lg transition-all flex items-center gap-2"
                   >
                     <CheckCircle2 size={16} />
                     <span>TERMINER & VALIDER</span>
@@ -706,13 +706,13 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => addRestTime(30)}
-                      className="px-3 py-1.5 rounded-xl bg-gold/20 text-gold-bright border border-gold/40 text-xs font-mono hover:bg-gold/30"
+                      className="btn-press px-3 py-1.5 rounded-xl bg-gold/20 text-gold-bright border border-gold/40 text-xs font-mono hover:bg-gold/30"
                     >
                       +30s
                     </button>
                     <button
                       onClick={() => setIsRestActive(false)}
-                      className="px-3 py-1.5 rounded-xl bg-obsidian text-pharaoh-muted border border-lapis-border text-xs"
+                      className="btn-press px-3 py-1.5 rounded-xl bg-obsidian text-pharaoh-muted border border-lapis-border text-xs"
                     >
                       Passer
                     </button>
@@ -800,7 +800,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                                   onClick={() => handleToggleSet(ex.id, set.id)}
                                   className={`btn-press flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-xs transition-all ${
                                     set.isCompleted
-                                      ? 'bg-emerald text-white shadow-lg'
+                                      ? 'bg-emerald text-inverse shadow-card'
                                       : 'bg-obsidian text-pharaoh-muted border border-lapis-border hover:border-gold hover:text-pharaoh'
                                   }`}
                                 >
@@ -861,7 +861,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                     <span className="font-mono text-[10px] text-pharaoh-subtle">{pr.date}</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-pharaoh mb-3">{pr.exerciseName}</h3>
+                  <h3 className="text-sm font-bold font-display text-pharaoh mb-3">{pr.exerciseName}</h3>
 
                   <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-obsidian border border-lapis-border text-center">
                     <div>
@@ -948,8 +948,12 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           <h2 className="font-display text-lg font-medium text-pharaoh tracking-wide">Historique des Séances Validées</h2>
 
           {(completedSessions || []).length === 0 ? (
-            <div className="bg-panel border border-lapis-border rounded-xl p-8 text-center text-pharaoh-muted text-xs">
-              Aucune séance enregistrée pour le moment.
+            <div className="bg-panel border border-lapis-border rounded-xl p-10 flex flex-col items-center gap-3 text-center">
+              <div className="p-3 rounded-2xl bg-panel-gold">
+                <CheckCircle2 size={24} color="var(--color-gold)" />
+              </div>
+              <p className="font-display text-lg font-light text-pharaoh">Aucune séance enregistrée</p>
+              <p className="text-xs text-pharaoh-subtle max-w-xs">Validez votre première séance pour construire l'historique et débloquer des records.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -962,7 +966,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                         <span className="text-pharaoh-subtle">•</span>
                         <span className="font-mono text-xs text-pharaoh-muted">{session.startTime}</span>
                       </div>
-                      <h3 className="text-base font-bold text-pharaoh">{session.routineName}</h3>
+                      <h3 className="text-base font-bold font-display text-pharaoh">{session.routineName}</h3>
                     </div>
 
                     <div className="flex items-center gap-3 font-mono text-xs">
@@ -996,7 +1000,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           <div className="bg-obsidian-elevated border border-gold/60 rounded-xl w-full max-w-2xl p-6 space-y-5 shadow-glow-gold-lg">
             <div className="flex items-center justify-between border-b border-lapis-border pb-3">
               <h3 className="font-display text-lg font-bold text-gold tracking-wide">Créer un Programme Sur Mesure</h3>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-pharaoh-muted hover:text-pharaoh">
+              <button onClick={() => setIsCreateModalOpen(false)} className="btn-press p-2 rounded-xl border border-lapis-border text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover transition-all">
                 <X size={18} />
               </button>
             </div>
@@ -1165,11 +1169,11 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
       {/* MODAL 2: ADD BODY METRIC */}
       {isMetricModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-obsidian-elevated border border-gold/60 rounded-xl w-full max-w-md p-6 space-y-4 shadow-glow-gold-lg">
             <div className="flex items-center justify-between border-b border-lapis-border pb-2">
               <h3 className="font-display text-base font-bold text-gold tracking-wide">Saisir Mesures Biométriques</h3>
-              <button onClick={() => setIsMetricModalOpen(false)} className="text-pharaoh-muted"><X size={18} /></button>
+              <button onClick={() => setIsMetricModalOpen(false)} className="btn-press p-2 rounded-xl border border-lapis-border text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover transition-all"><X size={18} /></button>
             </div>
 
             <form onSubmit={handleSaveBodyMetric} className="space-y-3 text-xs">
@@ -1271,11 +1275,11 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
       {/* MODAL 3: ADD RECORD PERSONNAL (PR) */}
       {isPRModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-obsidian-elevated border border-gold/60 rounded-xl w-full max-w-md p-6 space-y-4 shadow-glow-gold-lg">
             <div className="flex items-center justify-between border-b border-lapis-border pb-2">
               <h3 className="font-display text-base font-bold text-gold tracking-wide">Enregistrer un Record Personnel</h3>
-              <button onClick={() => setIsPRModalOpen(false)} className="text-pharaoh-muted"><X size={18} /></button>
+              <button onClick={() => setIsPRModalOpen(false)} className="btn-press p-2 rounded-xl border border-lapis-border text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover transition-all"><X size={18} /></button>
             </div>
 
             <form onSubmit={handleSavePR} className="space-y-3 text-xs">

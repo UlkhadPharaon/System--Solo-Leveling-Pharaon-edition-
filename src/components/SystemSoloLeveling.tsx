@@ -671,7 +671,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/30">
                 <div
-                  className="h-full bg-gradient-to-r from-blood via-blood to-blood/60 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-blood via-blood to-blood/50 transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(0, ((safePlayer.hp || 100) / (safePlayer.maxHp || 100)) * 100))}%` }}
                 />
               </div>
@@ -684,7 +684,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/30">
                 <div
-                  className="h-full bg-gradient-to-r from-sl-gold-dark via-sl-gold to-sl-gold-light transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-sl-gold-dark via-sl-gold to-sl-gold/70 transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(0, ((safePlayer.mp || 50) / (safePlayer.maxMp || 50)) * 100))}%` }}
                 />
               </div>
@@ -699,7 +699,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sapphire/30">
                 <div
-                  className="h-full bg-gradient-to-r from-sapphire via-sapphire/80 to-sapphire/60 progress-smooth transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-sapphire via-sapphire/70 to-sapphire/50 progress-smooth transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(0, ((safePlayer.xp || 0) / (safePlayer.xpToNextLevel || 100)) * 100))}%` }}
                 />
               </div>
@@ -773,7 +773,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   ].map((attr) => (
                     <div key={attr.key} className="bg-sl-primary/60 border border-sl-gold/10 rounded-2xl p-5 flex items-center justify-between group hover:border-sl-gold/40 transition-all shadow-lg hover:shadow-gold-sm">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-sl-lapis/40 rounded-xl text-sl-gold group-hover:scale-110 transition-transform">
+                        <div className="p-3 bg-sl-lapis/40 rounded-lg text-sl-gold group-hover:scale-110 transition-transform">
                           <attr.icon className="w-5 h-5" />
                         </div>
                         <div>
@@ -816,7 +816,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               <div className="space-y-6">
                 <h2 className="text-base font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3">ÉQUIPEMENT ÉQUIPÉ</h2>
                 <div className="space-y-4">
-                   <div className="p-4 bg-sl-lapis/20 border border-sl-gold/10 rounded-2xl flex items-center justify-between">
+                   <div className="p-4 bg-sl-primary/60 border border-sl-gold/10 rounded-2xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
                          <Sword className="w-5 h-5 text-sl-gold" />
                          <div>
@@ -826,7 +826,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       </div>
                       <div className="text-sl-gold font-mono text-xs">+15 ATK</div>
                    </div>
-                   <div className="p-4 bg-sl-lapis/20 border border-sl-gold/10 rounded-2xl flex items-center justify-between">
+                   <div className="p-4 bg-sl-primary/60 border border-sl-gold/10 rounded-2xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
                          <Shield className="w-5 h-5 text-sl-gold" />
                          <div>
@@ -1279,7 +1279,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     {shopItems.map(item => (
                       <div key={item.id} className="p-4 bg-sl-primary/60 border border-sl-gold/10 rounded-2xl flex items-center justify-between group hover:border-sl-gold/40 transition-all">
                          <div className="flex items-center gap-4">
-                            <div className="p-3 bg-sl-lapis/40 rounded-xl text-sl-gold">
+                            <div className="p-3 bg-sl-lapis/40 rounded-lg text-sl-gold">
                                <Gift className="w-5 h-5" />
                             </div>
                             <div>

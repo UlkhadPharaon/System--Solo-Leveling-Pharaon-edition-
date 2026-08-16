@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Download, Upload, Trash2, X, Cloud } from './ui/PharaohIcons';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import { cloudSync, SyncState } from '../lib/supabaseSync';
 
 interface DataManagementModalProps {
@@ -68,23 +69,23 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
     reader.readAsText(file);
   };
 
+  const [confirmReset, setConfirmReset] = useState(false);
+
   const resetAllData = () => {
-    if (window.confirm("⚠️ Attention : Êtes-vous sûr de vouloir réinitialiser toutes vos données et effacer toute votre progression (streaks, succès, niveau, quêtes) pour repartir sur une base complètement vierge ?")) {
-      STORAGE_KEYS.forEach(key => {
-        localStorage.removeItem(key);
-      });
-      window.location.reload();
-    }
+    STORAGE_KEYS.forEach(key => {
+      localStorage.removeItem(key);
+    });
+    window.location.reload();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="bg-glass-strong rounded-2xl p-6 w-full max-w-md shadow-card-hover space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-xl font-light tracking-wide text-gradient-gold">Gestion des Données</h2>
-          <button onClick={onClose} className="btn-press text-pharaoh-muted hover:text-pharaoh transition-colors">
+          <button onClick={onClose} className="btn-press p-2 rounded-xl hover:bg-gold/10 text-pharaoh-muted hover:text-pharaoh transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -99,14 +100,14 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
             className="btn-press hover-lift flex flex-col items-center gap-2 p-4 rounded-xl bg-gold/10 border border-gold/40 text-gold-bright hover:border-gold transition-all"
           >
             <Download className="w-6 h-6" />
-            <span className="text-xs">Exporter</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider">Exporter</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
             className="btn-press hover-lift flex flex-col items-center gap-2 p-4 rounded-xl bg-lapis/40 border border-lapis text-pharaoh-muted hover:border-gold hover:text-pharaoh transition-all"
           >
             <Upload className="w-6 h-6" />
-            <span className="text-xs">Importer</span>
+            <span className="font-mono text-[10px] uppercase tracking-wider">Importer</span>
           </button>
         </div>
 
@@ -151,13 +152,25 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
 
         <div className="pt-2 border-t border-lapis">
           <button
-            onClick={resetAllData}
+            onClick={() => setConfirmReset(true)}
             className="btn-press w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-blood/10 border border-blood/40 text-blood hover:bg-blood/20 hover:border-blood transition-all text-xs font-bold"
           >
             <Trash2 className="w-4 h-4" />
             <span>Réinitialiser & Vider toutes les données</span>
           </button>
         </div>
+
+        {/* Full reset guard — the most destructive action in the app gets the
+            same ConfirmDialog treatment as simple record deletes. */}
+        <ConfirmDialog
+          isOpen={confirmReset}
+          title="Tout réinitialiser ?"
+          message="Toute votre progression (streaks, succès, niveau, quêtes, notes, budget) sera définitivement effacée pour repartir d'une base vierge."
+          confirmLabel="Tout effacer"
+          cancelLabel="Annuler"
+          onConfirm={resetAllData}
+          onCancel={() => setConfirmReset(false)}
+        />
 
         <input type="file" ref={fileInputRef} onChange={importData} accept=".json" className="hidden" />
       </div>

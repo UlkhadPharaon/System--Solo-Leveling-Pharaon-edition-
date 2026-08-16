@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NoteItem, SchoolSubject, ProjectPhase, Domain } from '../types';
 import { ProjectTimelineView } from './ProjectTimelineView';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 import {
   FileText,
   Plus,
@@ -45,6 +46,8 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
 
   // Note Creation Modal / Inline Editor State
   const [isCreating, setIsCreating] = useState(false);
+  const [pendingDeleteNoteId, setPendingDeleteNoteId] = useState<string | null>(null);
+  const pendingDeleteNote = notes.find((n) => n.id === pendingDeleteNoteId) ?? null;
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [editCategory, setEditCategory] = useState<string>(
@@ -137,7 +140,7 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-xl text-[10px] font-mono tracking-wide font-medium bg-emerald/10 text-emerald border border-emerald/40 flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wide font-medium bg-amethyst/15 text-amethyst border border-amethyst/40 flex items-center gap-1.5">
                 <FileText size={14} color="var(--color-emerald)" />
                 Espace Créatif & Académique
               </span>
@@ -256,7 +259,7 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
                   <button
                     key={note.id}
                     onClick={() => setActiveNoteId(note.id)}
-                    className={`w-full text-left p-3 rounded-xl border transition-all space-y-1 relative group ${
+                    className={`btn-press w-full text-left p-3 rounded-xl border transition-all space-y-1 relative group ${
                       isSelected
                         ? 'bg-panel-gold border-gold/50 text-pharaoh shadow-gold'
                         : 'bg-obsidian/60 border-lapis-border hover:border-gold-dim hover-lift text-pharaoh-muted'
@@ -335,7 +338,7 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
                   </button>
 
                   <button
-                    onClick={() => onDeleteNote(activeNote.id)}
+                    onClick={() => setPendingDeleteNoteId(activeNote.id)}
                     className="btn-press p-2 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-subtle hover:text-blood hover:border-blood/40 transition-all"
                     title="Supprimer la note"
                   >
@@ -359,10 +362,25 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
       </div>
       )}
 
+      {/* Note delete confirmation — destructive actions are guarded app-wide */}
+      <ConfirmDialog
+        isOpen={pendingDeleteNote != null}
+        title="Supprimer cette note ?"
+        message="Le parchemin sera définitivement détruit — cette action ne peut pas être annulée."
+        details={pendingDeleteNote ? pendingDeleteNote.title : undefined}
+        confirmLabel="Supprimer"
+        cancelLabel="Conserver"
+        onConfirm={() => {
+          if (pendingDeleteNoteId) onDeleteNote(pendingDeleteNoteId);
+          setPendingDeleteNoteId(null);
+        }}
+        onCancel={() => setPendingDeleteNoteId(null)}
+      />
+
       {/* New Note Modal */}
       {isCreating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-lapis border border-gold/50 rounded-2xl max-w-lg w-full p-6 shadow-card-hover space-y-4 anim-pop">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-lapis border border-gold/50 rounded-2xl max-w-lg w-full p-6 shadow-card-hover space-y-4 anim-pop my-8">
             <h3 className="font-display text-2xl font-light text-pharaoh tracking-wide flex items-center gap-2 border-b border-lapis-border pb-2">
               <Plus size={20} color="var(--color-gold)" />
               Créer une Nouveau Parchemin

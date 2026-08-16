@@ -75,7 +75,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
         logs: [log, ...(prev?.logs || [])]
       };
     });
-    alert(`Vous fuyez le tombeau ! La colère du gardien s'est abattue sur vous (-25 HP).`);
+
     onClose();
   };
 
@@ -156,7 +156,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold/0 via-gold to-gold/0 animate-pulse" />
 
         <div className="text-center space-y-2">
-          <span className="font-mono text-[10px] text-gold font-display tracking-widest uppercase">
+          <span className="font-mono text-[10px] text-gold tracking-widest uppercase">
             DÉFI DU CHRONOTOMBEAU
           </span>
           <h3 className="font-display text-xl font-bold text-pharaoh uppercase tracking-wide">
@@ -170,13 +170,13 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
         {hasFinished ? (
           <div className="space-y-4 text-center py-6">
             <Sparkles className="w-12 h-12 text-gold mx-auto animate-bounce" />
-            <h4 className="font-display font-bold text-pharaoh text-md uppercase tracking-wide">VICTOIRE SUPRÊME !</h4>
+            <h4 className="font-display font-bold text-pharaoh text-base uppercase tracking-wide">VICTOIRE SUPRÊME !</h4>
             <p className="text-xs text-pharaoh-muted italic">
               Vous avez complété votre séance de focus de manière royale et banni le mal égyptien. Les récompenses doublées ont été ajoutées à vos coffres.
             </p>
             <button
               onClick={onClose}
-              className="btn-press px-6 py-2 bg-gold text-obsidian rounded-xl font-display font-mono text-xs tracking-widest uppercase shadow-gold"
+              className="btn-press px-6 py-2 bg-gold text-obsidian rounded-xl font-display text-xs tracking-widest uppercase shadow-gold"
             >
               RÉCLAMER ET RETOURNER
             </button>
@@ -191,7 +191,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                   cx="96"
                   cy="96"
                   r="80"
-                  stroke="#0A1422"
+                  stroke="var(--color-obsidian-elevated)"
                   strokeWidth="8"
                   fill="transparent"
                 />
@@ -199,7 +199,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                   cx="96"
                   cy="96"
                   r="80"
-                  stroke="#D4A81E"
+                  stroke="var(--color-gold)"
                   strokeWidth="6"
                   fill="transparent"
                   strokeDasharray="502"
@@ -211,7 +211,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                 <div className="font-mono text-3xl font-bold text-gradient-gold tracking-widest tabular-nums">
                   {formatTime(timeLeft)}
                 </div>
-                <div className="font-mono text-[9px] text-gold font-display uppercase tracking-widest mt-1">
+                <div className="font-mono text-[9px] text-gold uppercase tracking-widest mt-1">
                   {isRunning ? 'FOCUS ACTIF' : 'PRÊT'}
                 </div>
               </div>
@@ -223,7 +223,6 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                 {[
                   { label: '25 min', value: 25 * 60 },
                   { label: '45 min', value: 45 * 60 },
-                  { label: '10 sec (Test)', value: 10 }
                 ].map(opt => (
                   <button
                     key={opt.value}

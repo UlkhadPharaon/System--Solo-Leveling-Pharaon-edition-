@@ -47,7 +47,7 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
     <div className="space-y-8 anim-in">
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger">
-        <div className="bg-panel border border-gold-dim rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
+        <div className="bg-panel border border-lapis-border rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
           <div>
             <div className="text-[10px] text-gold font-display tracking-widest uppercase">Missions Accomplies</div>
             <div className="text-2xl font-bold text-pharaoh font-mono mt-1">{totalCompletedTasks}</div>
@@ -58,7 +58,7 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
           </div>
         </div>
 
-        <div className="bg-panel border border-gold-dim rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
+        <div className="bg-panel border border-lapis-border rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
           <div>
             <div className="text-[10px] text-gold font-display tracking-widest uppercase">Niveau Actuel</div>
             <div className="text-2xl font-bold text-pharaoh font-mono mt-1">NV. {player?.level || 1}</div>
@@ -69,7 +69,7 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
           </div>
         </div>
 
-        <div className="bg-panel border border-gold-dim rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
+        <div className="bg-panel border border-lapis-border rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
           <div>
             <div className="text-[10px] text-gold font-display tracking-widest uppercase">Moyenne Quotidienne</div>
             <div className="text-2xl font-bold text-pharaoh font-mono mt-1">
@@ -86,7 +86,7 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
       {/* Recharts Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: XP Area Chart */}
-        <div className="bg-panel border border-gold-dim rounded-3xl p-5 space-y-4 hover-lift transition-all">
+        <div className="bg-panel border border-lapis-border rounded-2xl p-5 space-y-4 hover-lift transition-all">
           <div className="flex justify-between items-center border-b border-lapis-border pb-3">
             <h4 className="text-xs font-bold text-pharaoh font-display tracking-widest uppercase flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-gold" /> Courbe d'Énergie (XP Capturée)
@@ -97,24 +97,24 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorXP" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D4A81E" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#D4A81E" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--color-gold)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--color-gold)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: 'var(--color-text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--color-text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0A1422', borderColor: '#D4A81E', borderRadius: '12px', fontSize: '11px' }}
-                  labelStyle={{ color: '#D4A81E', fontWeight: 'bold' }}
+                  contentStyle={{ backgroundColor: 'var(--color-obsidian-elevated)', borderColor: 'var(--color-gold)', borderRadius: '12px', fontSize: '11px' }}
+                  labelStyle={{ color: 'var(--color-gold)', fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="XP" stroke="#D4A81E" strokeWidth={2} fillOpacity={1} fill="url(#colorXP)" />
+                <Area type="monotone" dataKey="XP" stroke="var(--color-gold)" strokeWidth={2} fillOpacity={1} fill="url(#colorXP)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Chart 2: Missions & Focus Bar Chart */}
-        <div className="bg-panel border border-gold-dim rounded-3xl p-5 space-y-4 hover-lift transition-all">
+        <div className="bg-panel border border-lapis-border rounded-2xl p-5 space-y-4 hover-lift transition-all">
           <div className="flex justify-between items-center border-b border-lapis-border pb-3">
             <h4 className="text-xs font-bold text-pharaoh font-display tracking-widest uppercase flex items-center gap-2">
               <BarChart4 className="w-4 h-4 text-gold" /> Discipline & Focus
@@ -123,14 +123,14 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: 'var(--color-text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--color-text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0A1422', borderColor: '#D4A81E', borderRadius: '12px', fontSize: '11px' }}
+                  contentStyle={{ backgroundColor: 'var(--color-obsidian-elevated)', borderColor: 'var(--color-gold)', borderRadius: '12px', fontSize: '11px' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '10px' }} />
-                <Bar dataKey="Missions" fill="#F0C42D" radius={[4, 4, 0, 0]} name="Missions" />
-                <Bar dataKey="Focus" fill="#7B3FE4" radius={[4, 4, 0, 0]} name="Min Focus" />
+                <Bar dataKey="Missions" fill="var(--color-gold-bright)" radius={[4, 4, 0, 0]} name="Missions" />
+                <Bar dataKey="Focus" fill="var(--color-amethyst)" radius={[4, 4, 0, 0]} name="Min Focus" />
               </BarChart>
             </ResponsiveContainer>
           </div>

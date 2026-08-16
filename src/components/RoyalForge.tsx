@@ -1,5 +1,5 @@
-import React from 'react';
-import { Hammer, Sword, Shield, Layers, Sparkles, Check } from './ui/PharaohIcons';
+import React, { useState } from 'react';
+import { Hammer, Sword, Shield, Layers, Sparkles, Check, AlertTriangle } from './ui/PharaohIcons';
 import { motion } from 'motion/react';
 import { PlayerProfile, SystemItem, HunterRank } from '../types';
 
@@ -75,6 +75,7 @@ const CRAFTABLE_ITEMS: CraftableItem[] = [
 ];
 
 export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }) => {
+  const [forgeError, setForgeError] = useState<string | null>(null);
   if (!player) return null;
   // Extract crafting materials currently in player's inventory
   const getMaterialQty = (matId: string) => {
@@ -87,16 +88,19 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
   const handleCraft = (craft: CraftableItem) => {
     // Check gold
     if (currentGold < craft.goldCost) {
-      alert("Or insuffisant dans les coffres de la dynastie !");
+      setForgeError("Or insuffisant dans les coffres de la dynastie !");
+      setTimeout(() => setForgeError(null), 4000);
       return;
     }
 
     // Check materials
     const missingMaterial = craft.materialsRequired.find(req => getMaterialQty(req.materialId) < req.quantity);
     if (missingMaterial) {
-      alert(`Matériaux manquants : Il vous faut plus de ${missingMaterial.name}.`);
+      setForgeError(`Matériaux manquants : Il vous faut plus de ${missingMaterial.name}.`);
+      setTimeout(() => setForgeError(null), 4000);
       return;
     }
+    setForgeError(null);
 
     // Process crafting
     onUpdatePlayer(prev => {
@@ -202,7 +206,12 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
   return (
     <div className="space-y-8 anim-in">
       {/* Dynamic Resource Panel */}
-      <div className="bg-lapis/40 border border-gold-dim rounded-3xl p-6 bg-panel">
+      <div className="bg-panel border border-lapis-border rounded-2xl p-6">
+        {forgeError && (
+          <div className="mb-4 text-blood bg-blood/10 border border-blood/40 rounded-xl px-3 py-2 text-xs font-mono flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" /> {forgeError}
+          </div>
+        )}
         <h3 className="text-xs font-bold text-pharaoh font-display tracking-widest uppercase mb-4 flex items-center gap-2">
           <Layers className="w-4 h-4 text-gold" /> Vos Réserves de Matériaux Sacrés
         </h3>
@@ -218,7 +227,7 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
               <div key={mat.id} className="bg-obsidian-elevated border border-gold-dim/40 rounded-2xl p-4 flex items-center gap-3 relative overflow-hidden hover-lift transition-all">
                 <div className={`w-3.5 h-3.5 rounded-full ${mat.color} shrink-0`} />
                 <div>
-                  <div className="font-mono text-[10px] text-gold font-display leading-none mb-1">{mat.name}</div>
+                  <div className="font-mono text-[10px] text-gold leading-none mb-1">{mat.name}</div>
                   <div className="text-lg font-bold text-pharaoh font-mono leading-none">{qty} <span className="text-xs text-pharaoh-subtle">pcs</span></div>
                 </div>
               </div>
@@ -229,7 +238,7 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
 
       {/* Crafting Options */}
       <div className="space-y-4">
-        <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2 border-b border-gold-dim pb-3">
+        <h3 className="font-display text-base font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2 border-b border-gold-dim pb-3">
           <Hammer className="w-5 h-5 text-gold" /> FORGER DES RELIQUES ANCIENNES
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger">
@@ -239,12 +248,12 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
             const isCraftable = canAffordGold && hasMaterials;
 
             return (
-              <div key={craft.id} className="bg-panel border border-gold-dim rounded-3xl p-5 flex flex-col justify-between group hover:border-gold/40 hover-lift transition-all relative overflow-hidden">
+              <div key={craft.id} className="bg-panel border border-gold-dim rounded-2xl p-5 flex flex-col justify-between group hover:border-gold/40 hover-lift transition-all relative overflow-hidden">
                 <div className="space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-display font-bold text-pharaoh text-md tracking-wide">{craft.name}</h4>
-                      <span className="font-mono text-[9px] px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/30 font-display">
+                      <h4 className="font-display font-bold text-pharaoh text-base tracking-wide">{craft.name}</h4>
+                      <span className="font-mono text-[9px] px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/30">
                         RANG {craft.rarity} - {craft.type === 'weapon' ? 'ARME' : 'ARMURE'}
                       </span>
                     </div>
@@ -262,7 +271,7 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
 
                   {/* Blueprint cost display */}
                   <div className="py-2.5 border-t border-b border-gold-dim/40 space-y-1.5">
-                    <div className="font-mono text-[9px] text-gold font-display tracking-widest">INGRÉDIENTS NÉCESSAIRES :</div>
+                    <div className="font-mono text-[9px] text-gold tracking-widest">INGRÉDIENTS NÉCESSAIRES :</div>
                     <div className="flex flex-wrap gap-3">
                       {craft.materialsRequired.map(req => {
                         const held = getMaterialQty(req.materialId);
@@ -301,7 +310,7 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
 
       {/* Equipment Inventory Manager */}
       <div className="space-y-4 pt-4">
-        <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2 border-b border-gold-dim pb-3">
+        <h3 className="font-display text-base font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2 border-b border-gold-dim pb-3">
           <Sword className="w-5 h-5 text-gold" /> VOS ARMES & ARMURES DANS LE SYSTÈME
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
@@ -315,12 +324,12 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
                 <div className="flex justify-between items-center">
                   <span className="font-display font-bold text-pharaoh text-sm">{item.name}</span>
                   {item.isEquipped && (
-                    <span className="px-1.5 py-0.5 rounded bg-emerald/20 text-emerald font-mono text-[8px] font-display flex items-center gap-0.5 border border-emerald/30">
+                    <span className="px-1.5 py-0.5 rounded bg-emerald/20 text-emerald font-mono text-[9px] flex items-center gap-0.5 border border-emerald/30">
                       <Check className="w-2.5 h-2.5" /> ÉQUIPÉ
                     </span>
                   )}
                 </div>
-                <div className="font-mono text-[10px] text-gold font-display uppercase tracking-wider">{item.type === 'weapon' ? 'Arme' : 'Armure'}</div>
+                <div className="font-mono text-[10px] text-gold uppercase tracking-wider">{item.type === 'weapon' ? 'Arme' : 'Armure'}</div>
                 <div className="text-xs text-pharaoh-muted italic mb-2">{item.description}</div>
                 {/* Stat displays */}
                 <div className="flex flex-wrap gap-2 pt-1">
@@ -336,14 +345,14 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
                 {item.isEquipped ? (
                   <button
                     onClick={() => handleUnequip(item.id, item.type as any)}
-                    className="btn-press w-full py-1.5 bg-blood/20 hover:bg-blood/40 text-blood border border-blood/40 hover:border-blood/60 rounded-xl font-display font-mono text-[10px] tracking-widest transition-all"
+                    className="btn-press w-full py-1.5 bg-blood/20 hover:bg-blood/40 text-blood border border-blood/40 hover:border-blood/60 rounded-xl font-display text-[10px] tracking-widest transition-all"
                   >
                     DÉSÉQUIPER
                   </button>
                 ) : (
                   <button
                     onClick={() => handleEquip(item.id, item.type as any)}
-                    className="btn-press w-full py-1.5 bg-gold text-obsidian rounded-xl font-display font-mono text-[10px] tracking-widest hover:scale-105 transition-all shadow-gold"
+                    className="btn-press w-full py-1.5 bg-gold text-obsidian rounded-xl font-display text-[10px] tracking-widest hover:scale-105 transition-all shadow-gold"
                   >
                     ÉQUIPER SUR LE PHARAON
                   </button>
@@ -352,8 +361,12 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
             </div>
           ))}
           {forgedInventory.length === 0 && (
-            <div className="col-span-full py-8 text-center text-pharaoh-subtle italic text-xs">
-              Vous ne possédez aucune relique forgée pour le moment. Rassemblez des ingrédients dans les tombes.
+            <div className="col-span-full rounded-2xl border border-lapis-border bg-obsidian-elevated/40 px-6 py-10 text-center space-y-2">
+              <Hammer className="w-8 h-8 mx-auto text-gold-dim" />
+              <p className="font-display text-base text-pharaoh">Aucune relique forgée</p>
+              <p className="text-xs text-pharaoh-subtle italic max-w-sm mx-auto">
+                Vous ne possédez aucune relique forgée pour le moment. Rassemblez des ingrédients dans les tombes.
+              </p>
             </div>
           )}
         </div>

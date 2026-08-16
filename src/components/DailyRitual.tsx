@@ -62,7 +62,7 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onInvokeBlessing }) =>
 
   return (
     <motion.div
-      className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-6 md:p-8 shadow-card-hover"
+      className="relative overflow-hidden rounded-2xl bg-panel border border-lapis-border p-6 md:p-8 shadow-card hover-lift"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -148,9 +148,8 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onInvokeBlessing }) =>
               hasInvoked
                 ? 'bg-panel text-pharaoh-subtle border-lapis-border'
                 : 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
-            } ${isAnimating ? 'animate-pulse' : ''}`}
+            } ${isAnimating ? 'animate-pulse' : ''} disabled:opacity-60 disabled:cursor-not-allowed`}
             whileHover={{ scale: hasInvoked ? 1 : 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
             {isAnimating ? (
               <>
@@ -171,7 +170,7 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onInvokeBlessing }) =>
             ) : (
               <>
                 <motion.div
-                  className="p-2 rounded-lg bg-obsidian/30"
+                  className="p-2 rounded-xl bg-obsidian/30"
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >

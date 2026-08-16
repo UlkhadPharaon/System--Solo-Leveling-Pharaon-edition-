@@ -166,7 +166,14 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
               <X size={18} />
             </button>
           </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-obsidian border border-lapis-border">
+          <div
+            className="mt-3 h-2 overflow-hidden rounded-full bg-obsidian border border-lapis-border"
+            role="progressbar"
+            aria-label="Progression des séries de la séance"
+            aria-valuenow={totalSets ? Math.round((doneSets / totalSets) * 100) : 0}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
             <div className="h-full rounded-full bg-gradient-to-r from-gold to-gold-bright transition-all duration-500"
               style={{ width: `${totalSets ? (doneSets / totalSets) * 100 : 0}%` }} />
           </div>
@@ -309,7 +316,7 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
                   const active = meso.id === pos.mesocycle.id && mc.id === pos.microcycle.id;
                   const past = ULKHAD_MESOCYCLES.findIndex((m) => m.id === meso.id) < ULKHAD_MESOCYCLES.findIndex((m) => m.id === pos.mesocycle.id);
                   return (
-                    <button key={mc.id} onClick={() => { /* navigation informative via sélecteur de jour */ }}
+                    <div key={mc.id} role="img" aria-label={`${mc.name} (${mc.weeks} semaines)`}
                       title={`${mc.name} (${mc.weeks} sem)`}
                       className={`h-8 flex-1 rounded-lg border font-mono text-[10px] font-medium transition-all ${
                         active ? `${MICRO_STYLE[mc.id].chip} border-current ring-1 ring-gold/50 animate-pulse`
@@ -318,7 +325,7 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
                       }`}
                       style={{ flexGrow: mc.weeks }}>
                       {mc.weeks}sem
-                    </button>
+                    </div>
                   );
                 })}
               </div>

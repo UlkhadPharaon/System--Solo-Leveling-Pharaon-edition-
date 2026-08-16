@@ -189,9 +189,9 @@ export const PharaohAvatarCustomizer: React.FC<PharaohAvatarCustomizerProps> = (
 
         {/* Dynamic Display of Stats/Titles */}
         <div className="mt-4 text-center z-10 space-y-1">
-          <div className="font-mono text-xs text-gold font-display tracking-widest uppercase">AURA SOUVERAINE</div>
-          <div className="font-display text-md font-bold text-pharaoh tracking-wide flex items-center justify-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-gold" style={{ color: currentAura.color }} />
+          <div className="font-display text-xs text-gold tracking-widest uppercase">AURA SOUVERAINE</div>
+          <div className="font-display text-base font-bold text-pharaoh tracking-wide flex items-center justify-center gap-1.5">
+            <Sparkles style={{ color: currentAura.color }} size={16} />
             {currentAura.label}
           </div>
           {equippedWeaponName && (
@@ -212,7 +212,7 @@ export const PharaohAvatarCustomizer: React.FC<PharaohAvatarCustomizerProps> = (
         {/* Skin Selection */}
         <div className="space-y-3">
           <h4 className="font-display text-xs font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2">
-            <Palette className="w-4 h-4 text-gold" /> Couleur de l'Aura
+            <Sparkles className="w-4 h-4 text-gold" /> Couleur de l'Aura
           </h4>
           <div className="grid grid-cols-2 gap-3">
             {AURAS.map((a) => (
@@ -273,7 +273,7 @@ export const PharaohAvatarCustomizer: React.FC<PharaohAvatarCustomizerProps> = (
                     : 'bg-obsidian-elevated border-gold-dim/40 text-pharaoh-muted hover:border-gold/30 hover:text-pharaoh'
                 }`}
               >
-                <div className="w-4 h-4 rounded-full border border-pharaoh/20" style={{ backgroundColor: e.value, boxShadow: `0 0 6px ${e.value}` }} />
+                <div className="w-4 h-4 rounded-full border border-gold-dim/40" style={{ backgroundColor: e.value, boxShadow: `0 0 6px ${e.value}` }} />
                 <span className="font-display text-[10px] font-bold">{e.label}</span>
               </button>
             ))}

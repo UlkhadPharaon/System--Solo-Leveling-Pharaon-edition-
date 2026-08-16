@@ -59,7 +59,7 @@ export const ShadowSynergiesList: React.FC<ShadowSynergiesListProps> = ({ player
     <div className="space-y-6 anim-in">
       <div className="flex items-center gap-2 border-b border-gold-dim pb-3">
         <Crown className="w-5 h-5 text-gold animate-pulse" />
-        <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase">
+        <h3 className="font-display text-base font-bold text-pharaoh tracking-widest uppercase">
           SYNERGIES DE L’ARMÉE DIVINE
         </h3>
       </div>
@@ -83,7 +83,7 @@ export const ShadowSynergiesList: React.FC<ShadowSynergiesListProps> = ({ player
                     <h4 className={`font-display font-bold text-sm tracking-wide ${active ? 'text-gold-bright' : 'text-pharaoh-muted'}`}>
                       {syn.name}
                     </h4>
-                    <span className={`font-mono text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                    <span className={`font-mono text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                       active ? 'bg-emerald/10 text-emerald border border-emerald/20' : 'bg-blood/10 text-blood border border-blood/20'
                     }`}>
                       {active ? 'SYNCHRONISÉE' : 'VERROUILLÉE'}
@@ -103,7 +103,7 @@ export const ShadowSynergiesList: React.FC<ShadowSynergiesListProps> = ({ player
                 <p className="text-xs text-pharaoh-muted italic leading-relaxed">{syn.description}</p>
 
                 <div className="space-y-1.5 pt-2">
-                  <div className="font-mono text-[9px] text-pharaoh-subtle font-display uppercase tracking-wider">Condition de résonance :</div>
+                  <div className="font-mono text-[9px] text-pharaoh-subtle uppercase tracking-wider">Condition de résonance :</div>
                   <div className="font-mono text-[10px] text-pharaoh-muted flex items-center gap-1">
                     {syn.conditionDesc}
                   </div>
@@ -112,7 +112,7 @@ export const ShadowSynergiesList: React.FC<ShadowSynergiesListProps> = ({ player
 
               {/* Bonus Display */}
               <div className="mt-4 pt-3 border-t border-gold-dim/40">
-                <div className="font-mono text-[9px] text-gold font-display uppercase tracking-wider mb-1">Bonus passif octroyé :</div>
+                <div className="font-mono text-[9px] text-gold uppercase tracking-wider mb-1">Bonus passif octroyé :</div>
                 <div className={`font-display text-xs font-bold ${active ? 'text-emerald' : 'text-pharaoh-subtle'}`}>
                   {syn.bonusDesc}
                 </div>

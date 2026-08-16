@@ -16,7 +16,7 @@ export const triggerVictoryConfetti = () => {
         ...defaults,
         ...opts,
         particleCount: Math.floor(count * particleRatio),
-        colors: ['#D4AF37', '#f59e0b', '#8b5cf6', '#10b981', '#ec4899', '#38bdf8', '#ffffff'],
+        colors: ['#D4AF37', '#E0B529', '#7B3FE4', '#1E8A49', '#C94277', '#38bdf8', '#ffffff'],
       });
     } catch (e) {
       console.error('Confetti trigger error:', e);
@@ -65,7 +65,7 @@ export const triggerAllTasksCompletedConfetti = () => {
       particleCount: 120,
       spread: 100,
       origin: { y: 0.6 },
-      colors: ['#D4AF37', '#10b981', '#8b5cf6', '#06b6d4', '#f43f5e'],
+      colors: ['#D4AF37', '#1E8A49', '#7B3FE4', '#1D6FA5', '#f43f5e'],
       zIndex: 9999,
     });
   } catch (e) {}
@@ -85,13 +85,13 @@ export const triggerAllTasksCompletedConfetti = () => {
         ...defaults,
         particleCount,
         origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-        colors: ['#D4AF37', '#10b981', '#8b5cf6', '#06b6d4', '#f43f5e'],
+        colors: ['#D4AF37', '#1E8A49', '#7B3FE4', '#1D6FA5', '#f43f5e'],
       });
       confetti({
         ...defaults,
         particleCount,
         origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-        colors: ['#D4AF37', '#10b981', '#8b5cf6', '#06b6d4', '#f43f5e'],
+        colors: ['#D4AF37', '#1E8A49', '#7B3FE4', '#1D6FA5', '#f43f5e'],
       });
     } catch (e) {
       clearInterval(interval);

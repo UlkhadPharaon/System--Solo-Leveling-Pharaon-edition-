@@ -97,7 +97,7 @@ export const VictoryJournal: React.FC<VictoryJournalProps> = ({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-xl text-[10px] font-mono tracking-wide font-medium bg-gold/10 text-gold border border-gold/40 flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wide font-medium bg-gold/10 text-gold border border-gold/40 flex items-center gap-1.5">
                 <Trophy size={14} color="var(--color-gold)" />
                 Journal de Haut Faits & Croissance
               </span>
@@ -172,7 +172,7 @@ export const VictoryJournal: React.FC<VictoryJournalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               {/* Successes */}
               <div className="space-y-2">
-                <label className="block font-mono text-[10px] tracking-wide font-medium text-pharaoh flex items-center gap-1.5">
+                <label className="block font-mono text-[10px] tracking-wide font-medium text-pharaoh-subtle flex items-center gap-1.5">
                   <CheckCircle2 size={16} color="var(--color-emerald)" />
                   Qu'est-ce qui s'est bien passé aujourd'hui ? (Succès & Haut Faits)
                 </label>
@@ -213,7 +213,7 @@ export const VictoryJournal: React.FC<VictoryJournalProps> = ({
 
               {/* Improvements */}
               <div className="space-y-2">
-                <label className="block font-mono text-[10px] tracking-wide font-medium text-pharaoh flex items-center gap-1.5">
+                <label className="block font-mono text-[10px] tracking-wide font-medium text-pharaoh-subtle flex items-center gap-1.5">
                   <Sparkles size={16} color="var(--color-amethyst)" />
                   Que puis-je améliorer demain ?
                 </label>
@@ -343,6 +343,13 @@ export const VictoryJournal: React.FC<VictoryJournalProps> = ({
           <Calendar size={20} color="var(--color-gold)" />
           Journaux de Haut Faits & Réflexions Passés
         </h3>
+        {logs.length === 0 && (
+          <div className="rounded-2xl border border-lapis-border bg-obsidian-elevated/40 px-6 py-10 text-center space-y-2">
+            <Trophy className="w-8 h-8 mx-auto text-gold-dim" />
+            <p className="font-display text-base text-pharaoh">Aucune victoire enregistrée</p>
+            <p className="text-xs text-pharaoh-subtle">Chaque soir, consignez vos hauts faits — le Système récompense la constance.</p>
+          </div>
+        )}
 
         {logs.map((log) => (
           <div
@@ -361,7 +368,7 @@ export const VictoryJournal: React.FC<VictoryJournalProps> = ({
 
               <button
                 onClick={() => setPendingDeleteId(log.id)}
-                className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-pharaoh-subtle hover:text-blood transition-all self-end sm:self-auto"
+                className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 text-pharaoh-subtle hover:text-blood transition-all self-end sm:self-auto"
                 title="Supprimer le journal"
                 aria-label={`Supprimer le journal du ${log.date}`}
               >

@@ -29,7 +29,7 @@ export const DailyBonusModal: React.FC<DailyBonusModalProps> = ({ streak, onClai
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: 'spring', damping: 20, stiffness: 260 }}
         className={`relative w-full max-w-sm rounded-2xl overflow-hidden border ${
-          bonus.isMilestone ? 'border-sl-gold shadow-[0_0_50px_rgba(212,175,55,0.4)]' : 'border-gold/40 shadow-gold'
+          bonus.isMilestone ? 'border-sl-gold shadow-gold-lg' : 'border-gold/40 shadow-gold'
         } bg-obsidian-elevated text-center`}
       >
         {/* Glow header */}
@@ -111,7 +111,7 @@ export const DailyBonusModal: React.FC<DailyBonusModalProps> = ({ streak, onClai
               onClick={handleClaim}
               className={`btn-press w-full py-3.5 rounded-xl font-mono text-sm font-bold tracking-wider ${
                 bonus.isMilestone
-                  ? 'bg-gradient-to-r from-sl-gold-dark to-sl-gold text-black'
+                  ? 'bg-gradient-to-r from-gold-dim via-gold to-gold-bright text-inverse'
                   : 'bg-gradient-to-r from-gold-dim via-gold to-gold-bright text-inverse'
               } shadow-gold`}
             >

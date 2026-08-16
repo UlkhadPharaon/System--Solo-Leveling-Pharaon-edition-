@@ -51,7 +51,7 @@ export const HabitChecklistCard: React.FC<HabitChecklistCardProps> = ({
           <h3 className="font-display text-lg tracking-wide text-pharaoh">Habitudes du Jour</h3>
         </div>
         {allDone && (
-          <span className="px-2.5 py-1 rounded-xl bg-emerald/15 border border-emerald/40 text-emerald font-mono text-[10px] uppercase">
+          <span className="px-2.5 py-1 rounded-full bg-emerald/15 border border-emerald/50 text-emerald font-mono text-[10px] uppercase">
             Complet
           </span>
         )}
@@ -68,7 +68,7 @@ export const HabitChecklistCard: React.FC<HabitChecklistCardProps> = ({
               onClick={() => onToggleCheck(domain)}
               className={`btn-press w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
                 done
-                  ? 'bg-emerald/10 border-emerald/40'
+                  ? 'bg-emerald/15 border-emerald/50'
                   : 'bg-lapis/40 border-lapis hover:border-gold'
               }`}
             >

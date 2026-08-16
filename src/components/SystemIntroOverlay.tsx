@@ -20,31 +20,31 @@ const TOUR_ITEMS = [
     icon: Calendar,
     label: 'QUÊTES',
     desc: 'Votre journée en blocs horaires — cochez une tâche pour gagner XP et Or.',
-    color: '#06b6d4',
+    color: '#1D6FA5',
   },
   {
     icon: Clock,
     label: 'FOCUS',
     desc: "Minuteur de concentration par domaine. Il continue même si vous changez d'onglet.",
-    color: '#8b5cf6',
+    color: '#7B3FE4',
   },
   {
     icon: Target,
     label: 'BILAN',
     desc: 'Vos objectifs hebdomadaires par domaine et votre série de discipline.',
-    color: '#f59e0b',
+    color: '#D4A81E',
   },
   {
     icon: Trophy,
     label: 'HAUTS FAITS',
     desc: 'Consignez vos victoires quotidiennes : chaque entrée rapporte +100 XP.',
-    color: '#d4a81e',
+    color: '#F0C42D',
   },
   {
     icon: Wallet,
     label: 'TRÉSORERIE',
     desc: "Enveloppes budgétaires, transactions et objectifs d'épargne.",
-    color: '#22c55e',
+    color: '#1E8A49',
   },
 ];
 

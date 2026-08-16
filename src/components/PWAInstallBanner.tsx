@@ -38,7 +38,7 @@ export const PWAInstallBanner: React.FC = () => {
   if (!showInstallBanner) return null;
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 max-w-sm bg-glass-strong rounded-2xl p-4 shadow-gold backdrop-blur-md animate-bounce-subtle">
+    <div className="fixed bottom-20 right-4 z-50 max-w-sm bg-glass-strong rounded-2xl p-4 shadow-gold backdrop-blur-md anim-in">
       <div className="flex items-start gap-3">
         <div className="p-2.5 rounded-xl bg-gold/20 text-gold-bright border border-gold/40 flex-shrink-0">
           <Sparkles className="w-5 h-5 animate-pulse" />
@@ -51,14 +51,14 @@ export const PWAInstallBanner: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleInstallClick}
-              className="btn-press px-3 py-1.5 rounded-lg bg-gradient-to-r from-gold to-gold-bright hover:shadow-gold text-inverse text-xs font-bold flex items-center gap-1.5 transition-all"
+              className="btn-press px-3 py-1.5 rounded-xl bg-gradient-to-r from-gold to-gold-bright hover:shadow-gold text-inverse text-xs font-bold flex items-center gap-1.5 transition-all"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Installer</span>
             </button>
             <button
               onClick={() => setShowInstallBanner(false)}
-              className="btn-press px-3 py-1.5 rounded-lg bg-lapis hover:bg-lapis-light text-pharaoh-muted hover:text-pharaoh text-xs transition-all"
+              className="btn-press px-3 py-1.5 rounded-xl bg-lapis hover:bg-lapis-light text-pharaoh-muted hover:text-pharaoh text-xs transition-all"
             >
               Plus tard
             </button>
@@ -66,7 +66,7 @@ export const PWAInstallBanner: React.FC = () => {
         </div>
         <button
           onClick={() => setShowInstallBanner(false)}
-          className="text-pharaoh-subtle hover:text-pharaoh-muted p-1 transition-colors"
+          className="btn-press text-pharaoh-subtle hover:text-pharaoh-muted p-1 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>

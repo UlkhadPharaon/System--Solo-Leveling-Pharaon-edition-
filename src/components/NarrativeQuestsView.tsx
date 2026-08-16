@@ -119,7 +119,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
           <div className="p-4 rounded-2xl bg-panel-gold">
             <Crown size={32} color="var(--color-gold)" className="anim-float" />
           </div>
-          <h3 className="font-display text-2xl md:text-3xl font-light text-gradient-gold">
+          <h3 className="font-display text-2xl md:text-3xl font-bold text-gradient-gold">
             Tous les Chapitres Accomplis
           </h3>
           <p className="text-pharaoh-subtle max-w-lg">
@@ -227,7 +227,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
                   key={obj.id}
                   className={`relative overflow-hidden rounded-xl p-4 flex items-center justify-between gap-4 transition-all ${
                     completed
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-emerald/10 border-emerald/30 text-emerald'
                       : 'bg-panel border-lapis-border text-pharaoh'
                   }`}
                   whileHover={{ x: 4 }}
@@ -236,7 +236,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
                   transition={{ delay: 0.05 * idx, duration: 0.3 }}
                 >
                   <div className="absolute inset-0 pointer-events-none opacity-5">
-                    <div className="deco-corner deco-corner--tl" style={{ background: `radial-gradient(circle, ${completed ? '#10b981' : 'var(--color-gold)'} 0%, transparent 70%)` }} />
+                    <div className="deco-corner deco-corner--tl" style={{ background: `radial-gradient(circle, ${completed ? '#1E8A49' : 'var(--color-gold)'} 0%, transparent 70%)` }} />
                   </div>
 
                   <div className="relative z-10 flex items-center gap-3">
@@ -247,7 +247,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
                   <div className="relative z-10 flex items-center gap-2">
                     {completed ? (
                       <motion.span
-                        className="px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-emerald/20 text-emerald border border-emerald/40 flex items-center gap-1"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.1 * idx, type: 'spring', stiffness: 260, damping: 20 }}
@@ -283,16 +283,16 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
           <div className="space-y-3">
             <span className="font-mono text-[10px] uppercase tracking-wider text-gold-bright">Butins de Complétion du Chapitre :</span>
             <div className="flex flex-wrap gap-3">
-              <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-panel-gold text-gold-bright border-gold/50 flex items-center gap-1">
+              <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-panel-gold text-gold-bright flex items-center gap-1">
                 <Star size={12} />
                 +{activeChapter.xpReward.toLocaleString()} XP
               </span>
-              <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-panel-gold text-gold-bright border-gold/50 flex items-center gap-1">
+              <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-panel-gold text-gold-bright flex items-center gap-1">
                 <Sparkles size={12} />
                 +{activeChapter.goldReward.toLocaleString()} Or
               </span>
               {activeChapter.unlockedItemReward && (
-                <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-emerald-500/20 text-emerald-400 border-emerald-500/40 flex items-center gap-1">
+                <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-emerald/20 text-emerald border border-emerald/40 flex items-center gap-1">
                   <Award size={12} />
                   {activeChapter.unlockedItemReward.name}
                 </span>

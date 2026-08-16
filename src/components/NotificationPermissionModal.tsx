@@ -21,7 +21,8 @@ export const NotificationPermissionModal: React.FC<NotificationPermissionModalPr
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onSelect('later');
-      if (e.key === 'Enter' || e.key === ' ') onSelect('enable');
+      // Enter/Space intentionally NOT bound: the grant-permission action must be
+      // an explicit click, never an accidental keypress.
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -92,7 +93,7 @@ export const NotificationPermissionModal: React.FC<NotificationPermissionModalPr
           </button>
           <button
             onClick={() => onSelect('enable')}
-            className="btn-press px-4 py-2 rounded-xl bg-blood/15 text-blood border border-blood/40 font-mono text-xs uppercase tracking-wide hover:bg-blood/25 transition-colors"
+            className="btn-press px-4 py-2 rounded-xl bg-panel-gold text-gold-bright border border-gold/50 font-mono text-xs uppercase tracking-wide hover:shadow-gold transition-colors"
           >
             Activer les Alertes
           </button>

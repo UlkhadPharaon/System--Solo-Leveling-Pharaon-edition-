@@ -94,8 +94,8 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   })();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="bg-glass-strong rounded-2xl max-w-2xl w-full h-[600px] flex flex-col justify-between shadow-card-hover overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-glass-strong rounded-2xl max-w-2xl w-full h-[min(600px,85dvh)] flex flex-col justify-between shadow-card-hover overflow-hidden">
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-lapis flex items-center justify-between bg-obsidian/40">
           <div className="flex items-center gap-3">
@@ -132,7 +132,7 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               <div
                 className={`p-4 rounded-xl max-w-[80%] text-xs leading-relaxed ${
                   m.role === 'user'
-                    ? 'bg-gold/10 text-gold-bright border border-gold/30 font-mono'
+                    ? 'bg-gold/10 text-gold-bright border border-gold/30 font-sans'
                     : 'bg-panel border-lapis text-pharaoh font-sans'
                 }`}
               >
@@ -181,12 +181,12 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               placeholder="Demandez au Coach IA des conseils d'emploi du temps, de scénario, de révision..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="flex-1 bg-lapis/40 border border-lapis rounded-xl px-4 py-2.5 text-xs text-pharaoh placeholder:text-pharaoh-subtle focus:outline-none focus:border-gold"
+              className="flex-1 bg-lapis/40 border border-lapis rounded-xl px-4 py-2.5 text-xs text-pharaoh placeholder:text-pharaoh-subtle focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
             />
             <button
               type="submit"
               disabled={isLoading || !prompt.trim()}
-              className="btn-press p-2.5 rounded-xl bg-gradient-to-r from-gold-dim via-gold to-gold-bright hover:shadow-gold disabled:opacity-50 text-inverse border border-gold font-semibold transition-all"
+              className="btn-press p-2.5 rounded-xl bg-gradient-to-r from-gold-dim via-gold to-gold-bright hover:shadow-gold disabled:opacity-50 disabled:cursor-not-allowed text-inverse border border-gold font-semibold transition-all"
             >
               <Send className="w-4 h-4" />
             </button>

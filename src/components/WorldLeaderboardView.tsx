@@ -159,7 +159,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
             <Trophy className="w-6 h-6 text-gold" />
           </div>
           <div>
-            <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase">
+            <h3 className="font-display text-base font-bold text-pharaoh tracking-widest uppercase">
               CLASSEMENT MONDIAL DES CHASSEURS
             </h3>
             <p className="text-[10px] text-pharaoh-subtle italic">
@@ -172,7 +172,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
           <button
             onClick={syncScoreToCloud}
             disabled={isSyncing}
-            className="btn-press px-4 py-2 bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 rounded-xl font-display font-mono text-[10px] tracking-widest uppercase flex items-center gap-2 transition-all"
+            className="btn-press px-4 py-2 bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 rounded-xl font-display text-[10px] tracking-widest uppercase flex items-center gap-2 transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
             SYNCHRONISER SCORE
@@ -183,21 +183,21 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
       {/* Real-time calculated placement banner */}
       <div className="bg-lapis/40 border border-gold/30 rounded-3xl p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-gold">
         <div className="space-y-1 text-center md:text-left">
-          <div className="font-mono text-[10px] text-gold font-display tracking-widest uppercase">VOTRE CLASSEMENT ESTIMÉ</div>
+          <div className="font-mono text-[10px] text-gold tracking-widest uppercase">VOTRE CLASSEMENT ESTIMÉ</div>
           <h4 className="font-display text-xl font-bold text-pharaoh tracking-wide">
             Rang Mondial : <span className="text-gradient-gold">#{playerPosition}</span> sur l'Alliance
           </h4>
         </div>
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs text-emerald font-bold bg-emerald/10 px-3 py-1.5 rounded-xl border border-emerald/40">
-            {playerTotalXp} XP CUMULÉE
+            {playerTotalXp.toLocaleString()} XP CUMULÉE
           </span>
         </div>
       </div>
 
       {/* Leaderboard Table / Cards */}
       <div className="bg-panel border border-gold-dim rounded-3xl overflow-hidden">
-        <div className="grid grid-cols-12 bg-lapis/30 p-4 border-b border-gold-dim font-mono text-[10px] font-display text-gold tracking-wider uppercase font-bold">
+        <div className="grid grid-cols-12 bg-lapis/30 p-4 border-b border-gold-dim font-mono text-[10px] text-gold tracking-wider uppercase font-bold">
           <div className="col-span-2 text-center">Rang</div>
           <div className="col-span-5 md:col-span-6">Chasseur</div>
           <div className="col-span-3 md:col-span-2 text-center">Classe</div>
@@ -217,45 +217,51 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
                 }`}
               >
                 {/* Placement Rank */}
-                <div className="col-span-2 text-center font-display font-bold text-sm">
-                  {idx === 0 ? (
-                    <span className="text-xl">👑</span>
-                  ) : idx === 1 ? (
-                    <span className="text-gold-bright text-lg">🥈</span>
-                  ) : idx === 2 ? (
-                    <span className="text-gold-dim text-lg">🥉</span>
+                <div className="col-span-2 flex justify-center">
+                  {idx < 3 ? (
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center font-display font-bold text-xs ${
+                      idx === 0
+                        ? 'bg-gold/20 border border-gold/60 text-gold-bright'
+                        : idx === 1
+                        ? 'bg-lapis-light/40 border border-lapis-border text-pharaoh'
+                        : 'bg-blood/15 border border-blood/40 text-blood'
+                    }`}>
+                      {idx + 1}
+                    </span>
                   ) : (
-                    <span className="font-mono text-pharaoh-muted">#{idx + 1}</span>
+                    <span className="font-mono text-pharaoh-muted text-sm">#{idx + 1}</span>
                   )}
                 </div>
 
                 {/* Name / Badge */}
-                <div className="col-span-5 md:col-span-6 flex items-center gap-3">
-                  <div 
+                <div className="col-span-5 md:col-span-6 flex items-center gap-3 min-w-0">
+                  <div
                     className="w-7 h-7 rounded-full border flex items-center justify-center shrink-0 text-pharaoh font-mono text-[10px]"
-                    style={{ 
-                      backgroundColor: entry.avatar?.skinTone || '#D4A81E',
-                      borderColor: '#D4A81E',
-                      boxShadow: `0 0 6px ${entry.avatar?.auraColor === 'purple' ? '#7B3FE4' : entry.avatar?.auraColor === 'cyan' ? '#1D6FA5' : '#D4A81E'}`
+                    style={{
+                      backgroundColor: entry.avatar?.skinTone || 'var(--color-gold)',
+                      borderColor: 'var(--color-gold)',
+                      boxShadow: `0 0 6px ${entry.avatar?.auraColor === 'purple' ? 'var(--color-amethyst)' : entry.avatar?.auraColor === 'cyan' ? 'var(--color-sapphire)' : 'var(--color-gold)'}`
                     }}
                   >
                     {isSelf ? <User className="w-3.5 h-3.5 text-obsidian" /> : entry.userName[0]}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className={`text-xs font-bold font-display tracking-wide ${isSelf ? 'text-gold-bright' : 'text-pharaoh'}`}>
+                      <span className={`text-xs font-bold font-display tracking-wide truncate ${isSelf ? 'text-gold-bright' : 'text-pharaoh'}`}>
                         {entry.userName}
                       </span>
-                      <span className="font-mono text-[8px] font-bold bg-obsidian-elevated px-1.5 py-0.5 rounded border border-gold/20 text-pharaoh-muted">
+                      <span className="font-mono text-[9px] font-bold bg-obsidian-elevated px-1.5 py-0.5 rounded border border-gold/20 text-pharaoh-muted">
                         RANG {entry.rank}
                       </span>
                     </div>
-                    <div className="font-mono text-[10px] text-pharaoh-subtle">Niveau {entry.level}</div>
+                    <div className="font-mono text-[10px] text-pharaoh-subtle">
+                      Niveau {entry.level}{idx < 3 ? '' : ` • ${entry.hunterClass}`}
+                    </div>
                   </div>
                 </div>
 
-                {/* Class */}
-                <div className="col-span-3 md:col-span-2 text-center font-mono text-[10px] font-display text-pharaoh-muted tracking-wide">
+                {/* Class (hidden on mobile — folded into the subtitle above) */}
+                <div className="hidden md:block col-span-2 text-center font-mono text-[10px] text-pharaoh-muted tracking-wide truncate">
                   {entry.hunterClass}
                 </div>
 

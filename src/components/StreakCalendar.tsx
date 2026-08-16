@@ -163,8 +163,17 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
             return (
               <div
                 key={record.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Détails du ${record.dayName}`}
                 onClick={() => setSelectedDayRecord(record)}
-                className={`group relative p-3 rounded-xl border cursor-pointer transition-all flex flex-col justify-between min-h-[110px] ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSelectedDayRecord(record);
+                  }
+                }}
+                className={`group relative p-3 rounded-xl border cursor-pointer transition-all flex flex-col justify-between min-h-[110px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                   isPerfect
                     ? 'bg-gradient-to-b from-gold/15 to-obsidian-elevated border-gold/60 shadow-gold hover:scale-[1.02]'
                     : 'bg-lapis border-lapis-border hover:border-lapis-light'
@@ -201,7 +210,7 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
                   </p>
 
                   <div className="mt-2 flex items-center justify-between pt-1 border-t border-lapis-border/40">
-                    <span className="font-mono text-[8px] tracking-wide font-medium text-pharaoh-muted">
+                    <span className="font-mono text-[9px] tracking-wide font-medium text-pharaoh-muted">
                       {record.completedBlocksCount}/{record.totalBlocksCount} Objectifs
                     </span>
                     {isPerfect && (
@@ -227,8 +236,17 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
             return (
               <div
                 key={record.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Détails du ${record.dayName}`}
                 onClick={() => setSelectedDayRecord(record)}
-                className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer transition-all ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSelectedDayRecord(record);
+                  }
+                }}
+                className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                   isPerfect
                     ? 'bg-lapis border-gold-dim hover:border-gold'
                     : 'bg-obsidian-elevated border-lapis-border hover:border-lapis-light'
@@ -284,7 +302,7 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
 
       {/* Day Details Modal */}
       {selectedDayRecord && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm anim-pop">
           <div className="bg-obsidian-elevated border border-gold rounded-xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
             <button
               onClick={() => setSelectedDayRecord(null)}
@@ -300,7 +318,7 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
                   Résumé de la Journée
                 </span>
                 {selectedDayRecord.allGoalsMet && (
-                  <span className="px-2 py-0.5 rounded-xl text-[9px] font-mono uppercase font-bold bg-emerald text-obsidian">
+                  <span className="px-2 py-0.5 rounded-xl text-[9px] font-mono uppercase font-bold bg-gold text-obsidian">
                     Tous Objectifs Confirmés
                   </span>
                 )}
@@ -319,9 +337,16 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
                 </span>
               </div>
 
-              <div className="w-full bg-obsidian h-2 rounded-none overflow-hidden border border-lapis-border">
+              <div
+                className="w-full bg-obsidian h-2 rounded-full overflow-hidden border border-lapis-border"
+                role="progressbar"
+                aria-label="Objectifs du jour"
+                aria-valuenow={selectedDayRecord.completionPercentage}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
                 <div
-                  className="bg-gold h-full transition-all duration-300"
+                  className="bg-gold h-full progress-smooth transition-all duration-300"
                   style={{ width: `${selectedDayRecord.completionPercentage}%` }}
                 />
               </div>
@@ -364,7 +389,7 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
                         : null
                     );
                   }}
-                  className="btn-press py-2 px-4 rounded-xl bg-lapis hover:bg-lapis-light text-gold-bright border border-gold/50 font-mono text-xs uppercase flex items-center gap-2"
+                  className="btn-press py-2 px-4 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs uppercase flex items-center gap-2"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Basculer "Tous Objectifs Atteints"</span>
@@ -373,7 +398,7 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
 
               <button
                 onClick={() => setSelectedDayRecord(null)}
-                className="btn-press py-2 px-4 rounded-xl bg-gold text-obsidian font-semibold font-mono text-xs uppercase ml-auto"
+                className="btn-press py-2 px-4 rounded-xl bg-panel hover:bg-panel-hover text-pharaoh-muted hover:text-pharaoh border border-lapis-border font-mono text-xs uppercase ml-auto"
               >
                 Fermer
               </button>

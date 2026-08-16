@@ -17,6 +17,7 @@ import {
   Layers
 } from './ui/PharaohIcons';
 import { triggerVictoryConfetti } from '../lib/confetti';
+import { ConfirmDialog } from './ui/ConfirmDialog';
 
 interface ProjectTimelineViewProps {
   phases: ProjectPhase[];
@@ -50,6 +51,8 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
 
   // New Phase Modal State
   const [isAddingPhase, setIsAddingPhase] = useState(false);
+  const [pendingDeletePhaseId, setPendingDeletePhaseId] = useState<string | null>(null);
+  const pendingDeletePhase = phases.find((ph) => ph.id === pendingDeletePhaseId) ?? null;
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState<string>(
     legacyMode ? 'cinema' : `domain:${projectDomains[0].id}`
@@ -223,7 +226,7 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
                 onClick={() => setSelectedProject('bangre_neo')}
                 className={`btn-press px-3 py-1.5 rounded-xl font-mono text-xs uppercase flex items-center gap-2 transition-all whitespace-nowrap ${
                   selectedProject === 'bangre_neo'
-                    ? 'bg-panel-gold text-amethyst border border-amethyst/60 shadow-gold'
+                    ? 'bg-panel-gold text-amethyst border border-amethyst/60 shadow-glow-amethyst'
                     : 'bg-obsidian text-pharaoh-muted hover:text-pharaoh border border-lapis-border'
                 }`}
               >
@@ -263,7 +266,7 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
 
         <button
           onClick={() => setIsAddingPhase(true)}
-          className="btn-press flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-panel hover:bg-panel-hover text-gold-bright border border-gold/50 font-mono text-xs uppercase transition-all shrink-0"
+          className="btn-press flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-panel-gold text-gold-bright border border-gold/50 hover:shadow-gold font-mono text-xs uppercase transition-all shrink-0"
         >
           <Plus className="w-4 h-4 text-gold" />
           <span>Ajouter une Phase</span>
@@ -441,7 +444,7 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
                     </button>
 
                     <button
-                      onClick={() => onDeletePhase(phase.id)}
+                      onClick={() => setPendingDeletePhaseId(phase.id)}
                       className="btn-press p-1.5 rounded-xl bg-lapis border border-lapis-border text-pharaoh-subtle hover:text-blood transition-colors"
                       title="Supprimer la phase"
                     >
@@ -502,20 +505,29 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
                         {(phase.deliverables || []).map((deliv) => (
                           <div
                             key={deliv.id}
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={deliv.isCompleted}
                             onClick={() => handleToggleDeliverable(phase, deliv.id)}
-                            className={`flex items-start gap-2.5 p-2 rounded-xl border cursor-pointer transition-all ${
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleToggleDeliverable(phase, deliv.id);
+                              }
+                            }}
+                            className={`flex items-start gap-2.5 p-2 rounded-xl border cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
                               deliv.isCompleted
                                 ? 'bg-emerald/10 border-emerald/30 text-emerald line-through'
                                 : 'bg-obsidian/30 border-lapis-border hover:border-gold/50 text-pharaoh-muted'
                             }`}
                           >
-                            <button className="mt-0.5 shrink-0">
+                            <span className="mt-0.5 shrink-0">
                               {deliv.isCompleted ? (
                                 <CheckCircle2 className="w-4 h-4 text-emerald" />
                               ) : (
                                 <Circle className="w-4 h-4 text-pharaoh-subtle" />
                               )}
-                            </button>
+                            </span>
                             <span className="text-xs leading-snug">{deliv.title}</span>
                           </div>
                         ))}
@@ -554,10 +566,25 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
         })}
       </div>
 
+      {/* Phase delete confirmation — destructive actions are guarded app-wide */}
+      <ConfirmDialog
+        isOpen={pendingDeletePhase != null}
+        title="Supprimer cette phase ?"
+        message="La phase et ses livrables seront définitivement retirés du projet."
+        details={pendingDeletePhase ? pendingDeletePhase.title : undefined}
+        confirmLabel="Supprimer"
+        cancelLabel="Conserver"
+        onConfirm={() => {
+          if (pendingDeletePhaseId) onDeletePhase(pendingDeletePhaseId);
+          setPendingDeletePhaseId(null);
+        }}
+        onCancel={() => setPendingDeletePhaseId(null)}
+      />
+
       {/* Modal to Add New Project Phase */}
       {isAddingPhase && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-lapis border border-gold/50 rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-lapis border border-gold/50 rounded-2xl max-w-lg w-full p-6 shadow-card-hover space-y-4 my-8">
             <h3 className="font-display text-2xl font-light text-pharaoh tracking-wide flex items-center gap-2 border-b border-lapis-border pb-2">
               <Plus className="w-5 h-5 text-gold" />
               Ajouter une Phase au Projet

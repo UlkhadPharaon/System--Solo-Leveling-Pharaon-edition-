@@ -156,14 +156,14 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
         <button
           onClick={skipNext}
           disabled={!songs.length}
-          className="btn-press w-9 h-9 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted hover:text-gold hover:border-gold-dim flex items-center justify-center shrink-0 disabled:opacity-40"
+          className="btn-press w-9 h-9 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted hover:text-gold hover:border-gold flex items-center justify-center shrink-0 disabled:opacity-40"
           title="Morceau suivant"
         >
           <SkipForward size={16} />
         </button>
         <div className="flex-1 min-w-0">
           <div className="font-mono text-xs text-pharaoh truncate">
-            {current ? (playing ? '▶ ' : '❚❚ ') + current.name : 'Aucun morceau sélectionné'}
+            {current ? (playing ? '▶ ' : '⏸ ') + current.name : 'Aucun morceau sélectionné'}
           </div>
           <div className="font-mono text-[10px] text-pharaoh-subtle">
             {current ? formatSongDuration(current.durationSec) : '—'} • boucle automatique
@@ -178,7 +178,7 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
             step={0.05}
             value={volume}
             onChange={(e) => adjustVolume(Number(e.target.value))}
-            className="w-16 accent-gold"
+            className="w-24 accent-gold"
             title="Volume"
           />
         </div>
@@ -197,7 +197,7 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
               <div
                 key={song.id}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
-                  song.id === currentId ? 'bg-panel-gold border-gold/50' : 'bg-obsidian border-lapis-border hover:border-gold-dim'
+                  song.id === currentId ? 'bg-panel-gold border-gold/50' : 'bg-obsidian border-lapis-border hover:border-gold'
                 }`}
               >
                 <button onClick={() => playSong(song.id)} className="btn-press text-gold shrink-0">
@@ -227,7 +227,7 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading}
-            className="btn-press w-full py-2 rounded-xl font-mono text-[11px] font-medium bg-gradient-to-r from-gold-dim to-gold text-text-inverse flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="btn-press w-full py-2 rounded-xl font-mono text-[11px] font-medium bg-gradient-to-r from-gold-dim to-gold text-obsidian flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
             <Plus size={16} />
             {loading ? 'Import en cours…' : 'Ajouter des musiques'}

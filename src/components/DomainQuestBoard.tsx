@@ -9,7 +9,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import {
-  Check, CheckCircle2, Sparkles, Sword, Target, ScrollText, Plus,
+  Check, CheckCircle2, Sparkles, Sword, Target, ScrollText, Plus, X,
 } from './ui/PharaohIcons';
 import { Domain, GeneratedQuest, PlayerProfile } from '../types';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
@@ -113,7 +113,7 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
       <div className="bg-sl-primary border border-sl-gold/20 rounded-2xl p-6 text-center space-y-4">
         <div className="flex items-center justify-center gap-2">
           <Target className="w-6 h-6 text-sl-gold" />
-          <h3 className="font-display text-lg text-white tracking-widest">QUÊTES DE DOMAINE</h3>
+          <h3 className="font-display text-lg text-pharaoh tracking-widest">QUÊTES DE DOMAINE</h3>
         </div>
         <p className="text-xs text-sl-gold-light/60 italic max-w-md mx-auto">
           {completedCount > 0
@@ -135,7 +135,7 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-sl-gold/20 pb-3">
-        <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
+        <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
           <Sword className="w-6 h-6 text-sl-gold" /> QUÊTES DE DOMAINE
         </h2>
         <span className="font-mono text-[10px] text-sl-gold-light/60 uppercase tracking-widest">
@@ -162,9 +162,9 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
                     <span
                       className="text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border"
                       style={{
-                        color: domain?.color_accent || '#d4a81e',
-                        borderColor: `${domain?.color_accent || '#d4a81e'}66`,
-                        background: `${domain?.color_accent || '#d4a81e'}14`,
+                        color: domain?.color_accent || 'var(--color-gold)',
+                        borderColor: `${domain?.color_accent || 'var(--color-gold)'}66`,
+                        background: `${domain?.color_accent || 'var(--color-gold)'}14`,
                       }}
                     >
                       {domain?.label || 'Domaine'}
@@ -173,7 +173,7 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
                       {DIFFICULTY_LABEL[quest.difficulty]}
                     </span>
                     {quest.source === 'llm' ? (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border border-violet-500/40 bg-violet-500/10 text-violet-300">
+                      <span className="inline-flex items-center gap-1 text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border border-amethyst/40 bg-amethyst/10 text-amethyst">
                         <Sparkles className="w-3 h-3" /> SYSTEME LLM
                       </span>
                     ) : (
@@ -182,10 +182,10 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
                       </span>
                     )}
                   </div>
-                  <h3 className="font-bold text-white font-display text-sm tracking-wide mt-2 leading-snug">
+                  <h3 className="font-bold text-pharaoh font-display text-sm tracking-wide mt-2 leading-snug">
                     {quest.title}
                   </h3>
-                  <p className="text-[11px] text-sl-gold-light/70 italic font-serif mt-1 leading-relaxed">
+                  <p className="text-[11px] text-sl-gold-light/70 italic font-display mt-1 leading-relaxed">
                     {quest.description}
                   </p>
                 </div>
@@ -199,10 +199,11 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleAbandon(quest)}
-                    className="p-1.5 rounded-lg text-pharaoh-subtle hover:text-blood hover:bg-blood/10 transition-all"
+                    className="btn-press p-1.5 rounded-lg text-pharaoh-subtle hover:text-blood hover:bg-blood/10 transition-all"
                     title="Abandonner"
+                    aria-label="Abandonner la quête"
                   >
-                    <ScrollText className="w-4 h-4" />
+                    <X className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleComplete(quest)}
