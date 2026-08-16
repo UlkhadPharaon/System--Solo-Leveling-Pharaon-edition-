@@ -38,13 +38,14 @@ const BucketIconMap: Record<string, React.ComponentType<{ size?: number; color?:
   personal_lifestyle: ShoppingBag,
 };
 
+// Pharaoh palette bucket accents (see index.css @theme).
 const BucketColorMap: Record<string, string> = {
-  bangre_neo_tech: '#8b5cf6',
-  cinema_production: '#f59e0b',
-  school_education: '#06b6d4',
-  savings_investment: '#10b981',
-  living_essentials: '#3b82f6',
-  personal_lifestyle: '#6366f1',
+  bangre_neo_tech: '#7B3FE4',   // amethyst — tech/craft
+  cinema_production: '#D4A81E', // gold — creative
+  school_education: '#1D6FA5',  // sapphire — intellectual
+  savings_investment: '#1E8A49',// emerald — financial
+  living_essentials: '#2FA57A', // jade — everyday
+  personal_lifestyle: '#C94277',// lotus — personal
 };
 
 export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
@@ -69,6 +70,9 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
   // mistap rewrote the whole budget history (totals, envelopes, savings rate).
   const [pendingDeleteTxId, setPendingDeleteTxId] = useState<string | null>(null);
   const pendingDeleteTx = transactions.find((t) => t.id === pendingDeleteTxId) ?? null;
+  // Same guard for savings goals — deleting one silently erased its progress.
+  const [pendingDeleteGoalId, setPendingDeleteGoalId] = useState<string | null>(null);
+  const pendingDeleteGoal = savingsGoals.find((g) => g.id === pendingDeleteGoalId) ?? null;
 
   const [txTitle, setTxTitle] = useState<string>('');
   const [txAmount, setTxAmount] = useState<string>('');
@@ -103,12 +107,12 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
   const getBucketInfo = (bucket: MoneyFlowBucket) => {
     if (typeof bucket === 'string' && bucket.startsWith('domain:')) {
       const goal = budgetBuckets.find((b) => b.bucket === bucket);
-      return { label: goal?.label || 'Enveloppe', icon: Wallet, color: goal?.color || '#06b6d4' };
+      return { label: goal?.label || 'Enveloppe', icon: Wallet, color: goal?.color || '#D4A81E' };
     }
     return {
       label: budgetBuckets.find((b) => b.bucket === bucket)?.label || bucket,
       icon: BucketIconMap[bucket] || Wallet,
-      color: BucketColorMap[bucket] || budgetBuckets.find((b) => b.bucket === bucket)?.color || '#06b6d4',
+      color: BucketColorMap[bucket] || budgetBuckets.find((b) => b.bucket === bucket)?.color || '#D4A81E',
     };
   };
 
@@ -221,7 +225,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
             </div>
             <div className="flex justify-between pt-1 border-t border-lapis-border/50">
               <span className="text-pharaoh-subtle">Restant</span>
-              <span className={data.Allocation - data.Spent >= 0 ? 'text-emerald-400' : 'text-blood'}>
+              <span className={data.Allocation - data.Spent >= 0 ? 'text-emerald' : 'text-blood'}>
                 {formatCurrency(data.Allocation - data.Spent)}
               </span>
             </div>
@@ -311,7 +315,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
             </div>
             <div className="text-right">
               <p className="font-mono text-[10px] text-pharaoh-subtle">Ce mois</p>
-              <p className="font-mono text-sm text-emerald-400">+{savingsRate}% taux épargne</p>
+              <p className="font-mono text-sm text-emerald">+{savingsRate}% taux épargne</p>
             </div>
           </div>
         </div>
@@ -322,8 +326,8 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
           </div>
           <div className="relative z-10 flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #ef444422, #ef444400)', border: '1px solid #ef444444' }}>
-                <ArrowDownRight size={22} color="#ef4444" />
+              <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #C0392B22, #C0392B00)', border: '1px solid #C0392B44' }}>
+                <ArrowDownRight size={22} color="#C0392B" />
               </div>
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-blood">Dépenses</p>
@@ -343,12 +347,12 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
           </div>
           <div className="relative z-10 flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #10b98122, #10b98100)', border: '1px solid #10b98144' }}>
-                <TrendingUp size={22} color="#10b981" />
+              <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #1E8A4922, #1E8A4900)', border: '1px solid #1E8A4944' }}>
+                <TrendingUp size={22} color="#1E8A49" />
               </div>
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-emerald-400">Flux Net</p>
-                <p className="font-display text-2xl font-light" style={{ color: netCashFlow >= 0 ? '#10b981' : '#ef4444' }}>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-emerald">Flux Net</p>
+                <p className="font-display text-2xl font-light" style={{ color: netCashFlow >= 0 ? '#1E8A49' : '#C0392B' }}>
                   {netCashFlow >= 0 ? '+' : ''}{formatCurrency(netCashFlow)}
                 </p>
               </div>
@@ -435,7 +439,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                 <Pie size={20} color="var(--color-gold)" />
               </div>
               <div>
-                <h3 className="font-display text-xl font-light text-pharrow">Répartition des Dépenses</h3>
+                <h3 className="font-display text-xl font-light text-pharaoh">Répartition des Dépenses</h3>
                 <p className="text-pharaoh-subtle text-sm">Flux sortants par catégorie</p>
               </div>
             </div>
@@ -531,26 +535,26 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                   <div className="relative z-10 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 rounded-lg" style={{ background: `${bucketInfo.color}22`, border: `1px solid ${bucketInfo.color}44` }}>
+                        <div className="p-2 rounded-xl" style={{ background: `${bucketInfo.color}22`, border: `1px solid ${bucketInfo.color}44` }}>
                           <Icon size={18} style={{ color: bucketInfo.color }} />
                         </div>
                         <h4 className="font-display text-base font-light text-pharaoh truncate">{goal.title}</h4>
                       </div>
                       {isComplete && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald/20 text-emerald border border-emerald/40">
                           Complété
                         </span>
                       )}
                     </div>
-                    <div className="h-2 bg-obsidian rounded-full overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+                    <div className="h-2 bg-obsidian rounded-full overflow-hidden">
                       <motion.div
                         className="h-full rounded-full"
                         style={{
                           width: `${progress}%`,
                           background: isComplete
-                            ? 'linear-gradient(90deg, #10b981, #10b981aa)'
+                            ? 'linear-gradient(90deg, #1E8A49, #1E8A49CC)'
                             : `linear-gradient(90deg, ${bucketInfo.color}, ${bucketInfo.color}aa)`,
-                          boxShadow: isComplete ? '0 0 8px rgba(16,185,129,0.6)' : `0 0 8px ${bucketInfo.color}88`,
+                          boxShadow: isComplete ? '0 0 8px rgba(30,138,73,0.6)' : `0 0 8px ${bucketInfo.color}88`,
                         }}
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
@@ -579,8 +583,8 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                         Modifier
                       </button>
                       <button
-                        onClick={() => onDeleteSavingsGoal(goal.id)}
-                        className="btn-press flex-1 py-2 px-3 rounded-xl text-sm font-medium bg-panel text-pharaoh-muted hover:bg-panel-hover border-lapis-border"
+                        onClick={() => setPendingDeleteGoalId(goal.id)}
+                        className="btn-press flex-1 py-2 px-3 rounded-xl text-sm font-medium bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-blood border-lapis-border transition-colors"
                       >
                         Supprimer
                       </button>
@@ -655,8 +659,20 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
             <tbody>
               {filteredTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-pharaoh-subtle">
-                    {transactions.length === 0 ? 'Aucune transaction enregistrée' : 'Aucune transaction ne correspond aux filtres'}
+                  <td colSpan={6} className="px-4 py-12">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <div className="p-3 rounded-2xl bg-panel-gold">
+                        <Wallet size={24} color="var(--color-gold)" />
+                      </div>
+                      <p className="font-display text-lg font-light text-pharaoh">
+                        {transactions.length === 0 ? 'Aucune transaction enregistrée' : 'Aucune transaction ne correspond aux filtres'}
+                      </p>
+                      <p className="text-xs text-pharaoh-subtle max-w-xs">
+                        {transactions.length === 0
+                          ? 'Enregistrez vos premiers revenus et dépenses pour activer les graphiques et enveloppes.'
+                          : 'Essayez de modifier la recherche ou de réinitialiser les filtres ci-dessus.'}
+                      </p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -672,7 +688,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{
                             background: `${bucketInfo.color}22`, border: `1px solid ${bucketInfo.color}44`
                           }}>
                             <Icon size={16} style={{ color: bucketInfo.color }} />
@@ -693,11 +709,11 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                         </span>
                       </td>
                       <td className="p-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-medium ${isIncome ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-blood/20 text-blood border-blood/40'}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-medium ${isIncome ? 'bg-emerald/20 text-emerald border border-emerald/40' : 'bg-blood/20 text-blood border-blood/40'}`}>
                           {isIncome ? 'Revenu' : 'Dépense'}
                         </span>
                       </td>
-                      <td className="p-3 text-right font-mono tabular-nums" style={{ color: isIncome ? '#10b981' : '#ef4444' }}>
+                      <td className="p-3 text-right font-mono tabular-nums" style={{ color: isIncome ? '#1E8A49' : '#C0392B' }}>
                         {isIncome ? '+' : '-'}{formatCurrency(tx.amount)}
                       </td>
                       <td className="p-3 text-right">
@@ -723,7 +739,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
       <AnimatePresence>
         {showTransactionModal && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -827,7 +843,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                     id="recurring"
                     checked={txIsRecurring}
                     onChange={(e) => setTxIsRecurring(e.target.checked)}
-                    className="w-4 h-4 rounded border-lapis-border bg-obsidian text-gold focus:ring-gold/50 appearance-none cursor-pointer"
+                    className="w-4 h-4 rounded-sm accent-gold bg-obsidian border border-lapis-border cursor-pointer focus:ring-1 focus:ring-gold/50"
                   />
                   <label htmlFor="recurring" className="text-sm text-pharaoh">Récurrente (mensuelle)</label>
                 </div>
@@ -856,7 +872,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
       <AnimatePresence>
         {showSavingsModal && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -965,6 +981,21 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
           setPendingDeleteTxId(null);
         }}
         onCancel={() => setPendingDeleteTxId(null)}
+      />
+
+      {/* Savings goal delete confirmation (same guard as transactions) */}
+      <ConfirmDialog
+        isOpen={pendingDeleteGoal != null}
+        title="Supprimer cet objectif d'épargne ?"
+        message="L'objectif et sa progression seront définitivement supprimés — les transactions liées restent dans l'historique."
+        details={pendingDeleteGoal ? `${pendingDeleteGoal.title} — ${formatCurrency(pendingDeleteGoal.currentAmount)} épargnés` : undefined}
+        confirmLabel="Supprimer"
+        cancelLabel="Conserver"
+        onConfirm={() => {
+          if (pendingDeleteGoalId) onDeleteSavingsGoal(pendingDeleteGoalId);
+          setPendingDeleteGoalId(null);
+        }}
+        onCancel={() => setPendingDeleteGoalId(null)}
       />
     </div>
   );

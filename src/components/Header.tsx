@@ -124,13 +124,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navItems: { id: ActiveTab; label: string; icon: React.ComponentType<{ size?: number; color?: string; className?: string }>; highlight?: boolean; domainColor?: string }[] = [
     { id: 'system_solo', label: 'SYSTÈME', icon: Crown, highlight: true, domainColor: rankInfo.color },
-    { id: 'dashboard', label: 'Quêtes', icon: Calendar, domainColor: '#06b6d4' },
-    ...(showWorkoutTab ? [{ id: 'workout' as ActiveTab, label: 'Entraînement', icon: Dumbbell, domainColor: '#ef4444' }] : []),
-    { id: 'focus_timer', label: 'Focus', icon: Clock, domainColor: '#8b5cf6' },
-    { id: 'weekly_targets', label: 'Bilan', icon: Target, domainColor: '#f59e0b' },
-    { id: 'victory_journal', label: 'Hauts Faits', icon: Trophy, domainColor: '#d4a81e' },
-    { id: 'notepad', label: 'Notes', icon: FileText, domainColor: '#10b981' },
-    { id: 'budget', label: 'Trésorerie', icon: Wallet, domainColor: '#22c55e' },
+    { id: 'dashboard', label: 'Quêtes', icon: Calendar, domainColor: '#1D6FA5' },
+    ...(showWorkoutTab ? [{ id: 'workout' as ActiveTab, label: 'Entraînement', icon: Dumbbell, domainColor: '#C0392B' }] : []),
+    { id: 'focus_timer', label: 'Focus', icon: Clock, domainColor: '#7B3FE4' },
+    { id: 'weekly_targets', label: 'Bilan', icon: Target, domainColor: '#2FA57A' },
+    { id: 'victory_journal', label: 'Hauts Faits', icon: Trophy, domainColor: '#D4A81E' },
+    { id: 'notepad', label: 'Notes', icon: FileText, domainColor: '#C94277' },
+    { id: 'budget', label: 'Trésorerie', icon: Wallet, domainColor: '#1E8A49' },
   ];
 
   const actionButtons = [
@@ -154,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
             <motion.div
               className="relative flex-shrink-0"
               whileHover={{ scale: 1.05, rotate: 3 }}
-              transition={{ duration: 200 }}
+              transition={{ duration: 0.2 }}
             >
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-panel-gold flex items-center justify-center shadow-gold relative overflow-hidden">
                 <Crown size={20} color="var(--color-gold-bright)" className="anim-float" />
@@ -181,13 +181,13 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="flex items-center gap-2 text-[10px] md:text-xs text-pharaoh-subtle font-mono">
                 <motion.span
                   className="w-1.5 h-1.5 rounded-full"
-                  style={{ background: isOffline ? '#ef4444' : '#10b981' }}
+                  style={{ background: isOffline ? 'var(--color-blood)' : 'var(--color-emerald)' }}
                   animate={{ opacity: isOffline ? [1, 0.4, 1] : 1 }}
                   transition={{ duration: isOffline ? 1.5 : 0 }}
                 />
                 <LiveClock />
                 {isOffline && (
-                  <span className="px-1.5 py-0.5 rounded-full bg-red-950/40 border border-red-500/30 text-red-400 font-mono text-[9px]">
+                  <span className="px-1.5 py-0.5 rounded-full bg-blood/10 border border-blood/40 text-blood font-mono text-[9px]">
                     HORS-LIGNE
                   </span>
                 )}
@@ -208,7 +208,7 @@ export const Header: React.FC<HeaderProps> = ({
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center gap-2">
-                <Flame size={16} style={{ color: '#ef4444', filter: 'drop-shadow(0 0 4px rgba(239,68,68,0.6))' }} />
+                <Flame size={16} style={{ color: 'var(--color-blood)', filter: 'drop-shadow(0 0 4px var(--color-blood-glow))' }} />
                 <span className="font-mono tabular-nums text-gold-bright font-medium">{streakCount}</span>
                 <span className="text-pharaoh-subtle text-[10px] uppercase tracking-wider">JOURS</span>
               </div>
@@ -289,7 +289,7 @@ export const Header: React.FC<HeaderProps> = ({
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 150 }}
+                      transition={{ duration: 0.15 }}
                     >
                       <div className="px-4 py-3 border-b border-lapis-border">
                         <p className="font-display text-sm text-gold-bright truncate">{playerProfile.name || 'Hunter'}</p>

@@ -12,14 +12,17 @@ import { Domain, DomainCategory, TrackingType, Category } from '../types';
 export const DOMAINS_STORAGE_KEY = 'aura_domains';
 
 // ── Styles per closed category enum (icon + accent color) ──────────────────
+// Colors follow the Pharaoh palette (see index.css @theme): blood/gold/
+// sapphire/amethyst/emerald core accents, extended with jade & lotus so the
+// seven categories stay distinct without leaving the theme's saturation family.
 export const DOMAIN_CATEGORY_STYLES: Record<DomainCategory, { label: string; icon: string; color: string; emoji: string }> = {
-  physical: { label: 'Physique', icon: 'dumbbell', color: '#ef4444', emoji: '🏋️' },
-  creative: { label: 'Créatif', icon: 'film', color: '#f59e0b', emoji: '🎬' },
-  intellectual: { label: 'Intellectuel', icon: 'graduation-cap', color: '#06b6d4', emoji: '📚' },
-  craft: { label: 'Artisanat/Tech', icon: 'code', color: '#8b5cf6', emoji: '🛠️' },
-  habit: { label: 'Habitude', icon: 'check-circle', color: '#10b981', emoji: '✅' },
-  financial: { label: 'Financier', icon: 'wallet', color: '#22c55e', emoji: '💰' },
-  social: { label: 'Social', icon: 'users', color: '#ec4899', emoji: '🤝' },
+  physical: { label: 'Physique', icon: 'dumbbell', color: '#C0392B', emoji: '🏋️' },
+  creative: { label: 'Créatif', icon: 'film', color: '#D4A81E', emoji: '🎬' },
+  intellectual: { label: 'Intellectuel', icon: 'graduation-cap', color: '#1D6FA5', emoji: '📚' },
+  craft: { label: 'Artisanat/Tech', icon: 'code', color: '#7B3FE4', emoji: '🛠️' },
+  habit: { label: 'Habitude', icon: 'check-circle', color: '#2FA57A', emoji: '✅' },
+  financial: { label: 'Financier', icon: 'wallet', color: '#1E8A49', emoji: '💰' },
+  social: { label: 'Social', icon: 'users', color: '#C94277', emoji: '🤝' },
 };
 
 // QCM label → tracking_type (onboarding Bloc 2) — deterministic, never LLM-classified.

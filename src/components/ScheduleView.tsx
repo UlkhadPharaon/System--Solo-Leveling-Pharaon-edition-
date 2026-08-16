@@ -184,12 +184,12 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-xl text-[10px] font-mono tracking-wide font-medium bg-gold/10 text-gold border border-gold/40 flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wide font-medium bg-gold/10 text-gold border border-gold/40 flex items-center gap-1.5">
                 <Zap className="w-3 h-3 text-gold" />
                 Programme du {dayNameInFrench[selectedDay]}
               </span>
               {selectedDay === todayName && (
-                <span className="px-2 py-0.5 rounded-xl text-[9px] font-mono uppercase font-bold bg-gold text-obsidian">
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-mono uppercase font-bold bg-gold text-obsidian">
                   Aujourd’hui
                 </span>
               )}
@@ -199,7 +199,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               </span>
             </div>
 
-            <h2 className="font-display text-2xl md:text-3xl font-light text-white tracking-wide text-gradient-gold">
+            <h2 className="font-display text-2xl md:text-3xl font-light text-pharaoh tracking-wide text-gradient-gold">
               Panneau des Quêtes (Système) • {personalization.userName}
             </h2>
             <p className="text-xs text-pharaoh-muted mt-2 max-w-2xl leading-relaxed">
@@ -213,13 +213,13 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               <div className="font-mono text-[10px] tracking-wide font-medium opacity-60 mb-1">
                 Complété ({dayNameInFrench[selectedDay]})
               </div>
-              <div className="font-display text-4xl font-light text-gold-bright tracking-wide text-shimmer">
+              <div className="font-display text-4xl font-light tracking-wide text-shimmer">
                 {progressPercent}%
               </div>
               <p className="font-mono text-[10px] opacity-60 mt-1">
                 {completedCount} / {blocks.length} blocs validés
               </p>
-              <div className="w-full bg-white/5 rounded-none h-1.5 mt-3 overflow-hidden">
+              <div className="w-full bg-obsidian rounded-full h-1.5 mt-3 overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-gold-dim via-gold to-gold-bright h-full transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
@@ -264,7 +264,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 >
                   <span className="font-mono text-[11px] tracking-wide font-medium">{dayNameInFrench[day]}</span>
                   {isToday && (
-                    <span className="font-mono text-[8px] uppercase tracking-tighter text-gold mt-0.5">
+                    <span className="font-mono text-[9px] uppercase tracking-tighter text-gold mt-0.5">
                       • Aujourd’hui •
                     </span>
                   )}
@@ -282,7 +282,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             </div>
             <div>
               <span className="font-mono text-[9px] tracking-wide font-medium text-gold font-semibold">Étape Cinéma Active</span>
-              <h4 className="font-display text-xs font-light text-white tracking-wide">{personalization.cinemaProject.title}</h4>
+              <h4 className="font-display text-xs font-light text-pharaoh tracking-wide">{personalization.cinemaProject.title}</h4>
               <p className="font-mono text-[10px] text-gold/70">{personalization.cinemaProject.currentStage}</p>
             </div>
           </div>
@@ -293,7 +293,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             </div>
             <div>
               <span className="font-mono text-[9px] tracking-wide font-medium text-amethyst font-semibold">Focus Bangre Neo Lab</span>
-              <h4 className="font-display text-xs font-light text-white tracking-wide">{personalization.bangreLab.projectName}</h4>
+              <h4 className="font-display text-xs font-light text-pharaoh tracking-wide">{personalization.bangreLab.projectName}</h4>
               <p className="font-mono text-[10px] text-amethyst/70">{personalization.bangreLab.currentStage}</p>
             </div>
           </div>
@@ -326,7 +326,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               onClick={() => block && onToggleComplete(block.id)}
               className={`flex items-center justify-between p-4 rounded-xl border transition-all text-left group hover-lift ${
                 isDone
-                  ? 'bg-emerald/20 border-emerald/60 text-white'
+                  ? 'bg-emerald/20 border-emerald/60 text-pharaoh'
                   : 'bg-panel border-lapis hover:border-emerald/40 text-pharaoh-muted'
               }`}
             >
@@ -335,7 +335,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-semibold tracking-tight text-white uppercase">{habit.name}</h4>
+                  <h4 className="text-xs font-semibold tracking-tight text-pharaoh uppercase">{habit.name}</h4>
                   <p className="font-mono text-[10px] opacity-60 mt-0.5">{habit.sub}</p>
                 </div>
               </div>
@@ -455,7 +455,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                     )}
                   </div>
 
-                  <h3 className={`text-sm md:text-base font-semibold ${block.isCompleted ? 'text-pharaoh-subtle line-through' : 'text-white'}`}>
+                  <h3 className={`text-sm md:text-base font-semibold ${block.isCompleted ? 'text-pharaoh-subtle line-through' : 'text-pharaoh'}`}>
                     {block.title}
                   </h3>
                   <p className="text-xs text-pharaoh-muted mt-0.5 leading-relaxed">
@@ -532,11 +532,11 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
       {/* Add Custom Block Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-panel border border-gold rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="font-display text-xl font-light text-white tracking-wide flex items-center gap-2 border-b border-lapis pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-panel border border-gold/50 rounded-2xl max-w-md w-full p-6 shadow-card-hover space-y-4 my-8">
+            <h3 className="font-display text-2xl font-light text-pharaoh tracking-wide flex items-center gap-2 border-b border-lapis pb-3">
               <Plus className="w-5 h-5 text-gold" />
-              Nouvelle Quête Personnalisé
+              Nouvelle Quête Personnalisée
             </h3>
 
             <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
@@ -548,7 +548,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                   placeholder="ex. Révisions Mathématiques Calcul Intégral"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                 />
               </div>
 
@@ -560,7 +560,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                     required
                     value={newStartTime}
                     onChange={(e) => setNewStartTime(e.target.value)}
-                    className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                    className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                   />
                 </div>
                 <div>
@@ -570,7 +570,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                     required
                     value={newEndTime}
                     onChange={(e) => setNewEndTime(e.target.value)}
-                    className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                    className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                   />
                 </div>
               </div>
@@ -580,7 +580,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 <select
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value as Category)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                 >
                   {domains.length > 0
                     ? domains.map((d) => (
@@ -607,7 +607,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                   placeholder="Détails ou résultat spécifique visé pour cette session..."
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                 />
               </div>
 

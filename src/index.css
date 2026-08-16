@@ -24,6 +24,22 @@
   --color-amethyst: #7B3FE4;            /* Creative/craft */
   --color-amethyst-glow: rgba(123, 63, 228, 0.3);
 
+  /* Extended accents — the 7 domain categories need distinct hues while
+     staying in the same saturation family as the core palette. */
+  --color-jade: #2FA57A;                /* Habits / growth (emerald family) */
+  --color-lotus: #C94277;               /* Social / desert rose */
+
+  /* ── Compatibility tokens: legacy `sl-*` scale ──
+     SystemSoloLeveling, DomainQuestBoard & DailyBonusModal were written
+     against an `sl-` naming that never existed in this theme (~260 usages).
+     Mapping them onto the real palette keeps those views styled without a
+     mass rename. Remove when the components are migrated to core tokens. */
+  --color-sl-primary: #0A1422;          /* = obsidian-elevated (panels, text-on-gold) */
+  --color-sl-lapis: #0E1F3A;            /* = lapis */
+  --color-sl-gold: #D4A81E;             /* = gold */
+  --color-sl-gold-light: #F0C42D;       /* = gold-bright */
+  --color-sl-gold-dark: #9B7A12;        /* = gold-dim */
+
   --color-text-primary: #F0EDE5;        /* Warm white */
   --color-text-secondary: #A8A090;      /* Muted warm gray */
   --color-text-muted: #6B6558;          /* Subtle text */
@@ -45,6 +61,7 @@
   /* Shadows */
   --shadow-glow-gold: 0 0 30px var(--color-gold-glow), 0 4px 20px rgba(0,0,0,0.5);
   --shadow-glow-gold-lg: 0 0 60px var(--color-gold-glow-strong), 0 8px 40px rgba(0,0,0,0.6);
+  --shadow-glow-gold-sm: 0 0 15px var(--color-gold-glow), 0 2px 10px rgba(0,0,0,0.4);
   --shadow-inner-gold: inset 0 1px 0 rgba(212,168,30,0.15), inset 0 -1px 0 rgba(0,0,0,0.3);
   --shadow-card: 0 4px 24px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
   --shadow-card-hover: 0 8px 40px rgba(0,0,0,0.5), 0 0 20px var(--color-gold-glow);
@@ -153,8 +170,13 @@
   /* ── Shadows ── */
   .shadow-gold { box-shadow: var(--shadow-glow-gold); }
   .shadow-gold-lg { box-shadow: var(--shadow-glow-gold-lg); }
+  .shadow-gold-sm { box-shadow: var(--shadow-glow-gold-sm); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-card-hover { box-shadow: var(--shadow-card-hover); }
+  .shadow-glow-sapphire { box-shadow: 0 0 12px var(--color-sapphire-glow); }
+  .shadow-glow-amethyst { box-shadow: 0 0 12px var(--color-amethyst-glow); }
+  .shadow-glow-emerald { box-shadow: 0 0 12px var(--color-emerald-glow); }
+  .shadow-glow-blood { box-shadow: 0 0 12px var(--color-blood-glow); }
 
   /* ── Interactive ── */
   .btn-press {
@@ -277,10 +299,7 @@
   /* ── Focus Ring ── */
   .focus-ring:focus-visible {
     outline: none;
-    ring: 2px;
-    ring-color: var(--color-gold);
-    ring-offset: 2px;
-    ring-offset-color: var(--color-obsidian);
+    box-shadow: 0 0 0 2px var(--color-obsidian), 0 0 0 4px var(--color-gold);
   }
 
   /* ── Reduced Motion ── */

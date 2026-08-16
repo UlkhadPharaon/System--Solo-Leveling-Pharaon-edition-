@@ -1048,7 +1048,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#051428] text-white font-sans selection:bg-cyan-400/30 selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-pharaoh text-pharaoh font-sans selection:bg-gold/30 selection:text-text-primary flex flex-col justify-between">
       {/* Header Bar */}
       <Header
         activeTab={activeTab}
@@ -1193,21 +1193,21 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-soft bg-[#051428] py-6 px-4 lg:px-8 text-center text-xs text-slate-400">
+      <footer className="border-t border-lapis-border/50 bg-obsidian/60 py-6 px-4 lg:px-8 text-center text-xs text-pharaoh-muted">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="mono text-[10px] uppercase tracking-[0.2em] opacity-60">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">
             {personalization.userName.toUpperCase()} OS • AURA MASTERY SYSTEM
           </p>
-          <div className="flex items-center gap-3 mono text-[11px] flex-wrap justify-center">
+          <div className="flex items-center gap-3 font-mono text-[11px] flex-wrap justify-center">
             {domains.length > 0
               ? domains.map((d) => (
                   <span key={d.id} className="opacity-70">
-                    {d.label}: <strong className="accent-cyan">{d.weekly_time_budget ?? '-'}h/wk</strong>
+                    {d.label}: <strong className="text-gold-bright">{d.weekly_time_budget ?? '-'}h/wk</strong>
                   </span>
                 ))
               : categoryTargets.slice(0, 3).map((c) => (
                   <span key={c.id} className="opacity-70">
-                    {c.label}: <strong className="accent-cyan">{c.minHours}-{c.maxHours}h/wk</strong>
+                    {c.label}: <strong className="text-gold-bright">{c.minHours}-{c.maxHours}h/wk</strong>
                   </span>
                 ))}
           </div>

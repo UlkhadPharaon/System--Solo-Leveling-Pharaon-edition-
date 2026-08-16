@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Category, SchoolSubject, Domain } from '../types';
-import { styleForDomain } from '../lib/domains';
+import { styleForDomain, DOMAIN_CATEGORY_STYLES } from '../lib/domains';
 import { audioSynth } from '../lib/audioSynthesizer';
 import {
   useActiveFocusSession,
@@ -41,22 +41,17 @@ const DomainIconMap: Record<string, React.ComponentType<{ size?: number; color?:
   social: Users,
 };
 
-const DomainColorMap: Record<string, string> = {
-  physical: '#ef4444',
-  creative: '#f59e0b',
-  intellectual: '#06b6d4',
-  craft: '#8b5cf6',
-  habit: '#10b981',
-  financial: '#22c55e',
-  social: '#ec4899',
-};
+// Single source of truth: the Pharaoh palette per domain category (lib/domains).
+const DomainColorMap: Record<string, string> = Object.fromEntries(
+  Object.entries(DOMAIN_CATEGORY_STYLES).map(([key, style]) => [key, style.color])
+);
 
 const LEGACY_FOCUS_TABS = [
-  { id: 'bangre_neo', label: 'Bangre Neo', icon: Code, color: '#8b5cf6' },
-  { id: 'cinema', label: 'Cinéma & Films', icon: Film, color: '#f59e0b' },
-  { id: 'school', label: 'Cours Scolaires', icon: GraduationCap, color: '#06b6d4' },
-  { id: 'must_do_work', label: 'Travail Incontournable', icon: Briefcase, color: '#3b82f6' },
-  { id: 'learning', label: 'Lecture & Recherche', icon: BookOpen, color: '#10b981' },
+  { id: 'bangre_neo', label: 'Bangre Neo', icon: Code, color: '#7B3FE4' },
+  { id: 'cinema', label: 'Cinéma & Films', icon: Film, color: '#D4A81E' },
+  { id: 'school', label: 'Cours Scolaires', icon: GraduationCap, color: '#1D6FA5' },
+  { id: 'must_do_work', label: 'Travail Incontournable', icon: Briefcase, color: '#F0C42D' },
+  { id: 'learning', label: 'Lecture & Recherche', icon: BookOpen, color: '#C94277' },
 ];
 
 export const FocusTimer: React.FC<FocusTimerProps> = ({
@@ -219,10 +214,10 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   const getCategoryColor = (cat: Category) => {
     if (cat.startsWith('dom:')) {
       const domain = domains.find((d) => `dom:${d.id}` === cat);
-      return domain ? DomainColorMap[domain.category] || '#06b6d4' : '#06b6d4';
+      return domain ? DomainColorMap[domain.category] || DomainColorMap.intellectual : DomainColorMap.intellectual;
     }
     const tab = LEGACY_FOCUS_TABS.find((t) => t.id === cat);
-    return tab?.color || '#06b6d4';
+    return tab?.color || DomainColorMap.intellectual;
   };
 
   const categoryItems = domains.length > 0
@@ -240,7 +235,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
     <div className="max-w-3xl mx-auto space-y-8 anim-in">
       {/* Timer Container Card */}
       <motion.div
-        className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-8 md:p-10 text-center space-y-8"
+        className="relative overflow-hidden rounded-2xl bg-panel border border-lapis-border p-8 md:p-10 text-center space-y-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -266,7 +261,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           {categoryItems.map((cat, i) => {
             const isSel = displayCategory === cat.id;
             const Icon = 'domain' in cat ? DomainIconMap[cat.domain.category] || Target : cat.icon;
-            const color = 'domain' in cat ? DomainColorMap[cat.domain.category] || '#06b6d4' : cat.color;
+            const color = 'domain' in cat ? DomainColorMap[cat.domain.category] || DomainColorMap.intellectual : cat.color;
 
             return (
               <motion.button
@@ -280,7 +275,6 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                     ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
                     : 'bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh border-lapis-border'
                 }`}
-                style={{ color: isSel ? color : undefined }}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 initial={{ opacity: 0, y: 20 }}
@@ -306,10 +300,10 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           >
             <span className="font-mono text-[10px] uppercase text-pharaoh-subtle">Matière :</span>
             {[
-              { id: 'math', label: 'Mathématiques', color: '#ef4444' },
-              { id: 'pc', label: 'Physique/Chimie', color: '#f59e0b' },
-              { id: 'svt', label: 'SVT (Biologie)', color: '#10b981' },
-              { id: 'hist_geo', label: 'Hist & Géo', color: '#06b6d4' },
+              { id: 'math', label: 'Mathématiques', color: '#1D6FA5' },
+              { id: 'pc', label: 'Physique/Chimie', color: '#7B3FE4' },
+              { id: 'svt', label: 'SVT (Biologie)', color: '#1E8A49' },
+              { id: 'hist_geo', label: 'Hist & Géo', color: '#C94277' },
             ].map((sub) => (
               <motion.button
                 key={sub.id}
@@ -373,7 +367,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
             </svg>
           </motion.div>
 
-          <div className="w-64 max-w-full bg-obsidian rounded-full h-1.5 mt-6 overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+          <div className="w-64 max-w-full bg-obsidian rounded-full h-1.5 mt-6 overflow-hidden">
             <motion.div
               className="h-full rounded-full"
               style={{
@@ -425,10 +419,10 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         <div className="relative z-10 flex items-center justify-center gap-4 pt-2">
           <motion.button
             onClick={handleTogglePlay}
-            className={`w-16 h-16 rounded-xl flex items-center justify-center font-bold shadow-card transition-all ${
+            className={`btn-press w-16 h-16 rounded-xl flex items-center justify-center font-bold shadow-card transition-all ${
               isRunning
                 ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
-                : 'bg-panel text-sapphire border-sapphire/30 hover:bg-panel-hover hover:border-sapphire/50 hover:shadow-[0_0_12px_rgba(29,111,165,0.3)]'
+                : 'bg-panel text-sapphire border-sapphire/30 hover:bg-panel-hover hover:border-sapphire/50 hover:shadow-glow-sapphire'
             }`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -447,7 +441,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
           <motion.button
             onClick={requestReset}
-            className="w-12 h-12 rounded-xl bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-blood border-lapis-border flex items-center justify-center transition-all"
+            className="btn-press w-12 h-12 rounded-xl bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-blood border-lapis-border flex items-center justify-center transition-all"
             whileHover={{ rotate: -90, scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             title="Réinitialiser le Minuteur"
@@ -477,9 +471,9 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { id: 'rain', label: 'Pluie Douce', icon: Sparkles, color: '#06b6d4' },
-              { id: 'focus_noise', label: 'Bruit Brun', icon: Zap, color: '#8b5cf6' },
-              { id: 'waves', label: 'Vagues d\'Océan', icon: Shield, color: '#10b981' },
+              { id: 'rain', label: 'Pluie Douce', icon: Sparkles, color: '#1D6FA5' },
+              { id: 'focus_noise', label: 'Bruit Brun', icon: Zap, color: '#7B3FE4' },
+              { id: 'waves', label: 'Vagues d\'Océan', icon: Shield, color: '#1E8A49' },
               { id: 'binaural', label: 'Ondes Alpha (432Hz)', icon: Crown, color: '#D4A81E' },
             ].map((sound) => {
               const isAct = activeSound === sound.id;

@@ -126,10 +126,10 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
             Vous avez gravi tous les échelons. Le trône est vôtre. De nouvelles chroniques seront écrites...
           </p>
           <div className="flex gap-4 mt-4">
-            <span className="px-4 py-2 rounded-xl font-mono text-xs bg-panel-gold text-gold-bright border-gold/50">
+            <span className="px-4 py-2 rounded-xl font-mono text-xs bg-panel-gold text-gold-bright">
               +{player.totalXP.toLocaleString()} XP Total
             </span>
-            <span className="px-4 py-2 rounded-xl font-mono text-xs bg-panel-gold text-gold-bright border-gold/50">
+            <span className="px-4 py-2 rounded-xl font-mono text-xs bg-panel-gold text-gold-bright">
               {player.level} Niveau
             </span>
           </div>
@@ -164,10 +164,10 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
           animate={{ opacity: 1, x: 0 }}
         >
           <div>
-            <span className="text-[10px] text-gold font-display tracking-widest uppercase bg-panel-gold px-3 py-1 rounded-full border border-gold/30">
+            <span className="text-[10px] text-gold font-display tracking-widest uppercase bg-panel-gold px-3 py-1 rounded-full">
               CHRONIQUE ROYALE — CHAPITRE {activeChapter.chapter}
             </span>
-            <h3 className="font-display text-xl md:text-2xl font-light text-gradient-gold tracking-wide mt-2">
+            <h3 className="font-display text-xl md:text-2xl font-bold text-gradient-gold tracking-wide mt-2">
               {activeChapter.title}
             </h3>
           </div>
@@ -178,14 +178,14 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
               <span>DÉCRETS ACCOMPLIS</span>
               <span>{progressCount} / {activeChapter.objectives.length}</span>
             </div>
-            <div className="w-full h-2 bg-obsidian rounded-full overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+            <div className="w-full h-2 bg-obsidian rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
                 style={{
                   width: `${progressPercent}%`,
                   background: isComplete
-                    ? 'linear-gradient(90deg, #10b981, #10b981aa)'
-                    : 'linear-gradient(90deg, var(--color-gold), var(--color-gold)aa)',
+                    ? 'linear-gradient(90deg, #1E8A49, #1E8A49CC)'
+                    : 'linear-gradient(90deg, var(--color-gold), var(--color-gold-bright))',
                   boxShadow: isComplete ? '0 0 8px rgba(16,185,129,0.6)' : '0 0 8px rgba(212,168,30,0.6)',
                 }}
                 initial={{ width: 0 }}
@@ -198,7 +198,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
 
         {/* Narrative Scroll / Lore Panel */}
         <motion.div
-          className="relative bg-obsidian/50 border border-lapis-border p-5 md:p-6 rounded-2xl italic font-serif text-pharaoh-muted text-sm leading-relaxed"
+          className="relative bg-obsidian/50 border border-lapis-border p-5 md:p-6 rounded-2xl italic font-display text-pharaoh-muted text-sm leading-relaxed"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -216,7 +216,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h4 className="font-mono text-[10px] uppercase tracking-widest text-gold-bright">DÉCRETS DE L'EMPIRE :</h4>
+          <h4 className="font-display text-[10px] uppercase tracking-widest text-gold-bright">DÉCRETS DE L'EMPIRE :</h4>
           <div className="space-y-3">
             {activeChapter.objectives.map((obj, idx) => {
               const completed = obj.check(player);

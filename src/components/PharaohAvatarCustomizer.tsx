@@ -32,17 +32,17 @@ const CROWNS = [
 ];
 
 const EYES = [
-  { value: '#00F0FF', label: 'Lueur Azur', shadow: 'rgba(0,240,255,0.8)' },
-  { value: '#D4AF37', label: 'Lueur Dorée', shadow: 'rgba(212,175,55,0.8)' },
-  { value: '#A855F7', label: 'Lueur Améthyste', shadow: 'rgba(168,85,247,0.8)' },
-  { value: '#EF4444', label: 'Lueur Rubis', shadow: 'rgba(239,68,68,0.8)' },
+  { value: '#1D6FA5', label: 'Lueur Azur', shadow: 'rgba(29,111,165,0.9)' },
+  { value: '#F0C42D', label: 'Lueur Dorée', shadow: 'rgba(240,196,45,0.9)' },
+  { value: '#7B3FE4', label: 'Lueur Améthyste', shadow: 'rgba(123,63,228,0.9)' },
+  { value: '#C0392B', label: 'Lueur Rubis', shadow: 'rgba(192,57,43,0.9)' },
 ];
 
 const DEFAULT_CUSTOMIZATION: AvatarCustomization = {
   skinTone: '#D4AF37',
   auraColor: 'cyan',
   crownType: 'nemes',
-  eyeColor: '#00F0FF',
+  eyeColor: '#1D6FA5',
 };
 
 export const PharaohAvatarCustomizer: React.FC<PharaohAvatarCustomizerProps> = ({
@@ -90,8 +90,8 @@ export const PharaohAvatarCustomizer: React.FC<PharaohAvatarCustomizerProps> = (
                 <stop offset="100%" stopColor="#AA7C11" />
               </linearGradient>
               <linearGradient id="lapisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1E3A8A" />
-                <stop offset="100%" stopColor="#102C54" />
+                <stop offset="0%" stopColor="#152D52" />
+                <stop offset="100%" stopColor="#0E1F3A" />
               </linearGradient>
             </defs>
 
@@ -107,7 +107,7 @@ export const PharaohAvatarCustomizer: React.FC<PharaohAvatarCustomizerProps> = (
             {/* Base Body / Shoulders */}
             <path
               d="M30 85 C30 70, 70 70, 70 85 Z"
-              fill={equippedArmorName ? '#2A3441' : '#0E1F3A'}
+              fill={equippedArmorName ? '#0F1C2E' : '#0E1F3A'}
               stroke="url(#goldGrad)"
               strokeWidth="1"
             />

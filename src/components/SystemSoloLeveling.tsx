@@ -49,6 +49,7 @@ import { AnubisCharts } from './AnubisCharts';
 import { NarrativeQuestsView } from './NarrativeQuestsView';
 import { DungeonTimer } from './DungeonTimer';
 import { WorldLeaderboardView } from './WorldLeaderboardView';
+import { useCountdown, formatRemaining } from './PenaltyQuestCard';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
 import { INITIAL_PLAYER_PROFILE } from '../data/defaultData';
 import { RankBadge } from './ui/RankBadge';
@@ -225,6 +226,14 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   const [editingMission, setEditingMission] = useState<any>(null);
 
   const safePlayer = player || INITIAL_PLAYER_PROFILE;
+
+  // Live grace-period countdown for the active penalty quest (shares the hook
+  // with PenaltyQuestCard so the two cards always tick the same way).
+  const penaltyRemainingMs = useCountdown(
+    safePlayer.penaltyQuest?.isActive && !safePlayer.penaltyQuest?.resolved
+      ? safePlayer.penaltyQuest.deadlineAt
+      : undefined
+  );
 
   const handleEditMissionSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -629,7 +638,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   ];
 
   return (
-    <div className="bg-[#070b14] min-h-screen text-pharaoh pb-20">
+    <div className="bg-obsidian min-h-screen text-pharaoh pb-20">
       {/* HEADER SECTION */}
       <div className="bg-sl-primary border-b border-sl-gold/30 p-4 md:p-6 sticky top-0 z-40 backdrop-blur-md bg-sl-primary/95">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -645,16 +654,16 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-xl md:text-2xl font-bold text-white font-display tracking-widest">{safePlayer.title}</h1>
+                <h1 className="text-xl md:text-2xl font-bold text-pharaoh font-display tracking-widest">{safePlayer.title}</h1>
                 <RankBadge rank={safePlayer.rank} size={32} active />
               </div>
-              <p className="text-xs text-sl-gold-light/60 font-serif italic tracking-wide">
+              <p className="text-xs text-sl-gold-light/60 font-display italic tracking-wide">
                 Classe : <span className="text-sl-gold font-display not-italic">{safePlayer.hunterClass}</span>
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 min-w-[280px] md:min-w-[420px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 md:min-w-[420px] w-full md:w-auto min-w-0">
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono">
                 <span className="text-blood font-display">SANTÉ (HP)</span>
@@ -690,7 +699,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sapphire/30">
                 <div
-                  className="h-full bg-gradient-to-r from-sapphire via-sapphire/80 to-emerald transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-sapphire via-sapphire/80 to-sapphire/60 progress-smooth transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(0, ((safePlayer.xp || 0) / (safePlayer.xpToNextLevel || 100)) * 100))}%` }}
                 />
               </div>
@@ -714,7 +723,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SystemTab)}
-              className={`px-4 py-2 text-xs whitespace-nowrap flex items-center gap-2 transition-all font-display rounded-lg border ${
+              className={`btn-press px-4 py-2 text-xs whitespace-nowrap flex items-center gap-2 transition-all font-display rounded-lg border ${
                 activeTab === tab.id
                   ? 'bg-sl-gold text-sl-primary border-sl-gold shadow-gold-sm font-bold scale-105'
                   : 'text-sl-gold-light/60 hover:text-sl-gold border-sl-gold/10 hover:border-sl-gold/30'
@@ -728,7 +737,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
       <div className="max-w-5xl mx-auto p-4 md:p-6">
         {shopSuccessMsg && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-sl-gold-dark/40 to-sl-lapis/80 border-2 border-sl-gold/80 text-white font-display font-bold text-center text-xs tracking-wider rounded-2xl shadow-gold flex items-center justify-center gap-3">
+          <div className="mb-6 p-4 bg-gradient-to-r from-sl-gold-dark/40 to-sl-lapis/80 border-2 border-sl-gold/80 text-pharaoh font-display font-bold text-center text-xs tracking-wider rounded-2xl shadow-gold flex items-center justify-center gap-3">
             <Sparkles className="w-5 h-5 text-sl-gold animate-bounce" />
             <span>{shopSuccessMsg}</span>
           </div>
@@ -746,11 +755,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             >
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex items-center justify-between border-b border-sl-gold/20 pb-3">
-                  <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
                     <Activity className="w-6 h-6 text-sl-gold" /> CAPACITÉS DIVINES
                   </h2>
                   <div className="bg-sl-gold/10 px-3 py-1.5 rounded-xl border border-sl-gold/40 text-sl-gold text-xs font-display flex items-center gap-2 shadow-gold-sm">
-                    Points Disponibles : <strong className="text-white text-sm">{safePlayer.attributePoints || 0}</strong>
+                    Points Disponibles : <strong className="text-pharaoh text-sm">{safePlayer.attributePoints || 0}</strong>
                   </div>
                 </div>
 
@@ -769,13 +778,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                         </div>
                         <div>
                           <div className="text-[10px] text-sl-gold font-display tracking-widest">{attr.label}</div>
-                          <div className="text-2xl font-bold text-white font-mono">{(safePlayer.attributes?.[attr.key as AttributeKey]) || 10}</div>
+                          <div className="text-2xl font-bold text-pharaoh font-mono">{(safePlayer.attributes?.[attr.key as AttributeKey]) || 10}</div>
                         </div>
                       </div>
                       <button
                         onClick={() => handleAllocateAttribute(attr.key as AttributeKey)}
                         disabled={(safePlayer.attributePoints || 0) <= 0}
-                        className="p-2 bg-sl-gold text-sl-primary rounded-lg disabled:opacity-20 disabled:grayscale transition-all hover:scale-110 active:scale-95 shadow-gold-sm"
+                        className="p-2 bg-sl-gold text-sl-primary rounded-lg disabled:opacity-40 disabled:grayscale transition-all hover:scale-110 active:scale-95 shadow-gold-sm"
                       >
                         <Plus className="w-5 h-5" />
                       </button>
@@ -785,14 +794,14 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
                 {/* Badges Section */}
                 <div className="space-y-6 pt-6">
-                  <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-sl-gold/20 pb-3 font-display uppercase tracking-widest">
+                  <h2 className="text-base font-bold text-pharaoh flex items-center gap-2 border-b border-sl-gold/20 pb-3 font-display uppercase tracking-widest">
                     <Medal className="w-5 h-5 text-sl-gold" /> Badges de Gloire
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                      {(safePlayer.badges || []).map(badgeId => (
-                       <div key={badgeId} className="p-4 bg-sl-gold/10 border border-sl-gold rounded-2xl flex flex-col items-center text-center gap-2 shadow-gold-sm animate-in zoom-in-50">
+                       <div key={badgeId} className="p-4 bg-sl-gold/10 border border-sl-gold rounded-2xl flex flex-col items-center text-center gap-2 shadow-gold-sm anim-pop">
                           <Medal className="w-10 h-10 text-sl-gold animate-pulse" />
-                          <div className="text-[10px] font-display text-white">{badgeId}</div>
+                          <div className="text-[10px] font-display text-pharaoh">{badgeId}</div>
                        </div>
                      ))}
                      {(!safePlayer.badges || safePlayer.badges.length === 0) && (
@@ -805,14 +814,14 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
 
               <div className="space-y-6">
-                <h2 className="text-md font-bold text-white font-display border-b border-sl-gold/20 pb-3">ÉQUIPEMENT ÉQUIPÉ</h2>
+                <h2 className="text-base font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3">ÉQUIPEMENT ÉQUIPÉ</h2>
                 <div className="space-y-4">
                    <div className="p-4 bg-sl-lapis/20 border border-sl-gold/10 rounded-2xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
                          <Sword className="w-5 h-5 text-sl-gold" />
                          <div>
                             <div className="text-[10px] text-sl-gold-light/60">ARME</div>
-                            <div className="text-sm font-bold text-white">Lame de Khéops</div>
+                            <div className="text-sm font-bold text-pharaoh">Lame de Khéops</div>
                          </div>
                       </div>
                       <div className="text-sl-gold font-mono text-xs">+15 ATK</div>
@@ -822,7 +831,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                          <Shield className="w-5 h-5 text-sl-gold" />
                          <div>
                             <div className="text-[10px] text-sl-gold-light/60">ARMURE</div>
-                            <div className="text-sm font-bold text-white">Égide d'Osiris</div>
+                            <div className="text-sm font-bold text-pharaoh">Égide d'Osiris</div>
                          </div>
                       </div>
                       <div className="text-sl-gold font-mono text-xs">+20 DEF</div>
@@ -849,14 +858,14 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               <NarrativeQuestsView player={safePlayer} onUpdatePlayer={onUpdatePlayer} />
 
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4 pt-4">
-                <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
+                <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
                   <CheckCircle2 className="w-6 h-6 text-sl-gold" /> MISSIONS QUOTIDIENNES DU SYSTÈME
                 </h2>
               </div>
 
               {(safePlayer.dailyQuests || []).length === 0 && (
                 <div className="rounded-2xl border border-sl-gold/20 bg-sl-primary p-8 text-center">
-                  <p className="text-xs text-sl-gold-light/70 italic font-serif max-w-md mx-auto leading-relaxed">
+                  <p className="text-xs text-sl-gold-light/70 italic font-display max-w-md mx-auto leading-relaxed">
                     Aucune mission quotidienne active pour le moment. Le Système en assignera dès que vos domaines seront définis lors de l’Éveil.
                   </p>
                 </div>
@@ -867,13 +876,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-blood/30 bg-blood/10">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="w-5 h-5 text-blood animate-pulse" />
-                      <span className="font-display font-bold text-white text-sm tracking-widest uppercase">
+                      <span className="font-display font-bold text-pharaoh text-sm tracking-widest uppercase">
                         {safePlayer.penaltyQuest.title || 'QUÊTE DE CHÂTIMENT'}
                       </span>
                     </div>
                     <div className="font-mono text-xs text-blood bg-blood/10 border border-blood/40 px-2 py-1 rounded flex items-center gap-1.5">
                       <Clock className="w-3.5 h-3.5" />
-                      <span id="penalty-countdown">{/* countdown set in componentDidMount */}</span>
+                      <span>{formatRemaining(penaltyRemainingMs)}</span>
                     </div>
                   </div>
 
@@ -995,8 +1004,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             <CheckCircle2 className="w-5 h-5" />
                          </div>
                          <div>
-                            <h3 className="font-bold text-white font-display text-sm uppercase tracking-wider">{quest.title}</h3>
-                            <p className="text-[10px] text-sl-gold-light/60 italic font-serif">{quest.description}</p>
+                            <h3 className="font-bold text-pharaoh font-display text-sm uppercase tracking-wider">{quest.title}</h3>
+                            <p className="text-[10px] text-sl-gold-light/60 italic font-display">{quest.description}</p>
                          </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1088,7 +1097,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       <div className="p-1.5 bg-sl-gold/15 rounded-lg border border-sl-gold/30">
                         <Timer className="w-5 h-5 text-sl-gold animate-pulse" />
                       </div>
-                      <h3 className="text-md font-bold text-white font-display tracking-widest uppercase">
+                      <h3 className="text-base font-bold text-pharaoh font-display tracking-widest uppercase">
                         Radar de Portes Dimensionnelles
                       </h3>
                     </div>
@@ -1096,7 +1105,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       L'énergie mystique s'accumule. Utilisez <strong className="text-sl-gold">20 points d'énergie (MP)</strong> pour forcer la détection d'une porte dimensionnelle de vie réelle à durée limitée (24h) et obtenir des récompenses colossales et de fidèles soldats d'ombres !
                     </p>
                     <div className="text-[10px] text-sl-gold-light/60 font-mono tracking-wide">
-                      Votre Énergie : <span className="text-white font-bold">{safePlayer.mp} / {safePlayer.maxMp} MP</span>
+                      Votre Énergie : <span className="text-pharaoh font-bold">{safePlayer.mp} / {safePlayer.maxMp} MP</span>
                     </div>
                   </div>
                   
@@ -1111,7 +1120,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
 
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
-                <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
+                <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
                   <Skull className="w-6 h-6 text-blood" /> TOMBEAUX & PORTES ÉTABLIS
                 </h2>
               </div>
@@ -1138,8 +1147,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       
                       <div className="p-5 space-y-4">
                         <div>
-                          <h3 className="font-bold text-white font-display text-lg tracking-wide leading-tight">{dungeon.title}</h3>
-                          <div className="flex items-center gap-2 text-xs text-blood font-serif italic mt-1">
+                          <h3 className="font-bold text-pharaoh font-display text-lg tracking-wide leading-tight">{dungeon.title}</h3>
+                          <div className="flex items-center gap-2 text-xs text-blood font-display italic mt-1">
                             <Skull className="w-3.5 h-3.5" /> Boss : {dungeon.bossName}
                           </div>
                         </div>
@@ -1191,7 +1200,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       ) : (
                         <button 
                           onClick={() => handleEnterDungeon(dungeon)}
-                          className={`w-full py-2.5 rounded-xl font-display text-sm tracking-widest transition-all border ${
+                          className={`btn-press w-full py-2.5 rounded-xl font-display text-sm tracking-widest transition-all border ${
                             dungeon.isDefeated 
                             ? 'bg-emerald/10 border-emerald/50 text-emerald' 
                             : 'bg-sl-gold/10 border-sl-gold text-sl-gold hover:bg-sl-gold hover:text-sl-primary'
@@ -1217,10 +1226,10 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             >
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2 font-display">
+                  <h2 className="text-lg font-bold text-pharaoh flex items-center gap-2 font-display">
                     <Crown className="w-5 h-5 text-sl-gold" /> ARMÉE DIVINE DU PHARAON
                   </h2>
-                  <p className="text-xs text-sl-gold-light/60 mt-1 italic font-serif">Vos serviteurs éternels attendent vos ordres.</p>
+                  <p className="text-xs text-sl-gold-light/60 mt-1 italic font-display">Vos serviteurs éternels attendent vos ordres.</p>
                 </div>
                 <div className="font-display text-xs text-sl-gold-light bg-sl-lapis/80 border border-sl-gold/40 px-3 py-1.5 rounded-xl shadow-gold-sm">
                   Guerriers Éveillés : <strong className="text-sl-gold font-mono">{(safePlayer.shadows || []).length}</strong>
@@ -1230,7 +1239,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               {(!safePlayer.shadows || safePlayer.shadows.length === 0) ? (
                 <div className="text-center py-20 bg-sl-lapis/10 rounded-3xl border border-sl-gold/10">
                    <Crown className="w-16 h-16 text-lapis-light mx-auto mb-4 opacity-30" />
-                   <p className="text-pharaoh-subtle font-serif italic">Aucune essence n'a encore été éveilleé.</p>
+                   <p className="text-pharaoh-subtle font-display italic">Aucune essence n'a encore été éveilleé.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1240,8 +1249,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                         <RankBadge rank={shadow.rank} size={26} />
                         <span className="text-xs font-mono text-gold-bright">POUVOIR: {shadow.power}</span>
                       </div>
-                      <h3 className="text-lg font-bold text-white font-display">{shadow.name}</h3>
-                      <p className="text-xs text-sl-gold-light/60 italic font-serif leading-relaxed">« {shadow.quote} »</p>
+                      <h3 className="text-lg font-bold text-pharaoh font-display">{shadow.name}</h3>
+                      <p className="text-xs text-sl-gold-light/60 italic font-display leading-relaxed">« {shadow.quote} »</p>
                     </div>
                   ))}
                 </div>
@@ -1263,7 +1272,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               className="grid grid-cols-1 lg:grid-cols-2 gap-8"
             >
               <div className="space-y-6">
-                 <h2 className="text-xl font-bold text-white font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
+                 <h2 className="text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
                     <ShoppingCart className="w-6 h-6 text-sl-gold" /> BOUTIQUE DU SYSTÈME
                  </h2>
                  <div className="space-y-4">
@@ -1274,8 +1283,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                                <Gift className="w-5 h-5" />
                             </div>
                             <div>
-                               <div className="text-sm font-bold text-white font-display">{item.name}</div>
-                               <div className="text-[10px] text-sl-gold-light/60 italic font-serif">{item.description}</div>
+                               <div className="text-sm font-bold text-pharaoh font-display">{item.name}</div>
+                               <div className="text-[10px] text-sl-gold-light/60 italic font-display">{item.description}</div>
                             </div>
                          </div>
                          <button 
@@ -1290,7 +1299,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
 
               <div className="space-y-6">
-                 <h2 className="text-xl font-bold text-white font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
+                 <h2 className="text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
                     <Gift className="w-6 h-6 text-sl-gold" /> VOTRE INVENTAIRE
                  </h2>
                  <div className="space-y-3">
@@ -1301,7 +1310,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                                <Gift className="w-4 h-4" />
                             </div>
                             <div>
-                               <div className="text-sm font-bold text-white font-display">{item.name} {item.quantity! > 1 && `(x${item.quantity})`}</div>
+                               <div className="text-sm font-bold text-pharaoh font-display">{item.name} {item.quantity! > 1 && `(x${item.quantity})`}</div>
                                <div className="text-[10px] text-pharaoh-subtle italic">{item.description}</div>
                             </div>
                          </div>
@@ -1316,7 +1325,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       </div>
                     ))}
                     {(!safePlayer.inventory || safePlayer.inventory.length === 0) && (
-                      <div className="text-center py-10 text-pharaoh-subtle italic text-xs font-serif">
+                      <div className="text-center py-10 text-pharaoh-subtle italic text-xs font-display">
                          L'inventaire royal est vide.
                       </div>
                     )}
@@ -1333,7 +1342,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               animate={{ opacity: 1 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-white font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
                  <History className="w-6 h-6 text-sl-gold" /> CHRONIQUES DU SYSTÈME
               </h2>
               <div className="space-y-2">
@@ -1361,23 +1370,23 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               className="space-y-8"
             >
               <div className="border-b border-sl-gold/20 pb-6">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3 font-display">
+                <h2 className="text-2xl font-bold text-pharaoh flex items-center gap-3 font-display">
                   <Settings className="w-8 h-8 text-sl-gold" /> SALLE DU TRÔNE DIVIN
                 </h2>
-                <p className="text-sm text-sl-gold-light/60 mt-1 italic font-serif">
+                <p className="text-sm text-sl-gold-light/60 mt-1 italic font-display">
                   Configurez l'interface et personnalisez l'aura de votre Pharaon divin.
                 </p>
               </div>
 
               <PharaohAvatarCustomizer 
-                customization={safePlayer?.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#00F0FF' }}
+                customization={safePlayer?.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#1D6FA5' }}
                 equippedWeaponName={(safePlayer?.inventory || []).find(i => i.id === safePlayer?.equippedWeaponId)?.name}
                 equippedArmorName={(safePlayer?.inventory || []).find(i => i.id === safePlayer?.equippedArmorId)?.name}
                 onUpdateCustomization={(update) => {
                   onUpdatePlayer(prev => ({
                     ...prev,
                     avatar: {
-                      ...(prev?.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#00F0FF' }),
+                      ...(prev?.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#1D6FA5' }),
                       ...update
                     }
                   }));
@@ -1386,7 +1395,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
               {/* Sound Ambiance Section */}
               <div className="bg-sl-lapis/20 border border-sl-gold/20 rounded-3xl p-6 mt-8 space-y-6">
-                 <h3 className="font-display text-lg text-white border-l-4 border-sl-gold pl-3 flex items-center gap-2">
+                 <h3 className="font-display text-lg text-pharaoh border-l-4 border-sl-gold pl-3 flex items-center gap-2">
                    <Music className="w-5 h-5 text-sl-gold" /> Ambiance Sonore du Temple
                  </h3>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1399,11 +1408,15 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                        <div className="flex items-center gap-3">
                          <Music className={`w-5 h-5 ${music.active ? 'text-sl-gold' : 'text-pharaoh-subtle'}`} />
                          <div>
-                           <div className="text-sm font-bold text-white font-display">{music.name}</div>
-                           <div className="text-[10px] text-pharaoh-subtle font-serif">{music.desc}</div>
+                           <div className="text-sm font-bold text-pharaoh font-display">{music.name}</div>
+                           <div className="text-[10px] text-pharaoh-subtle font-display">{music.desc}</div>
                          </div>
                        </div>
-                       <button className={`p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-lapis text-pharaoh-subtle'}`}>
+                       <button
+                         disabled={!music.active}
+                         aria-label={music.active ? `Lire ${music.name}` : `${music.name} — verrouillé`}
+                         className={`btn-press p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-lapis text-pharaoh-subtle cursor-not-allowed'}`}
+                       >
                          {music.active ? <Play className="w-4 h-4 fill-current" /> : <Lock className="w-4 h-4" />}
                        </button>
                      </div>
@@ -1457,11 +1470,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-sl-primary border-4 border-sl-gold rounded-[3rem] max-w-md w-full p-8 text-center space-y-8 shadow-gold-lg overflow-hidden relative"
+            className="bg-sl-primary border-2 border-sl-gold rounded-3xl max-w-md w-full p-8 text-center space-y-8 shadow-gold-lg overflow-hidden relative"
           >
             <Crown className="w-20 h-20 text-sl-gold mx-auto animate-bounce" />
-            <h2 className="text-3xl font-bold text-white font-display tracking-widest uppercase">Éveil Divin</h2>
-            <p className="text-sm text-sl-gold-light/80 italic font-serif leading-relaxed">
+            <h2 className="text-3xl font-bold text-pharaoh font-display tracking-widest uppercase">Éveil Divin</h2>
+            <p className="text-sm text-sl-gold-light/80 italic font-display leading-relaxed">
               La dépouille du Gardien <strong className="text-sl-gold font-display">{ariseModalBoss.bossName}</strong> attend votre souffle de vie.
             </p>
             <button
@@ -1477,7 +1490,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
       {/* CONFIRM REAL CHALLENGE MODAL */}
       {confirmDungeonChallengeBoss && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/90 backdrop-blur-md">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -1490,17 +1503,17 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               <div className="w-16 h-16 bg-sl-gold/10 border-2 border-sl-gold rounded-2xl flex items-center justify-center mx-auto shadow-gold-sm">
                 <Skull className="w-8 h-8 text-sl-gold animate-pulse" />
               </div>
-              <h3 className="text-xl md:text-2xl font-bold font-display text-white tracking-widest uppercase">
+              <h3 className="text-xl md:text-2xl font-bold font-display text-pharaoh tracking-widest uppercase">
                 SERMENT DE DISCIPLINE
               </h3>
-              <p className="text-xs text-sl-gold-light italic font-serif">
+              <p className="text-xs text-sl-gold-light italic font-display">
                 « Devant la Balance de Maât, le vrai souverain reste loyal envers lui-même. »
               </p>
             </div>
 
             <div className="bg-sl-lapis/40 border border-sl-gold/20 rounded-2xl p-5 space-y-3 relative z-10">
               <div className="text-[10px] font-display text-sl-gold tracking-widest uppercase">Épreuve active :</div>
-              <h4 className="font-bold text-white text-md font-display leading-snug">{confirmDungeonChallengeBoss.title}</h4>
+              <h4 className="font-bold text-pharaoh text-base font-display leading-snug">{confirmDungeonChallengeBoss.title}</h4>
               <p className="text-sm text-pharaoh leading-relaxed font-sans font-medium">
                 {confirmDungeonChallengeBoss.lifeImprovementGoal}
               </p>
@@ -1532,7 +1545,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
       )}
       {/* EDIT MISSION MODAL */}
       {editingMission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/90 backdrop-blur-md">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -1540,7 +1553,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
           >
             <div className="flex items-center gap-3 border-b border-sl-gold/20 pb-4">
               <Edit2 className="w-6 h-6 text-sl-gold" />
-              <h3 className="text-xl font-bold font-display text-white tracking-widest uppercase">
+              <h3 className="text-xl font-bold font-display text-pharaoh tracking-widest uppercase">
                 Modifier la Mission
               </h3>
             </div>
@@ -1553,7 +1566,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   required
                   value={editingMission.title}
                   onChange={e => setEditingMission({ ...editingMission, title: e.target.value })}
-                  className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-sans"
+                  className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-pharaoh text-sm focus:outline-none focus:border-sl-gold transition-colors font-sans"
                 />
               </div>
 
@@ -1564,7 +1577,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   rows={2}
                   value={editingMission.description}
                   onChange={e => setEditingMission({ ...editingMission, description: e.target.value })}
-                  className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-sans resize-none"
+                  className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-pharaoh text-sm focus:outline-none focus:border-sl-gold transition-colors font-sans resize-none"
                 />
               </div>
 
@@ -1577,7 +1590,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     min={1}
                     value={editingMission.targetCount}
                     onChange={e => setEditingMission({ ...editingMission, targetCount: Number(e.target.value) })}
-                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-pharaoh text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
                   />
                 </div>
                 <div>
@@ -1587,7 +1600,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     required
                     value={editingMission.unit}
                     onChange={e => setEditingMission({ ...editingMission, unit: e.target.value })}
-                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-pharaoh text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
                   />
                 </div>
               </div>
@@ -1601,7 +1614,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     min={0}
                     value={editingMission.xpReward}
                     onChange={e => setEditingMission({ ...editingMission, xpReward: Number(e.target.value) })}
-                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-pharaoh text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
                   />
                 </div>
                 <div>
@@ -1612,7 +1625,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     min={0}
                     value={editingMission.goldReward}
                     onChange={e => setEditingMission({ ...editingMission, goldReward: Number(e.target.value) })}
-                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
+                    className="w-full bg-sl-lapis/40 border border-sl-gold/30 rounded-xl px-4 py-2.5 text-pharaoh text-sm focus:outline-none focus:border-sl-gold transition-colors font-mono"
                   />
                 </div>
               </div>

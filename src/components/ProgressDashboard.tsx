@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { WeeklyCategoryTarget, SubjectGoal, UserPersonalization, LessonStatus, StreakDayRecord, Domain } from '../types';
-import { domainsForTracking } from '../lib/domains';
+import { domainsForTracking, DOMAIN_CATEGORY_STYLES } from '../lib/domains';
 import { StreakCalendar } from './StreakCalendar';
 import { formatHoursDecimal, getCategoryStyle } from '../lib/utils';
 import {
@@ -41,15 +41,10 @@ const DomainIconMap: Record<string, React.ComponentType<{ size?: number; color?:
   social: Users,
 };
 
-const DomainColorMap: Record<string, string> = {
-  physical: '#ef4444',
-  creative: '#f59e0b',
-  intellectual: '#06b6d4',
-  craft: '#8b5cf6',
-  habit: '#10b981',
-  financial: '#22c55e',
-  social: '#ec4899',
-};
+// Single source of truth: the Pharaoh palette per domain category (lib/domains).
+const DomainColorMap: Record<string, string> = Object.fromEntries(
+  Object.entries(DOMAIN_CATEGORY_STYLES).map(([key, style]) => [key, style.color])
+);
 
 export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
   categoryTargets,
@@ -135,7 +130,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
       'Heures Cibles': c.targetHours,
       minHours: c.minHours,
       maxHours: c.maxHours,
-      color: c.color || '#00D4FF',
+      color: c.color || DomainColorMap.habit,
       percentage: c.targetHours > 0 ? Math.min(100, Math.round((c.completedHours / c.targetHours) * 100)) : 0,
     };
   }), [filteredCategories]);
@@ -160,7 +155,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
             <span className="font-display text-sm font-light text-pharaoh">{data.fullName || label}</span>
             <span className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-xl ${
               data.percentage >= 100
-                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                ? 'bg-emerald/20 text-emerald border border-emerald/40'
                 : 'bg-sapphire/10 text-sapphire border border-sapphire/40'
             }`}>
               {data.percentage}%
@@ -172,7 +167,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                 <span className="w-2.5 h-2.5 rounded-none inline-block" style={{ background: 'var(--color-gold)' }} />
                 Réalisé :
               </span>
-              <strong className="text-emerald-400 text-sm font-light">{data['Heures Réalisées']} h</strong>
+              <strong className="text-emerald text-sm font-light">{data['Heures Réalisées']} h</strong>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-pharaoh-subtle flex items-center gap-1.5">
@@ -194,7 +189,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
 
   const renderDomainCard = (domain: Domain) => {
     const style = DomainIconMap[domain.category] || CheckCircle2;
-    const color = DomainColorMap[domain.category] || '#06b6d4';
+    const color = DomainColorMap[domain.category] || DomainColorMap.intellectual;
     const completed = (domain as any).completedHours || 0;
     const target = domain.weekly_time_budget || 0;
     const percentage = target > 0 ? Math.min(100, Math.round((completed / target) * 100)) : 0;
@@ -243,7 +238,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
             <span className="font-mono text-xl font-light text-pharaoh tabular-nums">{completed.toFixed(1)}h</span>
             <span className="font-mono text-sm text-pharaoh-subtle">/ {target}h</span>
           </div>
-          <div className="h-2 bg-obsidian rounded-full overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+          <div className="h-2 bg-obsidian rounded-full overflow-hidden">
             <motion.div
               className="h-full rounded-full"
               style={{
@@ -328,7 +323,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
             <span className="font-mono text-xl font-light text-pharaoh tabular-nums">{completed.toFixed(1)}h</span>
             <span className="font-mono text-sm text-pharaoh-subtle">/ {targetHours}h</span>
           </div>
-          <div className="h-2 bg-obsidian rounded-full overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+          <div className="h-2 bg-obsidian rounded-full overflow-hidden">
             <motion.div
               className="h-full rounded-full"
               style={{
@@ -369,7 +364,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
       {/* Rank Showcase Header */}
       {playerProfile && (
         <motion.div
-          className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-6 md:p-8"
+          className="relative overflow-hidden rounded-2xl bg-panel border border-lapis-border p-6 md:p-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -408,7 +403,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
               )}
               <button
                 onClick={onOpenFocusTimer}
-                className="btn-press flex items-center gap-2 px-4 py-2 rounded-xl bg-panel text-sapphire border-sapphire/30 font-mono text-xs tracking-wide hover:bg-panel-hover hover:text-sapphire hover:border-sapphire/50 hover:shadow-[0_0_12px_rgba(29,111,165,0.3)]"
+                className="btn-press flex items-center gap-2 px-4 py-2 rounded-xl bg-panel text-sapphire border-sapphire/30 font-mono text-xs tracking-wide hover:bg-panel-hover hover:text-sapphire hover:border-sapphire/50 hover:shadow-glow-sapphire"
               >
                 <Sparkles size={16} />
                 <span>Session Focus</span>
@@ -489,9 +484,9 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
         {/* Legacy categories (fallback for migrated users) */}
         {!domainMode && (
           <>
-            {renderLegacyCategory(bangreNeo, 'Tech Prioritaire', Code, '#8b5cf6', 15, 20)}
-            {renderLegacyCategory(cinema, 'Arts Visuels', Film, '#f59e0b', 10, 15)}
-            {renderLegacyCategory(school, 'Savoir Académique', GraduationCap, '#06b6d4', 5, 10)}
+            {renderLegacyCategory(bangreNeo, 'Tech Prioritaire', Code, '#7B3FE4', 15, 20)}
+            {renderLegacyCategory(cinema, 'Arts Visuels', Film, '#D4A81E', 10, 15)}
+            {renderLegacyCategory(school, 'Savoir Académique', GraduationCap, '#1D6FA5', 5, 10)}
           </>
         )}
       </motion.div>
@@ -621,7 +616,7 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                       {subject.completedHours.toFixed(1)}h
                     </span>
                   </div>
-                  <div className="h-2 bg-obsidian rounded-full overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+                  <div className="h-2 bg-obsidian rounded-full overflow-hidden">
                     <motion.div
                       className="h-full rounded-full"
                       style={{
@@ -660,8 +655,8 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #f59e0b22, #f59e0b00)', border: '1px solid #f59e0b44' }}>
-                <Film size={20} color="#f59e0b" />
+              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #D4A81E22, #D4A81E00)', border: '1px solid #D4A81E44' }}>
+                <Film size={20} color="#D4A81E" />
               </div>
               <h3 className="font-display text-xl font-light text-pharaoh">Cinéma & Scénarios — Jalons</h3>
             </div>
@@ -679,10 +674,10 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                   type="checkbox"
                   checked={m.isCompleted}
                   onChange={() => handleToggleCinemaMilestone(m.id)}
-                  className="w-5 h-5 rounded border-2 appearance-none cursor-pointer transition-all"
+                  className="w-5 h-5 rounded border-2 appearance-none cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
                   style={{
-                    borderColor: m.isCompleted ? '#f59e0b' : 'rgba(212,168,30,0.3)',
-                    backgroundColor: m.isCompleted ? '#f59e0b' : 'transparent',
+                    borderColor: m.isCompleted ? '#D4A81E' : 'rgba(212,168,30,0.3)',
+                    backgroundColor: m.isCompleted ? '#D4A81E' : 'transparent',
                   }}
                 />
                 <span className={`font-display text-base ${m.isCompleted ? 'line-through text-pharaoh-subtle' : 'text-pharaoh'}`}>
@@ -703,8 +698,8 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #8b5cf622, #8b5cf600)', border: '1px solid #8b5cf644' }}>
-                <Code size={20} color="#8b5cf6" />
+              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #7B3FE422, #7B3FE400)', border: '1px solid #7B3FE444' }}>
+                <Code size={20} color="#7B3FE4" />
               </div>
               <h3 className="font-display text-xl font-light text-pharaoh">Bangre Neo Lab — Jalons</h3>
             </div>
@@ -722,10 +717,10 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                   type="checkbox"
                   checked={m.isCompleted}
                   onChange={() => handleToggleBangreMilestone(m.id)}
-                  className="w-5 h-5 rounded border-2 appearance-none cursor-pointer transition-all"
+                  className="w-5 h-5 rounded border-2 appearance-none cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian"
                   style={{
-                    borderColor: m.isCompleted ? '#8b5cf6' : 'rgba(212,168,30,0.3)',
-                    backgroundColor: m.isCompleted ? '#8b5cf6' : 'transparent',
+                    borderColor: m.isCompleted ? '#7B3FE4' : 'rgba(212,168,30,0.3)',
+                    backgroundColor: m.isCompleted ? '#7B3FE4' : 'transparent',
                   }}
                 />
                 <span className={`font-display text-base ${m.isCompleted ? 'line-through text-pharaoh-subtle' : 'text-pharaoh'}`}>
@@ -747,8 +742,8 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #06b6d422, #06b6d400)', border: '1px solid #06b6d444' }}>
-                <GraduationCap size={20} color="#06b6d4" />
+              <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #1D6FA522, #1D6FA500)', border: '1px solid #1D6FA544' }}>
+                <GraduationCap size={20} color="#1D6FA5" />
               </div>
               <h3 className="font-display text-xl font-light text-pharaoh">Programme Académique — Leçons</h3>
             </div>
@@ -762,19 +757,17 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="w-5 h-5 flex-shrink-0">
-                  <select
-                    value={lesson.status}
-                    onChange={(e) => handleLessonStatusChange(lesson.id, e.target.value as LessonStatus)}
-                    className="w-full h-full bg-obsidian border-lapis-border rounded text-pharaoh text-sm font-mono appearance-none pr-8 cursor-pointer"
-                  >
-                    <option value="pending">⏳ En attente</option>
-                    <option value="in_progress">🔄 En cours</option>
-                    <option value="completed">✅ Terminé</option>
-                  </select>
-                </div>
-                <span className="font-display text-sm text-pharaoh truncate flex-1">{lesson.title}</span>
-                <span className="font-mono text-[10px] text-pharaoh-subtle px-2 py-0.5 rounded-full bg-obsidian border-lapis-border">
+                <select
+                  value={lesson.status}
+                  onChange={(e) => handleLessonStatusChange(lesson.id, e.target.value as LessonStatus)}
+                  className="flex-shrink-0 w-28 h-8 px-2 bg-obsidian border border-lapis-border rounded-lg text-pharaoh text-xs font-mono cursor-pointer hover:border-gold/40 focus:border-gold focus:ring-1 focus:ring-gold/50 transition-colors"
+                >
+                  <option value="pending">En attente</option>
+                  <option value="in_progress">En cours</option>
+                  <option value="completed">Terminé</option>
+                </select>
+                <span className="font-display text-sm text-pharaoh truncate flex-1 min-w-0">{lesson.title}</span>
+                <span className="font-mono text-[10px] text-pharaoh-subtle px-2 py-0.5 rounded-full bg-obsidian border border-lapis-border">
                   {lesson.estimatedHours}h
                 </span>
               </motion.div>

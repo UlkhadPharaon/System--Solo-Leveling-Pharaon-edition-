@@ -15,7 +15,7 @@ interface PenaltyQuestCardProps {
   onAbsolved?: () => void;
 }
 
-function useCountdown(deadlineAt?: string): number {
+export function useCountdown(deadlineAt?: string): number {
   const [remaining, setRemaining] = useState<number>(() => {
     if (!deadlineAt) return 0;
     return Math.max(0, new Date(deadlineAt).getTime() - Date.now());
@@ -33,7 +33,7 @@ function useCountdown(deadlineAt?: string): number {
   return remaining;
 }
 
-function formatRemaining(ms: number): string {
+export function formatRemaining(ms: number): string {
   if (ms <= 0) return 'EXPIRÉE';
   const totalSec = Math.floor(ms / 1000);
   const h = Math.floor(totalSec / 3600);
@@ -94,7 +94,7 @@ export const PenaltyQuestCard: React.FC<PenaltyQuestCardProps> = ({
       <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-blood/30 bg-blood/10">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-blood animate-pulse" />
-          <span className="font-display font-bold text-white text-sm tracking-widest uppercase">
+          <span className="font-display font-bold text-pharaoh text-sm tracking-widest uppercase">
             {penalty.title || 'QUÊTE DE CHÂTIMENT'}
           </span>
         </div>

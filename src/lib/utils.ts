@@ -15,6 +15,112 @@ export interface CategoryStyleToken {
   activeFilterBg: string;
 }
 
+// ── Category accent tokens (Pharaoh palette) ────────────────────────────────
+// NOTE: Tailwind only compiles classes it can see literally — keep these as
+// full literal strings, never build them dynamically.
+const ACCENT = {
+  blood: {
+    badgeBg: 'bg-blood/20 text-blood border-blood/40',
+    dotColor: 'bg-blood',
+    barColor: '#C0392B',
+    cardBg: 'bg-blood/10 border-blood/30 hover:border-blood/60',
+    borderLeft: 'border-l-4 border-l-blood',
+    textColor: 'text-blood',
+    iconBg: 'bg-blood/20 border-blood/40 text-blood',
+    accentTagBg: 'bg-blood/15 text-blood border-blood/30',
+    glowBorder: 'border-blood/50',
+    activeFilterBg: 'bg-blood/20 text-blood border-blood',
+  },
+  amethyst: {
+    badgeBg: 'bg-amethyst/20 text-amethyst border-amethyst/40',
+    dotColor: 'bg-amethyst',
+    barColor: '#7B3FE4',
+    cardBg: 'bg-amethyst/10 border-amethyst/30 hover:border-amethyst/60',
+    borderLeft: 'border-l-4 border-l-amethyst',
+    textColor: 'text-amethyst',
+    iconBg: 'bg-amethyst/20 border-amethyst/40 text-amethyst',
+    accentTagBg: 'bg-amethyst/15 text-amethyst border-amethyst/30',
+    glowBorder: 'border-amethyst/50',
+    activeFilterBg: 'bg-amethyst/20 text-amethyst border-amethyst',
+  },
+  gold: {
+    badgeBg: 'bg-gold/20 text-gold-bright border-gold/40',
+    dotColor: 'bg-gold',
+    barColor: '#D4A81E',
+    cardBg: 'bg-gold/10 border-gold/30 hover:border-gold/60',
+    borderLeft: 'border-l-4 border-l-gold',
+    textColor: 'text-gold-bright',
+    iconBg: 'bg-gold/20 border-gold/40 text-gold-bright',
+    accentTagBg: 'bg-gold/15 text-gold-bright border-gold/30',
+    glowBorder: 'border-gold/50',
+    activeFilterBg: 'bg-gold/20 text-gold-bright border-gold',
+  },
+  sapphire: {
+    badgeBg: 'bg-sapphire/20 text-sapphire border-sapphire/40',
+    dotColor: 'bg-sapphire',
+    barColor: '#1D6FA5',
+    cardBg: 'bg-sapphire/10 border-sapphire/30 hover:border-sapphire/60',
+    borderLeft: 'border-l-4 border-l-sapphire',
+    textColor: 'text-sapphire',
+    iconBg: 'bg-sapphire/20 border-sapphire/40 text-sapphire',
+    accentTagBg: 'bg-sapphire/15 text-sapphire border-sapphire/30',
+    glowBorder: 'border-sapphire/50',
+    activeFilterBg: 'bg-sapphire/20 text-sapphire border-sapphire',
+  },
+  emerald: {
+    badgeBg: 'bg-emerald/20 text-emerald border-emerald/40',
+    dotColor: 'bg-emerald',
+    barColor: '#1E8A49',
+    cardBg: 'bg-emerald/10 border-emerald/30 hover:border-emerald/60',
+    borderLeft: 'border-l-4 border-l-emerald',
+    textColor: 'text-emerald',
+    iconBg: 'bg-emerald/20 border-emerald/40 text-emerald',
+    accentTagBg: 'bg-emerald/15 text-emerald border-emerald/30',
+    glowBorder: 'border-emerald/50',
+    activeFilterBg: 'bg-emerald/20 text-emerald border-emerald',
+  },
+  jade: {
+    badgeBg: 'bg-jade/20 text-jade border-jade/40',
+    dotColor: 'bg-jade',
+    barColor: '#2FA57A',
+    cardBg: 'bg-jade/10 border-jade/30 hover:border-jade/60',
+    borderLeft: 'border-l-4 border-l-jade',
+    textColor: 'text-jade',
+    iconBg: 'bg-jade/20 border-jade/40 text-jade',
+    accentTagBg: 'bg-jade/15 text-jade border-jade/30',
+    glowBorder: 'border-jade/50',
+    activeFilterBg: 'bg-jade/20 text-jade border-jade',
+  },
+  lotus: {
+    badgeBg: 'bg-lotus/20 text-lotus border-lotus/40',
+    dotColor: 'bg-lotus',
+    barColor: '#C94277',
+    cardBg: 'bg-lotus/10 border-lotus/30 hover:border-lotus/60',
+    borderLeft: 'border-l-4 border-l-lotus',
+    textColor: 'text-lotus',
+    iconBg: 'bg-lotus/20 border-lotus/40 text-lotus',
+    accentTagBg: 'bg-lotus/15 text-lotus border-lotus/30',
+    glowBorder: 'border-lotus/50',
+    activeFilterBg: 'bg-lotus/20 text-lotus border-lotus',
+  },
+  neutral: {
+    badgeBg: 'bg-lapis-light/40 text-pharaoh-muted border-lapis-border',
+    dotColor: 'bg-lapis-light',
+    barColor: '#1E3A5F',
+    cardBg: 'bg-obsidian-elevated/60 border-lapis-border hover:border-gold-dim',
+    borderLeft: 'border-l-4 border-l-lapis-light',
+    textColor: 'text-pharaoh-muted',
+    iconBg: 'bg-lapis-light/40 border-lapis-border text-pharaoh-muted',
+    accentTagBg: 'bg-lapis-light/30 text-pharaoh-muted border-lapis-border',
+    glowBorder: 'border-lapis-border',
+    activeFilterBg: 'bg-lapis-light/40 text-pharaoh border-lapis-border',
+  },
+} as const;
+
+function withLabel(accent: (typeof ACCENT)[keyof typeof ACCENT], label: string): CategoryStyleToken {
+  return { label, ...accent };
+}
+
 export function getCategoryStyle(category: Category, schoolSubject?: SchoolSubject): CategoryStyleToken {
   // Dynamic domain categories (`dom:<domainId>`) resolve from the Domain store
   // first; legacy fixed categories fall through to the original map below.
@@ -24,196 +130,42 @@ export function getCategoryStyle(category: Category, schoolSubject?: SchoolSubje
   }
   switch (category) {
     case 'bangre_neo':
-      return {
-        label: 'Bangre Neo Lab',
-        badgeBg: 'bg-violet-500/20 text-violet-300 border-violet-500/40',
-        dotColor: 'bg-violet-400',
-        barColor: '#8b5cf6',
-        cardBg: 'bg-violet-950/20 border-violet-500/30 hover:border-violet-500/60',
-        borderLeft: 'border-l-4 border-l-violet-500',
-        textColor: 'text-violet-400',
-        iconBg: 'bg-violet-500/20 border-violet-500/40 text-violet-300',
-        accentTagBg: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
-        glowBorder: 'border-violet-500/50',
-        activeFilterBg: 'bg-violet-500/20 text-violet-300 border-violet-500',
-      };
+      return withLabel(ACCENT.amethyst, 'Bangre Neo Lab');
     case 'cinema':
-      return {
-        label: 'Cinéma & Films',
-        badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-        dotColor: 'bg-amber-400',
-        barColor: '#f59e0b',
-        cardBg: 'bg-amber-950/20 border-amber-500/30 hover:border-amber-500/60',
-        borderLeft: 'border-l-4 border-l-amber-500',
-        textColor: 'text-amber-400',
-        iconBg: 'bg-amber-500/20 border-amber-500/40 text-amber-300',
-        accentTagBg: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-        glowBorder: 'border-amber-500/50',
-        activeFilterBg: 'bg-amber-500/20 text-amber-300 border-amber-500',
-      };
+      return withLabel(ACCENT.gold, 'Cinéma & Films');
     case 'school':
-      if (schoolSubject === 'math') {
-        return {
-          label: 'Études - Maths',
-          badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-          dotColor: 'bg-blue-400',
-          barColor: '#3b82f6',
-          cardBg: 'bg-blue-950/20 border-blue-500/30 hover:border-blue-500/60',
-          borderLeft: 'border-l-4 border-l-blue-500',
-          textColor: 'text-blue-400',
-          iconBg: 'bg-blue-500/20 border-blue-500/40 text-blue-300',
-          accentTagBg: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-          glowBorder: 'border-blue-500/50',
-          activeFilterBg: 'bg-blue-500/20 text-blue-300 border-blue-500',
-        };
-      }
-      if (schoolSubject === 'pc') {
-        return {
-          label: 'Études - Phys/Chimie',
-          badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
-          dotColor: 'bg-purple-400',
-          barColor: '#a855f7',
-          cardBg: 'bg-purple-950/20 border-purple-500/30 hover:border-purple-500/60',
-          borderLeft: 'border-l-4 border-l-purple-500',
-          textColor: 'text-purple-400',
-          iconBg: 'bg-purple-500/20 border-purple-500/40 text-purple-300',
-          accentTagBg: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-          glowBorder: 'border-purple-500/50',
-          activeFilterBg: 'bg-purple-500/20 text-purple-300 border-purple-500',
-        };
-      }
-      if (schoolSubject === 'svt') {
-        return {
-          label: 'Études - SVT',
-          badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-          dotColor: 'bg-emerald-400',
-          barColor: '#10b981',
-          cardBg: 'bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-500/60',
-          borderLeft: 'border-l-4 border-l-emerald-500',
-          textColor: 'text-emerald-400',
-          iconBg: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300',
-          accentTagBg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-          glowBorder: 'border-emerald-500/50',
-          activeFilterBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500',
-        };
-      }
-      if (schoolSubject === 'hist_geo') {
-        return {
-          label: 'Études - Hist & Géo',
-          badgeBg: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
-          dotColor: 'bg-orange-400',
-          barColor: '#f97316',
-          cardBg: 'bg-orange-950/20 border-orange-500/30 hover:border-orange-500/60',
-          borderLeft: 'border-l-4 border-l-orange-500',
-          textColor: 'text-orange-400',
-          iconBg: 'bg-orange-500/20 border-orange-500/40 text-orange-300',
-          accentTagBg: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-          glowBorder: 'border-orange-500/50',
-          activeFilterBg: 'bg-orange-500/20 text-orange-300 border-orange-500',
-        };
-      }
-      return {
-        label: 'Études Scolaires',
-        badgeBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-        dotColor: 'bg-cyan-400',
-        barColor: '#06b6d4',
-        cardBg: 'bg-cyan-950/20 border-cyan-500/30 hover:border-cyan-500/60',
-        borderLeft: 'border-l-4 border-l-cyan-500',
-        textColor: 'text-cyan-400',
-        iconBg: 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300',
-        accentTagBg: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-        glowBorder: 'border-cyan-500/50',
-        activeFilterBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-500',
-      };
+      if (schoolSubject === 'math') return withLabel(ACCENT.sapphire, 'Études - Maths');
+      if (schoolSubject === 'pc') return withLabel(ACCENT.amethyst, 'Études - Phys/Chimie');
+      if (schoolSubject === 'svt') return withLabel(ACCENT.emerald, 'Études - SVT');
+      if (schoolSubject === 'hist_geo') return withLabel(ACCENT.lotus, 'Études - Hist & Géo');
+      return withLabel(ACCENT.sapphire, 'Études Scolaires');
     case 'must_do_work':
-      return {
-        label: 'Travail Incontournable',
-        badgeBg: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
-        dotColor: 'bg-sky-400',
-        barColor: '#38bdf8',
-        cardBg: 'bg-sky-950/20 border-sky-500/30 hover:border-sky-500/60',
-        borderLeft: 'border-l-4 border-l-sky-500',
-        textColor: 'text-sky-400',
-        iconBg: 'bg-sky-500/20 border-sky-500/40 text-sky-300',
-        accentTagBg: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
-        glowBorder: 'border-sky-500/50',
-        activeFilterBg: 'bg-sky-500/20 text-sky-300 border-sky-500',
-      };
+      return withLabel(ACCENT.gold, 'Travail Incontournable');
     case 'morning_routine':
-      return {
-        label: 'Routine Matinale',
-        badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        dotColor: 'bg-emerald-400',
-        barColor: '#10b981',
-        cardBg: 'bg-emerald-950/20 border-emerald-500/30 hover:border-emerald-500/60',
-        borderLeft: 'border-l-4 border-l-emerald-500',
-        textColor: 'text-emerald-400',
-        iconBg: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300',
-        accentTagBg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-        glowBorder: 'border-emerald-500/50',
-        activeFilterBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500',
-      };
+      return withLabel(ACCENT.emerald, 'Routine Matinale');
     case 'learning':
-      return {
-        label: 'Lecture & Podcasts',
-        badgeBg: 'bg-pink-500/20 text-pink-300 border-pink-500/40',
-        dotColor: 'bg-pink-400',
-        barColor: '#ec4899',
-        cardBg: 'bg-pink-950/20 border-pink-500/30 hover:border-pink-500/60',
-        borderLeft: 'border-l-4 border-l-pink-500',
-        textColor: 'text-pink-400',
-        iconBg: 'bg-pink-500/20 border-pink-500/40 text-pink-300',
-        accentTagBg: 'bg-pink-500/15 text-pink-300 border-pink-500/30',
-        glowBorder: 'border-pink-500/50',
-        activeFilterBg: 'bg-pink-500/20 text-pink-300 border-pink-500',
-      };
+      return withLabel(ACCENT.lotus, 'Lecture & Podcasts');
     case 'sleep':
-      return {
-        label: 'Sommeil & Récupération',
-        badgeBg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
-        dotColor: 'bg-indigo-400',
-        barColor: '#6366f1',
-        cardBg: 'bg-indigo-950/20 border-indigo-500/30 hover:border-indigo-500/60',
-        borderLeft: 'border-l-4 border-l-indigo-500',
-        textColor: 'text-indigo-400',
-        iconBg: 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300',
-        accentTagBg: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
-        glowBorder: 'border-indigo-500/50',
-        activeFilterBg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500',
-      };
+      return withLabel(ACCENT.amethyst, 'Sommeil & Récupération');
     default:
-      return {
-        label: 'Temps Personnel',
-        badgeBg: 'bg-slate-500/20 text-slate-300 border-slate-500/40',
-        dotColor: 'bg-slate-400',
-        barColor: '#64748b',
-        cardBg: 'bg-slate-900/30 border-slate-700/50 hover:border-slate-500',
-        borderLeft: 'border-l-4 border-l-slate-500',
-        textColor: 'text-slate-400',
-        iconBg: 'bg-slate-500/20 border-slate-500/40 text-slate-300',
-        accentTagBg: 'bg-slate-500/15 text-slate-300 border-slate-500/30',
-        glowBorder: 'border-slate-500/50',
-        activeFilterBg: 'bg-slate-500/20 text-slate-300 border-slate-500',
-      };
+      return withLabel(ACCENT.neutral, 'Temps Personnel');
   }
 }
 
 /** Generic style token for a user-defined Domain (onboarding v2). */
 export function domainStyleToken(domain: Domain): CategoryStyleToken {
   const style = styleForDomain(domain);
-  return {
-    label: domain.label,
-    badgeBg: 'bg-slate-500/20 text-slate-200 border-slate-500/40',
-    dotColor: 'bg-cyan-400',
-    barColor: style.color,
-    cardBg: 'bg-cyan-950/20 border-cyan-500/30 hover:border-cyan-500/60',
-    borderLeft: 'border-l-4',
-    textColor: 'text-cyan-300',
-    iconBg: 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300',
-    accentTagBg: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-    glowBorder: 'border-cyan-500/50',
-    activeFilterBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-500',
+  const accentByCategory: Record<string, (typeof ACCENT)[keyof typeof ACCENT]> = {
+    physical: ACCENT.blood,
+    creative: ACCENT.gold,
+    intellectual: ACCENT.sapphire,
+    craft: ACCENT.amethyst,
+    habit: ACCENT.jade,
+    financial: ACCENT.emerald,
+    social: ACCENT.lotus,
   };
+  const accent = accentByCategory[domain.category] ?? ACCENT.neutral;
+  return { ...accent, label: domain.label, barColor: style.color };
 }
 
 export function getCategoryBadge(category: Category, schoolSubject?: SchoolSubject) {
