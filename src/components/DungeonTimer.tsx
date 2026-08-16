@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Square, Flame, Timer, ShieldAlert, Sparkles } from 'lucide-react';
+import { Play, Square, Flame, Timer, ShieldAlert, Sparkles } from './ui/PharaohIcons';
 import { motion } from 'motion/react';
 import { DungeonBoss, PlayerProfile } from '../types';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
@@ -149,34 +149,34 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#020914]/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-sl-primary/95 border border-sl-gold max-w-md w-full rounded-3xl p-6 md:p-8 space-y-6 shadow-gold relative overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-obsidian/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="bg-lapis/95 border border-gold max-w-md w-full rounded-3xl p-6 md:p-8 space-y-6 shadow-gold relative overflow-hidden anim-in">
         
         {/* Shimmer Effect */}
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sl-gold/0 via-sl-gold to-sl-gold/0 animate-pulse" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold/0 via-gold to-gold/0 animate-pulse" />
 
         <div className="text-center space-y-2">
-          <span className="text-[10px] text-sl-gold font-display tracking-widest uppercase">
+          <span className="font-mono text-[10px] text-gold font-display tracking-widest uppercase">
             DÉFI DU CHRONOTOMBEAU
           </span>
-          <h3 className="text-xl font-bold text-white font-display uppercase tracking-wide">
+          <h3 className="font-display text-xl font-bold text-pharaoh uppercase tracking-wide">
             {dungeon.title}
           </h3>
-          <p className="text-xs text-red-400 font-serif italic flex items-center justify-center gap-1">
+          <p className="font-mono text-xs text-blood italic flex items-center justify-center gap-1">
             Garder le focus pour vaincre : {dungeon.bossName}
           </p>
         </div>
 
         {hasFinished ? (
           <div className="space-y-4 text-center py-6">
-            <Sparkles className="w-12 h-12 text-sl-gold mx-auto animate-bounce" />
-            <h4 className="font-bold text-white font-display text-md uppercase">VICTOIRE SUPRÊME !</h4>
-            <p className="text-xs text-slate-400 font-serif italic">
+            <Sparkles className="w-12 h-12 text-gold mx-auto animate-bounce" />
+            <h4 className="font-display font-bold text-pharaoh text-md uppercase tracking-wide">VICTOIRE SUPRÊME !</h4>
+            <p className="text-xs text-pharaoh-muted italic">
               Vous avez complété votre séance de focus de manière royale et banni le mal égyptien. Les récompenses doublées ont été ajoutées à vos coffres.
             </p>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-sl-gold text-sl-primary rounded-xl font-display text-xs tracking-widest uppercase shadow-gold-sm"
+              className="btn-press px-6 py-2 bg-gold text-obsidian rounded-xl font-display font-mono text-xs tracking-widest uppercase shadow-gold"
             >
               RÉCLAMER ET RETOURNER
             </button>
@@ -191,7 +191,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                   cx="96"
                   cy="96"
                   r="80"
-                  stroke="#051428"
+                  stroke="#0A1422"
                   strokeWidth="8"
                   fill="transparent"
                 />
@@ -199,7 +199,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                   cx="96"
                   cy="96"
                   r="80"
-                  stroke="#D4AF37"
+                  stroke="#D4A81E"
                   strokeWidth="6"
                   fill="transparent"
                   strokeDasharray="502"
@@ -208,10 +208,10 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                 />
               </svg>
               <div className="text-center z-10">
-                <div className="text-3xl font-bold font-mono text-white tracking-widest">
+                <div className="font-mono text-3xl font-bold text-gradient-gold tracking-widest tabular-nums">
                   {formatTime(timeLeft)}
                 </div>
-                <div className="text-[9px] text-sl-gold font-display uppercase tracking-widest mt-1">
+                <div className="font-mono text-[9px] text-gold font-display uppercase tracking-widest mt-1">
                   {isRunning ? 'FOCUS ACTIF' : 'PRÊT'}
                 </div>
               </div>
@@ -228,10 +228,10 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
                   <button
                     key={opt.value}
                     onClick={() => setFocusDuration(opt.value)}
-                    className={`flex-1 py-1 px-2 text-[10px] rounded-lg border font-mono ${
+                    className={`btn-press flex-1 py-1 px-2 font-mono text-[10px] rounded-lg border ${
                       focusDuration === opt.value
-                        ? 'bg-sl-gold text-sl-primary border-sl-gold font-bold'
-                        : 'bg-sl-primary/60 border-sl-gold/15 text-slate-400'
+                        ? 'bg-gold text-obsidian border-gold font-bold'
+                        : 'bg-obsidian-elevated border-gold-dim/30 text-pharaoh-muted hover:text-pharaoh'
                     }`}
                   >
                     {opt.label}
@@ -244,7 +244,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
             <div className="flex gap-4 w-full">
               <button
                 onClick={handleStartStop}
-                className="flex-1 py-3 bg-sl-gold text-sl-primary rounded-xl font-display text-xs font-bold tracking-widest flex items-center justify-center gap-2 shadow-gold transition-all"
+                className="btn-press flex-1 py-3 bg-gradient-to-r from-gold to-gold-bright text-obsidian rounded-xl font-display text-xs font-bold tracking-widest flex items-center justify-center gap-2 shadow-gold transition-all"
               >
                 {isRunning ? (
                   <>
@@ -259,13 +259,13 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
 
               <button
                 onClick={handleFlee}
-                className="flex-1 py-3 bg-red-950/20 hover:bg-red-950/40 text-red-400 border border-red-900/40 rounded-xl font-display text-xs tracking-widest flex items-center justify-center gap-2 transition-all"
+                className="btn-press flex-1 py-3 bg-blood/20 hover:bg-blood/40 text-blood border border-blood/40 rounded-xl font-display text-xs tracking-widest flex items-center justify-center gap-2 transition-all"
               >
                 <ShieldAlert className="w-4 h-4" /> FUIR LE TOMBEAU
               </button>
             </div>
 
-            <p className="text-[10px] text-center text-slate-500 font-serif italic max-w-xs leading-relaxed">
+            <p className="text-[10px] text-center text-pharaoh-subtle italic max-w-xs leading-relaxed">
               Quitter le focus, minimiser l'application ou fuir prématurément le tombeau rompra l'incantation, vous infligeant de lourdes blessures physiques.
             </p>
           </div>

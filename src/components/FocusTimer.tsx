@@ -1,135 +1,172 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Category, SchoolSubject, FocusSession, Domain } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Category, SchoolSubject, Domain } from '../types';
 import { styleForDomain } from '../lib/domains';
 import { audioSynth } from '../lib/audioSynthesizer';
+import {
+  useActiveFocusSession,
+  activeFocusRemainingMs,
+  startActiveFocusSession,
+  pauseActiveFocusSession,
+  resumeActiveFocusSession,
+  updateActiveFocusNotes,
+  clearActiveFocusSession,
+} from '../lib/activeFocusSession';
 import { FocusMusicPlayer } from './FocusMusicPlayer';
-import confetti from 'canvas-confetti';
-import { 
-  Clock, 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Volume2, 
-  VolumeX, 
-  Code, 
-  Film, 
-  GraduationCap, 
-  Briefcase, 
-  BookOpen
-} from 'lucide-react';
+import { ConfirmDialog } from './ui/ConfirmDialog';
+import {
+  Clock, Play, Pause, RotateCcw, Volume2, VolumeX,
+  Code, Film, GraduationCap, Briefcase, BookOpen,
+  Target, Zap, Sparkles, Shield, Crown, Dumbbell, Wallet, Users, Flame
+} from './ui/PharaohIcons';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface FocusTimerProps {
   initialCategory?: Category;
-  onSessionComplete: (session: FocusSession) => void;
-  /** User-defined domains (onboarding v2) — when present, the category picker
-   *  lists domains instead of the fixed legacy list. */
+  /**
+   * Completion is no longer driven by this component: the session lives in
+   * `lib/activeFocusSession` and App.tsx's watcher grants XP when it expires —
+   * even if the user has navigated away from the Focus tab (#1 UX audit).
+   */
+  onSessionComplete?: (session: unknown) => void;
   domains?: Domain[];
 }
 
+const DomainIconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+  physical: Dumbbell,
+  creative: Film,
+  intellectual: GraduationCap,
+  craft: Code,
+  habit: Target,
+  financial: Wallet,
+  social: Users,
+};
+
+const DomainColorMap: Record<string, string> = {
+  physical: '#ef4444',
+  creative: '#f59e0b',
+  intellectual: '#06b6d4',
+  craft: '#8b5cf6',
+  habit: '#10b981',
+  financial: '#22c55e',
+  social: '#ec4899',
+};
+
 const LEGACY_FOCUS_TABS = [
-  { id: 'bangre_neo', label: 'Bangre Neo', icon: Code },
-  { id: 'cinema', label: 'Cinéma & Films', icon: Film },
-  { id: 'school', label: 'Cours Scolaires', icon: GraduationCap },
-  { id: 'must_do_work', label: 'Travail Incontournable', icon: Briefcase },
-  { id: 'learning', label: 'Lecture & Recherche', icon: BookOpen },
+  { id: 'bangre_neo', label: 'Bangre Neo', icon: Code, color: '#8b5cf6' },
+  { id: 'cinema', label: 'Cinéma & Films', icon: Film, color: '#f59e0b' },
+  { id: 'school', label: 'Cours Scolaires', icon: GraduationCap, color: '#06b6d4' },
+  { id: 'must_do_work', label: 'Travail Incontournable', icon: Briefcase, color: '#3b82f6' },
+  { id: 'learning', label: 'Lecture & Recherche', icon: BookOpen, color: '#10b981' },
 ];
 
 export const FocusTimer: React.FC<FocusTimerProps> = ({
   initialCategory = 'bangre_neo',
-  onSessionComplete,
   domains = [],
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category>(initialCategory);
   const [selectedSchoolSubject, setSelectedSchoolSubject] = useState<SchoolSubject>('math');
   const [targetMinutes, setTargetMinutes] = useState<number>(25);
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(25 * 60);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
   const [sessionNotes, setSessionNotes] = useState<string>('');
-  
-  // Ambient Audio State
+  const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+
   const [activeSound, setActiveSound] = useState<'none' | 'rain' | 'focus_noise' | 'waves' | 'binaural'>('none');
   const [musicPlaying, setMusicPlaying] = useState(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  // #1 UX audit: the running session lives in a module-level store (timestamp
+  // based) — it survives tab switches and reloads. This component only renders
+  // and mutates it; completion is driven by App's watcher, so XP is granted
+  // even when this tab is unmounted.
+  const activeSession = useActiveFocusSession();
+  const isSessionActive = activeSession != null;
+  const isRunning = activeSession != null && activeSession.pausedRemainingMs == null;
 
+  // Per-second re-render while counting down (the store only notifies on
+  // mutations, not on time passing).
+  const [, setClockTick] = useState(0);
   useEffect(() => {
-    // Domain-driven profiles: if the legacy initial category isn't among the
-    // domain tabs, fall back to the first domain instead of a stale label.
-    if (domains.length > 0 && (typeof initialCategory !== 'string' || !initialCategory.startsWith('dom:'))) {
-      setSelectedCategory(`dom:${domains[0].id}` as Category);
-    } else {
-      setSelectedCategory(initialCategory);
-    }
-  }, [initialCategory, domains]);
-
-  // Tick only decrements; completion is handled by a dedicated effect so
-  // side effects never run inside a state updater (StrictMode-safe).
-  useEffect(() => {
-    if (isRunning) {
-      timerRef.current = setInterval(() => {
-        setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    if (!isRunning) return;
+    const id = setInterval(() => setClockTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
   }, [isRunning]);
 
-  const completionFiredRef = useRef<string>('');
+  const secondsRemaining = activeSession
+    ? Math.ceil(activeFocusRemainingMs(activeSession) / 1000)
+    : targetMinutes * 60;
+
+  // Adopt the live session's category when one exists (e.g. arriving from the
+  // header pill); otherwise fall back to the domain-driven default.
   useEffect(() => {
-    if (isRunning && secondsRemaining === 0) {
-      const stamp = `${targetMinutes}-${sessionNotes}`;
-      if (completionFiredRef.current !== stamp) {
-        completionFiredRef.current = stamp;
-        handleTimerComplete();
-      }
+    if (activeSession) return;
+    if (domains.length > 0 && !domains.some((d) => `dom:${d.id}` === selectedCategory)) {
+      setSelectedCategory(`dom:${domains[0].id}` as Category);
+    } else if (domains.length === 0 && !LEGACY_FOCUS_TABS.some((t) => t.id === selectedCategory)) {
+      setSelectedCategory('bangre_neo');
+    }
+  }, [initialCategory, domains, activeSession, selectedCategory]);
+
+  // Mirror the live session's notes into the input (session may have been
+  // started earlier from another mount), and clear them once it completes.
+  useEffect(() => {
+    if (activeSession) {
+      if (activeSession.notes !== sessionNotes) setSessionNotes(activeSession.notes);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsRemaining, isRunning]);
+  }, [activeSession]);
 
-  const handleTimerComplete = () => {
-    setIsRunning(false);
+  // Stop ambient loops on unmount — the audioSynth is a module singleton and
+  // would otherwise keep playing with no UI left to control it.
+  useEffect(() => {
+    return () => audioSynth.stopSound();
+  }, []);
+
+  const displayCategory = activeSession ? activeSession.category : selectedCategory;
+  const displaySubject = activeSession?.schoolSubject ?? selectedSchoolSubject;
+  const displayTargetMinutes = activeSession?.targetMinutes ?? targetMinutes;
+
+  const handleTogglePlay = () => {
+    if (activeSession == null) {
+      startActiveFocusSession({
+        category: selectedCategory,
+        schoolSubject: selectedCategory === 'school' ? selectedSchoolSubject : undefined,
+        targetMinutes,
+        notes: sessionNotes,
+      });
+      return;
+    }
+    if (activeSession.pausedRemainingMs == null) {
+      pauseActiveFocusSession();
+    } else {
+      resumeActiveFocusSession();
+    }
+  };
+
+  const requestReset = () => {
+    // Trivial resets (fresh or barely started session) go through directly;
+    // meaningful progress deserves one explicit confirmation (#3 UX audit).
+    const elapsedMs = activeSession
+      ? activeSession.targetMinutes * 60_000 - activeFocusRemainingMs(activeSession)
+      : 0;
+    if (elapsedMs > 60_000) {
+      setShowResetConfirm(true);
+    } else {
+      confirmReset();
+    }
+  };
+
+  const confirmReset = () => {
+    clearActiveFocusSession();
     audioSynth.stopSound();
     setActiveSound('none');
-    audioSynth.playGongChime();
-
-    try {
-      confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
-    } catch {
-      // ignore
-    }
-
-    // Save session — record the time actually elapsed, not just the preset (#21)
-    const completedMins = Math.max(1, Math.round((targetMinutes * 60 - secondsRemaining) / 60)) || targetMinutes;
-    const session: FocusSession = {
-      id: 'fs-' + Date.now(),
-      date: new Date().toISOString().split('T')[0],
-      title: `Session ${getCategoryLabel(selectedCategory)}`,
-      category: selectedCategory,
-      domainId: typeof selectedCategory === 'string' && selectedCategory.startsWith('dom:')
-        ? selectedCategory.slice(4)
-        : undefined,
-      schoolSubject: selectedCategory === 'school' ? selectedSchoolSubject : undefined,
-      durationMinutes: completedMins,
-      notes: sessionNotes || 'Session de travail profond accomplie.',
-      completedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    onSessionComplete(session);
-    setSessionNotes('');
+    setShowResetConfirm(false);
   };
 
   const handleSetDuration = (mins: number) => {
-    setIsRunning(false);
     setTargetMinutes(mins);
-    setSecondsRemaining(mins * 60);
+  };
+
+  const handleNotesChange = (value: string) => {
+    setSessionNotes(value);
+    if (activeSession) updateActiveFocusNotes(value);
   };
 
   const handleToggleSound = (soundType: 'rain' | 'focus_noise' | 'waves' | 'binaural') => {
@@ -137,184 +174,302 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       audioSynth.stopSound();
       setActiveSound('none');
     } else {
+      if (musicPlaying) setMusicPlaying(false);
       audioSynth.playSound(soundType);
       setActiveSound(soundType);
     }
   };
 
-  // Custom music takes priority: starting a song mutes the synth ambience.
   const handleMusicPlaybackChange = (playing: boolean) => {
-    setMusicPlaying(playing);
-    if (playing && activeSound !== 'none') {
-      audioSynth.stopSound();
-      setActiveSound('none');
+    if (playing) {
+      if (activeSound !== 'none') {
+        audioSynth.stopSound();
+        setActiveSound('none');
+      }
+      setMusicPlaying(true);
+    } else {
+      setMusicPlaying(false);
     }
   };
 
   const formatTimerDisplay = (totalSecs: number) => {
-    const mins = Math.floor(totalSecs / 60);
-    const secs = totalSecs % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const s = (totalSecs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   };
 
-  const getCategoryLabel = (cat: Category) => {
-    if (typeof cat === 'string' && cat.startsWith('dom:')) {
-      const dom = domains.find((d) => d.id === cat.slice(4));
-      return dom ? dom.label : 'Mode Focus';
+  const getCategoryLabel = (cat: Category): string => {
+    if (cat.startsWith('dom:')) {
+      const domain = domains.find((d) => `dom:${d.id}` === cat);
+      return domain?.label || cat;
     }
-    switch (cat) {
-      case 'bangre_neo': return 'Bangre Neo Lab';
-      case 'cinema': return 'Cinéma & Scénario';
-      case 'school': return 'Leçons Académiques';
-      case 'must_do_work': return 'Travail Incontournable';
-      case 'learning': return 'Lecture / Podcasts';
-      default: return 'Mode Focus';
-    }
+    const tab = LEGACY_FOCUS_TABS.find((t) => t.id === cat);
+    return tab?.label || cat;
   };
 
-  const progressPercent = Math.round(((targetMinutes * 60 - secondsRemaining) / (targetMinutes * 60)) * 100);
+  const getCategoryIcon = (cat: Category) => {
+    if (cat.startsWith('dom:')) {
+      const domain = domains.find((d) => `dom:${d.id}` === cat);
+      return domain ? DomainIconMap[domain.category] || Target : Target;
+    }
+    const tab = LEGACY_FOCUS_TABS.find((t) => t.id === cat);
+    return tab?.icon || Target;
+  };
+
+  const getCategoryColor = (cat: Category) => {
+    if (cat.startsWith('dom:')) {
+      const domain = domains.find((d) => `dom:${d.id}` === cat);
+      return domain ? DomainColorMap[domain.category] || '#06b6d4' : '#06b6d4';
+    }
+    const tab = LEGACY_FOCUS_TABS.find((t) => t.id === cat);
+    return tab?.color || '#06b6d4';
+  };
+
+  const categoryItems = domains.length > 0
+    ? domains.map((d) => ({ id: `dom:${d.id}` as string, label: d.label, domain: d }))
+    : LEGACY_FOCUS_TABS;
+
+  const progressPercent = displayTargetMinutes > 0
+    ? Math.round(((displayTargetMinutes * 60 - secondsRemaining) / (displayTargetMinutes * 60)) * 100)
+    : 0;
+
+  const accentColor = getCategoryColor(displayCategory);
+  const CategoryIcon = getCategoryIcon(displayCategory);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8 anim-in">
       {/* Timer Container Card */}
-      <div className="relative overflow-hidden bg-card border border-soft rounded-xl p-8 md:p-10 text-center space-y-8">
-        <div className="flex flex-col items-center gap-2">
-          <span className="px-3 py-1 rounded-xl text-[10px] mono tracking-wide font-medium bg-cyan-400/10 text-cyan-400 border border-cyan flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 accent-cyan" />
+      <motion.div
+        className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-8 md:p-10 text-center space-y-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="absolute inset-0 pointer-events-none opacity-5">
+          <div className="deco-corner deco-corner--tl" style={{ background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)` }} />
+          <div className="deco-corner deco-corner--br" style={{ background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)` }} />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center gap-2">
+          <span className="px-3 py-1 rounded-xl text-[10px] font-mono tracking-wide font-medium bg-sapphire/10 text-sapphire border border-sapphire/40 flex items-center gap-1.5">
+            <Clock size={14} style={{ color: 'var(--color-sapphire)' }} />
             Moteur de Concentration Interactif
           </span>
-          <h2 className="serif text-3xl font-light italic text-white tracking-tight">
-            {getCategoryLabel(selectedCategory)}
+          <h2 className="font-display text-3xl md:text-4xl font-light text-pharaoh tracking-tight">
+            {getCategoryLabel(displayCategory)}
           </h2>
         </div>
 
-        {/* Category Picker Tabs — Domain-driven when domains exist (onboarding v2) */}
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {(domains.length > 0
-            ? domains.map((d) => ({
-                id: `dom:${d.id}` as string,
-                label: d.label,
-                icon: Clock,
-                domain: d,
-              }))
-            : LEGACY_FOCUS_TABS
-          ).map((cat: any) => {
-            const Icon = cat.icon;
-            const isSel = selectedCategory === cat.id;
+        {/* Category Picker Tabs — Domain-driven when domains exist (onboarding v2).
+            Locked while a session runs: switching mid-session used to silently
+            discard the countdown (#1 UX audit). */}
+        <div className="relative z-10 flex items-center justify-center gap-2 flex-wrap">
+          {categoryItems.map((cat, i) => {
+            const isSel = displayCategory === cat.id;
+            const Icon = 'domain' in cat ? DomainIconMap[cat.domain.category] || Target : cat.icon;
+            const color = 'domain' in cat ? DomainColorMap[cat.domain.category] || '#06b6d4' : cat.color;
 
             return (
-              <button
+              <motion.button
                 key={cat.id}
-                onClick={() => {
-                  setSelectedCategory(cat.id as Category);
-                  setIsRunning(false);
-                }}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl mono text-xs uppercase transition-all ${
+                onClick={() => { if (!isSessionActive) setSelectedCategory(cat.id as Category); }}
+                disabled={isSessionActive}
+                className={`btn-press relative flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-xs uppercase transition-all ${
+                  isSessionActive ? 'opacity-40 cursor-not-allowed ' : ''
+                }${
                   isSel
-                    ? 'bg-[#051428] text-cyan-400 border border-cyan font-medium'
-                    : 'bg-cyan-950/40 text-slate-400 hover:text-slate-200 border border-soft'
+                    ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                    : 'bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh border-lapis-border'
                 }`}
+                style={{ color: isSel ? color : undefined }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.03 * i }}
               >
-                <Icon className={`w-3.5 h-3.5 ${isSel ? 'accent-cyan' : 'text-slate-400'}`} />
-                <span>{cat.domain ? cat.domain.label : cat.label}</span>
-              </button>
+                <Icon size={16} className={`transition-all ${isSel ? 'anim-glow' : ''}`} style={{ color: isSel ? color : undefined }} />
+                <span>{'domain' in cat ? cat.domain.label : cat.label}</span>
+                {isSel && (
+                  <motion.span className="absolute -top-1 -right-1 w-2 h-2 rounded-full" style={{ background: color }} animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
+                )}
+              </motion.button>
             );
           })}
         </div>
 
-        {/* If Category is School, show subject selector */}
-        {selectedCategory === 'school' && (
-          <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
-            <span className="mono text-[10px] uppercase opacity-60">Matière :</span>
+        {/* If Category is School, show subject selector (locked while active) */}
+        {displayCategory === 'school' && (
+          <motion.div
+            className="relative z-10 flex items-center justify-center gap-2 flex-wrap pt-1"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+          >
+            <span className="font-mono text-[10px] uppercase text-pharaoh-subtle">Matière :</span>
             {[
-              { id: 'math', label: 'Mathématiques' },
-              { id: 'pc', label: 'Physique/Chimie' },
-              { id: 'svt', label: 'SVT (Biologie)' },
-              { id: 'hist_geo', label: 'Hist & Géo' },
+              { id: 'math', label: 'Mathématiques', color: '#ef4444' },
+              { id: 'pc', label: 'Physique/Chimie', color: '#f59e0b' },
+              { id: 'svt', label: 'SVT (Biologie)', color: '#10b981' },
+              { id: 'hist_geo', label: 'Hist & Géo', color: '#06b6d4' },
             ].map((sub) => (
-              <button
+              <motion.button
                 key={sub.id}
-                onClick={() => setSelectedSchoolSubject(sub.id as SchoolSubject)}
-                className={`px-3 py-1 rounded-xl mono text-[11px] uppercase ${
-                  selectedSchoolSubject === sub.id
-                    ? 'bg-cyan-400 text-black font-semibold'
-                    : 'bg-cyan-950/40 text-slate-400 border border-soft'
+                onClick={() => { if (!isSessionActive) setSelectedSchoolSubject(sub.id as SchoolSubject); }}
+                disabled={isSessionActive}
+                className={`btn-press px-3 py-1.5 rounded-xl font-mono text-[11px] uppercase transition-all flex items-center gap-1.5 ${
+                  isSessionActive ? 'opacity-40 cursor-not-allowed ' : ''
+                }${
+                  displaySubject === sub.id
+                    ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                    : 'bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh border-lapis-border'
                 }`}
+                style={{ borderColor: displaySubject === sub.id ? 'var(--color-gold)' : sub.color + '44' }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
               >
+                <span style={{ color: sub.color }}>●</span>
                 {sub.label}
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Big Countdown Timer Display */}
-        <div className="relative py-6 flex flex-col items-center justify-center">
-          <div className="mono text-7xl md:text-8xl font-light accent-cyan tracking-tight">
-            {formatTimerDisplay(secondsRemaining)}
-          </div>
+        <div className="relative z-10 py-6 flex flex-col items-center justify-center">
+          <motion.div
+            className="relative"
+            animate={{ scale: isRunning ? [1, 1.02, 1] : 1 }}
+            transition={{ duration: 1, repeat: isRunning ? Infinity : 0 }}
+          >
+            <div className="font-mono text-7xl md:text-8xl lg:text-9xl font-light tabular-nums text-gradient-gold" style={{ textShadow: `0 0 40px ${accentColor}88` }}>
+              {formatTimerDisplay(secondsRemaining)}
+            </div>
 
-          <div className="w-64 max-w-full bg-white/5 rounded-none h-1.5 mt-6 overflow-hidden">
-            <div
-              className="bg-cyan-400 h-full transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
+            {/* Circular progress ring */}
+            <svg className="absolute inset-0 -z-10" viewBox="0 0 280 280" style={{ transform: 'rotate(-90deg)' }}>
+              <circle
+                cx="140" cy="140" r="120"
+                fill="none" stroke="rgba(212,168,30,0.1)" strokeWidth="8"
+              />
+              <motion.circle
+                cx="140" cy="140" r="120"
+                fill="none" strokeWidth="8" strokeLinecap="round"
+                style={{
+                  stroke: `url(#timer-gradient-${displayCategory})`,
+                  strokeDasharray: 754,
+                  strokeDashoffset: 754 * (1 - progressPercent / 100),
+                }}
+                initial={{ strokeDashoffset: 754 }}
+                animate={{ strokeDashoffset: 754 * (1 - progressPercent / 100) }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              />
+              <defs>
+                <linearGradient id={`timer-gradient-${displayCategory}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor={accentColor} />
+                  <stop offset="100%" stopColor={accentColor} stopOpacity="0.6" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </motion.div>
+
+          <div className="w-64 max-w-full bg-obsidian rounded-full h-1.5 mt-6 overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                width: `${progressPercent}%`,
+                background: `linear-gradient(90deg, ${accentColor}, ${accentColor}aa)`,
+                boxShadow: `0 0 8px ${accentColor}88`,
+              }}
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             />
           </div>
-          <span className="mono text-[10px] uppercase opacity-60 mt-2">{progressPercent}% de la session réalisé</span>
+          <span className="font-mono text-[10px] uppercase text-pharaoh-subtle mt-2">
+            {isSessionActive && activeSession?.pausedRemainingMs != null
+              ? 'Session en pause — reprenez quand vous voulez'
+              : `${progressPercent}% de la session réalisé`}
+          </span>
+          {isRunning && (
+            <span className="font-mono text-[9px] uppercase tracking-wide text-gold/70 flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-gold animate-pulse" />
+              Le minuteur continue même si vous changez d'onglet
+            </span>
+          )}
         </div>
 
-        {/* Preset Durations */}
-        <div className="flex items-center justify-center gap-2">
+        {/* Preset Durations — locked while a session is active (#1 UX audit) */}
+        <div className="relative z-10 flex items-center justify-center gap-2 flex-wrap">
           {[15, 25, 45, 60, 90].map((mins) => (
-            <button
+            <motion.button
               key={mins}
               onClick={() => handleSetDuration(mins)}
-              className={`px-3 py-1 rounded-xl mono text-xs font-medium transition-all ${
-                targetMinutes === mins && !isRunning
-                  ? 'bg-card text-cyan-400 border border-cyan'
-                  : 'bg-cyan-950/40 text-slate-400 hover:text-slate-200 border border-soft'
+              disabled={isSessionActive}
+              className={`btn-press px-3 py-1.5 rounded-xl font-mono text-xs font-medium transition-all ${
+                isSessionActive ? 'opacity-40 cursor-not-allowed ' : ''
+              }${
+                targetMinutes === mins && !isSessionActive
+                  ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                  : 'bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh border-lapis-border'
               }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {mins}m
-            </button>
+            </motion.button>
           ))}
         </div>
 
         {/* Play / Pause / Reset Controls */}
-        <div className="flex items-center justify-center gap-4 pt-2">
-          <button
-            onClick={() => setIsRunning(!isRunning)}
-            className={`w-14 h-14 rounded-xl flex items-center justify-center text-black font-bold shadow-md transition-all active:scale-95 ${
+        <div className="relative z-10 flex items-center justify-center gap-4 pt-2">
+          <motion.button
+            onClick={handleTogglePlay}
+            className={`w-16 h-16 rounded-xl flex items-center justify-center font-bold shadow-card transition-all ${
               isRunning
-                ? 'bg-cyan-400 text-black'
-                : 'bg-card text-cyan-400 border border-cyan hover:bg-card-hover'
+                ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                : 'bg-panel text-sapphire border-sapphire/30 hover:bg-panel-hover hover:border-sapphire/50 hover:shadow-[0_0_12px_rgba(29,111,165,0.3)]'
             }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{ rotate: isRunning ? 360 : 0 }}
+            transition={{ duration: 20, ease: 'linear', repeat: isRunning ? Infinity : 0 }}
+            title={isSessionActive ? (isRunning ? 'Mettre en pause' : 'Reprendre la session') : 'Démarrer la session'}
           >
-            {isRunning ? <Pause className="w-6 h-6 fill-current text-black" /> : <Play className="w-6 h-6 fill-current text-cyan-400 ml-0.5" />}
-          </button>
+            {isRunning ? <Pause size={28} color="var(--color-gold-bright)" /> : <Play size={28} color="var(--color-sapphire)" style={{ marginLeft: 2 }} />}
+            <motion.div
+              className="absolute inset-0 rounded-xl"
+              style={{ border: `2px solid ${isRunning ? 'var(--color-gold)' : 'var(--color-sapphire)'}`, opacity: 0.3 }}
+              animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
+              transition={{ duration: 1.5, repeat: isRunning ? Infinity : 0, ease: 'easeOut' }}
+            />
+          </motion.button>
 
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setSecondsRemaining(targetMinutes * 60);
-              audioSynth.stopSound();
-              setActiveSound('none');
-            }}
-            className="w-11 h-11 rounded-xl bg-cyan-950/40 hover:bg-[#222630] border border-soft text-slate-400 hover:text-slate-200 flex items-center justify-center transition-all"
+          <motion.button
+            onClick={requestReset}
+            className="w-12 h-12 rounded-xl bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-blood border-lapis-border flex items-center justify-center transition-all"
+            whileHover={{ rotate: -90, scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             title="Réinitialiser le Minuteur"
           >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+            <RotateCcw size={22} />
+          </motion.button>
         </div>
 
         {/* Ambient Soundscape Synthesizer Controls */}
-        <div className="bg-cyan-950/40 border border-soft rounded-xl p-4 text-left space-y-3">
+        <motion.div
+          className="relative z-10 bg-panel border border-lapis-border rounded-2xl p-4 text-left space-y-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <div className="flex items-center justify-between">
-            <span className="mono text-xs font-semibold text-white flex items-center gap-2 uppercase">
-              <Volume2 className="w-4 h-4 accent-cyan" />
+            <span className="font-mono text-xs font-semibold text-pharaoh flex items-center gap-2 uppercase">
+              <Volume2 size={16} style={{ color: 'var(--color-gold)' }} />
               Ambiance Sonore de Concentration
             </span>
             {(activeSound !== 'none' || musicPlaying) && (
-              <span className="mono text-[10px] accent-cyan tracking-wide font-medium animate-pulse">
+              <span className="font-mono text-[10px] text-gold-bright tracking-wide font-medium animate-pulse">
                 {musicPlaying ? 'Musique Active' : 'Audio Actif'}
               </span>
             )}
@@ -322,47 +477,74 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { id: 'rain', label: 'Pluie Douce' },
-              { id: 'focus_noise', label: 'Bruit Brun' },
-              { id: 'waves', label: 'Vagues d’Océan' },
-              { id: 'binaural', label: 'Ondes Alpha (432Hz)' },
+              { id: 'rain', label: 'Pluie Douce', icon: Sparkles, color: '#06b6d4' },
+              { id: 'focus_noise', label: 'Bruit Brun', icon: Zap, color: '#8b5cf6' },
+              { id: 'waves', label: 'Vagues d\'Océan', icon: Shield, color: '#10b981' },
+              { id: 'binaural', label: 'Ondes Alpha (432Hz)', icon: Crown, color: '#D4A81E' },
             ].map((sound) => {
               const isAct = activeSound === sound.id;
               return (
-                <button
+                <motion.button
                   key={sound.id}
                   onClick={() => handleToggleSound(sound.id as any)}
-                  className={`px-3 py-2 rounded-xl mono text-[11px] border transition-all flex items-center justify-between ${
+                  className={`btn-press relative px-3 py-2.5 rounded-xl font-mono text-[11px] border transition-all flex flex-col items-start gap-1 ${
                     isAct
-                      ? 'bg-card text-cyan-400 border-cyan'
-                      : 'bg-black/30 text-slate-400 hover:text-slate-200 border-soft'
+                      ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                      : 'bg-panel text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh border-lapis-border'
                   }`}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <span>{sound.label}</span>
-                  {isAct ? <Volume2 className="w-3.5 h-3.5 accent-cyan" /> : <VolumeX className="w-3.5 h-3.5 opacity-40" />}
-                </button>
+                  <div className="flex items-center gap-1.5">
+                    <sound.icon size={14} style={{ color: isAct ? 'var(--color-gold)' : sound.color }} />
+                    <span>{sound.label}</span>
+                  </div>
+                  {isAct ? <Volume2 size={14} color="var(--color-gold)" className="anim-glow" /> : <VolumeX size={14} className="opacity-40" />}
+                </motion.button>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Custom Focus Music Player (user songs, stored locally) */}
-        <FocusMusicPlayer onPlaybackChange={handleMusicPlaybackChange} sessionRunning={isRunning} />
+        {/* Custom Focus Music Player */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <FocusMusicPlayer onPlaybackChange={handleMusicPlaybackChange} sessionRunning={isRunning} />
+        </motion.div>
 
         {/* Session Reflection Notes Input */}
-        <div className="text-left space-y-2">
-          <label className="block mono text-[10px] tracking-wide font-medium opacity-70">
+        <motion.div
+          className="relative z-10 text-left space-y-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <label className="block font-mono text-[10px] tracking-wide font-medium text-pharaoh-subtle">
             Résultat / Notes de la Session (Enregistré à la fin)
           </label>
           <input
             type="text"
-            placeholder="ex. Résolu la série d’exercices de calcul / Rédigé les dialogues de la Scène 3..."
+            placeholder="ex. Résolu la série d'exercices de calcul / Rédigé les dialogues de la Scène 3..."
             value={sessionNotes}
-            onChange={(e) => setSessionNotes(e.target.value)}
-            className="w-full bg-cyan-950/40 border border-soft rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-cyan"
+            onChange={(e) => handleNotesChange(e.target.value)}
+            className="w-full bg-obsidian border border-lapis-border rounded-xl px-4 py-3 text-sm text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Reset confirmation — only shown when meaningful progress would be lost */}
+      <ConfirmDialog
+        isOpen={showResetConfirm}
+        title="Abandonner la session ?"
+        message={`Cette session de ${activeSession?.targetMinutes ?? 0} min est en cours — la réinitialiser effacera le temps déjà investi (aucun XP ne sera attribué).`}
+        confirmLabel="Abandonner"
+        cancelLabel="Continuer la session"
+        onConfirm={confirmReset}
+        onCancel={() => setShowResetConfirm(false)}
+      />
     </div>
   );
 };
