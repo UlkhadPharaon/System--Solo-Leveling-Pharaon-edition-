@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Music, Plus, Trash2, Play, Pause, SkipForward, Volume2, ListMusic } from 'lucide-react';
+import { Music, Plus, Trash2, Play, Pause, SkipForward, Volume2, ListMusic } from './ui/PharaohIcons';
 import {
   StoredSong,
   addSong,
@@ -129,17 +129,17 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
   const current = songs.find((s) => s.id === currentId);
 
   return (
-    <div className="bg-cyan-950/40 border border-soft rounded-xl p-4 space-y-3 anim-in">
+    <div className="bg-panel border border-lapis-border rounded-2xl p-4 space-y-3 anim-in">
       <div className="flex items-center justify-between">
-        <span className="mono text-xs font-semibold text-white flex items-center gap-2 uppercase">
-          <Music className="w-4 h-4 accent-cyan" />
+        <span className="font-mono text-xs font-semibold text-pharaoh flex items-center gap-2 uppercase">
+          <Music size={16} color="var(--color-gold)" />
           Mes Musiques de Focus
         </span>
         <button
           onClick={() => setExpanded((e) => !e)}
-          className="mono text-[10px] text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-1"
+          className="btn-press font-mono text-[10px] text-pharaoh-muted hover:text-gold transition-colors flex items-center gap-1"
         >
-          <ListMusic className="w-3.5 h-3.5" />
+          <ListMusic size={14} />
           {expanded ? 'Réduire' : `${songs.length} morceau${songs.length !== 1 ? 'x' : ''}`}
         </button>
       </div>
@@ -148,29 +148,29 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
       <div className="flex items-center gap-3">
         <button
           onClick={() => (current ? (playing ? pause() : playSong(current.id)) : songs[0] && playSong(songs[0].id))}
-          className="btn-press w-11 h-11 rounded-xl bg-card text-cyan-400 border border-cyan flex items-center justify-center shrink-0"
+          className="btn-press w-11 h-11 rounded-xl bg-panel-gold text-gold-bright border border-gold/50 shadow-gold flex items-center justify-center shrink-0"
           title={playing ? 'Pause' : 'Lecture'}
         >
-          {playing ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
+          {playing ? <Pause size={20} color="var(--color-gold-bright)" /> : <Play size={20} color="var(--color-gold-bright)" style={{ marginLeft: 2 }} />}
         </button>
         <button
           onClick={skipNext}
           disabled={!songs.length}
-          className="btn-press w-9 h-9 rounded-xl bg-black/30 border border-soft text-slate-400 hover:text-slate-200 flex items-center justify-center shrink-0 disabled:opacity-40"
+          className="btn-press w-9 h-9 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted hover:text-gold hover:border-gold-dim flex items-center justify-center shrink-0 disabled:opacity-40"
           title="Morceau suivant"
         >
-          <SkipForward className="w-4 h-4" />
+          <SkipForward size={16} />
         </button>
         <div className="flex-1 min-w-0">
-          <div className="mono text-xs text-white truncate">
+          <div className="font-mono text-xs text-pharaoh truncate">
             {current ? (playing ? '▶ ' : '❚❚ ') + current.name : 'Aucun morceau sélectionné'}
           </div>
-          <div className="mono text-[10px] text-slate-500">
+          <div className="font-mono text-[10px] text-pharaoh-subtle">
             {current ? formatSongDuration(current.durationSec) : '—'} • boucle automatique
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <Volume2 className="w-4 h-4 text-slate-400" />
+          <Volume2 size={16} className="text-pharaoh-muted" />
           <input
             type="range"
             min={0}
@@ -178,7 +178,7 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
             step={0.05}
             value={volume}
             onChange={(e) => adjustVolume(Number(e.target.value))}
-            className="w-16 accent-cyan-400"
+            className="w-16 accent-gold"
             title="Volume"
           />
         </div>
@@ -189,7 +189,7 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
         <div className="space-y-2 anim-in">
           <div className="max-h-44 overflow-y-auto space-y-1.5 pr-1">
             {songs.length === 0 && (
-              <p className="mono text-[11px] text-slate-500 text-center py-3">
+              <p className="font-mono text-[11px] text-pharaoh-subtle text-center py-3">
                 Ajoutez vos musiques préférées (MP3, WAV, OGG…) — elles restent stockées sur votre appareil.
               </p>
             )}
@@ -197,20 +197,20 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
               <div
                 key={song.id}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
-                  song.id === currentId ? 'bg-card border-cyan' : 'bg-black/30 border-soft hover:border-slate-600'
+                  song.id === currentId ? 'bg-panel-gold border-gold/50' : 'bg-obsidian border-lapis-border hover:border-gold-dim'
                 }`}
               >
-                <button onClick={() => playSong(song.id)} className="btn-press text-cyan-400 shrink-0">
-                  <Play className="w-3.5 h-3.5 fill-current" />
+                <button onClick={() => playSong(song.id)} className="btn-press text-gold shrink-0">
+                  <Play size={14} />
                 </button>
-                <span className="flex-1 mono text-[11px] text-slate-200 truncate">{song.name}</span>
-                <span className="mono text-[10px] text-slate-500">{formatSongDuration(song.durationSec)}</span>
+                <span className="flex-1 font-mono text-[11px] text-pharaoh truncate">{song.name}</span>
+                <span className="font-mono text-[10px] text-pharaoh-subtle">{formatSongDuration(song.durationSec)}</span>
                 <button
                   onClick={() => handleDelete(song.id)}
-                  className="btn-press text-slate-500 hover:text-red-400 shrink-0"
+                  className="btn-press text-pharaoh-subtle hover:text-blood shrink-0"
                   title="Supprimer"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 size={14} />
                 </button>
               </div>
             ))}
@@ -227,9 +227,9 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading}
-            className="btn-press w-full py-2 rounded-xl mono text-[11px] font-medium bg-gradient-to-r from-cyan-600 to-cyan-400 text-black flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="btn-press w-full py-2 rounded-xl font-mono text-[11px] font-medium bg-gradient-to-r from-gold-dim to-gold text-text-inverse flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
-            <Plus className="w-4 h-4" />
+            <Plus size={16} />
             {loading ? 'Import en cours…' : 'Ajouter des musiques'}
           </button>
         </div>

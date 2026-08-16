@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trophy, ShieldAlert, Sparkles, User, HelpCircle, Check, RefreshCw } from 'lucide-react';
+import { Trophy, ShieldAlert, Sparkles, User, HelpCircle, Check, RefreshCw } from './ui/PharaohIcons';
 import { getSupabase } from '../lib/supabaseSync';
 import { PlayerProfile, LeaderboardEntry, HunterRank } from '../types';
 
@@ -16,7 +16,7 @@ const LEGENDARY_HUNTERS: LeaderboardEntry[] = [
     rank: 'S' as HunterRank,
     hunterClass: 'Commandant des Ombres',
     totalXp: 180000,
-    avatar: { skinTone: '#1a1a1a', auraColor: 'purple', crownType: 'none', eyeColor: '#A855F7' }
+    avatar: { skinTone: '#1a1a1a', auraColor: 'purple', crownType: 'none', eyeColor: '#7B3FE4' }
   },
   {
     userId: 'leg_2',
@@ -25,7 +25,7 @@ const LEGENDARY_HUNTERS: LeaderboardEntry[] = [
     rank: 'S' as HunterRank,
     hunterClass: 'Commandant des Ombres',
     totalXp: 120000,
-    avatar: { skinTone: '#8D5B4C', auraColor: 'gold', crownType: 'khepresh', eyeColor: '#D4AF37' }
+    avatar: { skinTone: '#8D5B4C', auraColor: 'gold', crownType: 'khepresh', eyeColor: '#D4A81E' }
   },
   {
     userId: 'leg_3',
@@ -34,7 +34,7 @@ const LEGENDARY_HUNTERS: LeaderboardEntry[] = [
     rank: 'S' as HunterRank,
     hunterClass: 'Guerrier Agile',
     totalXp: 88000,
-    avatar: { skinTone: '#F4EAD4', auraColor: 'gold', crownType: 'none', eyeColor: '#D4AF37' }
+    avatar: { skinTone: '#F4EAD4', auraColor: 'gold', crownType: 'none', eyeColor: '#D4A81E' }
   },
   {
     userId: 'leg_4',
@@ -43,7 +43,7 @@ const LEGENDARY_HUNTERS: LeaderboardEntry[] = [
     rank: 'S' as HunterRank,
     hunterClass: 'Assassin Vorace',
     totalXp: 72000,
-    avatar: { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'pschent', eyeColor: '#00F0FF' }
+    avatar: { skinTone: '#D4A81E', auraColor: 'cyan', crownType: 'pschent', eyeColor: '#1D6FA5' }
   },
   {
     userId: 'leg_5',
@@ -52,7 +52,7 @@ const LEGENDARY_HUNTERS: LeaderboardEntry[] = [
     rank: 'A' as HunterRank,
     hunterClass: 'Mage des Éléments',
     totalXp: 45000,
-    avatar: { skinTone: '#F4EAD4', auraColor: 'emerald', crownType: 'none', eyeColor: '#10B981' }
+    avatar: { skinTone: '#F4EAD4', auraColor: 'emerald', crownType: 'none', eyeColor: '#1E8A49' }
   }
 ];
 
@@ -112,7 +112,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
         rank: player?.rank || 'E',
         hunterClass: player?.hunterClass || 'Chasseur Débutant',
         totalXp: playerTotalXp,
-        avatar: player?.avatar || { skinTone: '#D4AF37', auraColor: 'cyan', crownType: 'none', eyeColor: '#00F0FF' }
+        avatar: player?.avatar || { skinTone: '#D4A81E', auraColor: 'cyan', crownType: 'none', eyeColor: '#1D6FA5' }
       };
 
       await supabase.from('leaderboard').upsert(entry, { onConflict: 'user_id' });
@@ -152,17 +152,17 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
   const finalDisplayList = onlineEntries.length > 0 ? onlineEntries : localLeaderboard;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-sl-gold/15 pb-4">
+    <div className="space-y-6 anim-in">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gold-dim pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-sl-gold/10 rounded-xl border border-sl-gold/30">
-            <Trophy className="w-6 h-6 text-sl-gold" />
+          <div className="p-2.5 bg-gold/10 rounded-xl border border-gold/30">
+            <Trophy className="w-6 h-6 text-gold" />
           </div>
           <div>
-            <h3 className="text-md font-bold text-white font-display tracking-widest uppercase">
+            <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase">
               CLASSEMENT MONDIAL DES CHASSEURS
             </h3>
-            <p className="text-[10px] text-slate-500 font-serif italic">
+            <p className="text-[10px] text-pharaoh-subtle italic">
               Mesurez vos progrès face aux chasseurs de légende de l'association.
             </p>
           </div>
@@ -172,7 +172,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
           <button
             onClick={syncScoreToCloud}
             disabled={isSyncing}
-            className="px-4 py-2 bg-sl-gold/10 hover:bg-sl-gold/20 text-sl-gold border border-sl-gold/30 rounded-xl font-display text-[10px] tracking-widest uppercase flex items-center gap-2 transition-all"
+            className="btn-press px-4 py-2 bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 rounded-xl font-display font-mono text-[10px] tracking-widest uppercase flex items-center gap-2 transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
             SYNCHRONISER SCORE
@@ -181,30 +181,30 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
       </div>
 
       {/* Real-time calculated placement banner */}
-      <div className="bg-sl-lapis/30 border border-sl-gold/30 rounded-3xl p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-gold-sm">
+      <div className="bg-lapis/40 border border-gold/30 rounded-3xl p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-gold">
         <div className="space-y-1 text-center md:text-left">
-          <div className="text-[10px] text-sl-gold font-display tracking-widest uppercase">VOTRE CLASSEMENT ESTIMÉ</div>
-          <h4 className="text-xl font-bold text-white font-display">
-            Rang Mondial : <span className="text-sl-gold-light">#{playerPosition}</span> sur l'Alliance
+          <div className="font-mono text-[10px] text-gold font-display tracking-widest uppercase">VOTRE CLASSEMENT ESTIMÉ</div>
+          <h4 className="font-display text-xl font-bold text-pharaoh tracking-wide">
+            Rang Mondial : <span className="text-gradient-gold">#{playerPosition}</span> sur l'Alliance
           </h4>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-emerald-400 font-bold bg-emerald-950/30 px-3 py-1.5 rounded-xl border border-emerald-900/40">
+          <span className="font-mono text-xs text-emerald font-bold bg-emerald/10 px-3 py-1.5 rounded-xl border border-emerald/40">
             {playerTotalXp} XP CUMULÉE
           </span>
         </div>
       </div>
 
       {/* Leaderboard Table / Cards */}
-      <div className="bg-sl-primary/40 border border-sl-gold/10 rounded-3xl overflow-hidden">
-        <div className="grid grid-cols-12 bg-sl-lapis/20 p-4 border-b border-sl-gold/10 text-[10px] font-display text-sl-gold tracking-wider uppercase font-bold">
+      <div className="bg-panel border border-gold-dim rounded-3xl overflow-hidden">
+        <div className="grid grid-cols-12 bg-lapis/30 p-4 border-b border-gold-dim font-mono text-[10px] font-display text-gold tracking-wider uppercase font-bold">
           <div className="col-span-2 text-center">Rang</div>
           <div className="col-span-5 md:col-span-6">Chasseur</div>
           <div className="col-span-3 md:col-span-2 text-center">Classe</div>
           <div className="col-span-2 text-right">XP Totale</div>
         </div>
 
-        <div className="divide-y divide-sl-gold/10">
+        <div className="divide-y divide-gold-dim/50 stagger">
           {finalDisplayList.map((entry, idx) => {
             const isSelf = entry.userId === 'current_user' || (selfUid && entry.userId === selfUid);
             return (
@@ -212,8 +212,8 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
                 key={entry.userId} 
                 className={`grid grid-cols-12 p-4 items-center transition-all ${
                   isSelf 
-                    ? 'bg-sl-gold/10 border-l-4 border-sl-gold' 
-                    : 'hover:bg-sl-primary/60'
+                    ? 'bg-gold/10 border-l-4 border-gold' 
+                    : 'hover:bg-obsidian-elevated/60'
                 }`}
               >
                 {/* Placement Rank */}
@@ -221,46 +221,46 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
                   {idx === 0 ? (
                     <span className="text-xl">👑</span>
                   ) : idx === 1 ? (
-                    <span className="text-yellow-500 text-lg">🥈</span>
+                    <span className="text-gold-bright text-lg">🥈</span>
                   ) : idx === 2 ? (
-                    <span className="text-amber-600 text-lg">🥉</span>
+                    <span className="text-gold-dim text-lg">🥉</span>
                   ) : (
-                    <span className="text-slate-400 font-mono">#{idx + 1}</span>
+                    <span className="font-mono text-pharaoh-muted">#{idx + 1}</span>
                   )}
                 </div>
 
                 {/* Name / Badge */}
                 <div className="col-span-5 md:col-span-6 flex items-center gap-3">
                   <div 
-                    className="w-7 h-7 rounded-full border flex items-center justify-center shrink-0 text-white font-mono text-[10px]"
+                    className="w-7 h-7 rounded-full border flex items-center justify-center shrink-0 text-pharaoh font-mono text-[10px]"
                     style={{ 
-                      backgroundColor: entry.avatar?.skinTone || '#D4AF37',
-                      borderColor: '#D4AF37',
-                      boxShadow: `0 0 6px ${entry.avatar?.auraColor === 'purple' ? '#A855F7' : entry.avatar?.auraColor === 'cyan' ? '#00F0FF' : '#D4AF37'}`
+                      backgroundColor: entry.avatar?.skinTone || '#D4A81E',
+                      borderColor: '#D4A81E',
+                      boxShadow: `0 0 6px ${entry.avatar?.auraColor === 'purple' ? '#7B3FE4' : entry.avatar?.auraColor === 'cyan' ? '#1D6FA5' : '#D4A81E'}`
                     }}
                   >
-                    {isSelf ? <User className="w-3.5 h-3.5 text-sl-primary" /> : entry.userName[0]}
+                    {isSelf ? <User className="w-3.5 h-3.5 text-obsidian" /> : entry.userName[0]}
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className={`text-xs font-bold font-display ${isSelf ? 'text-sl-gold-light font-bold' : 'text-white'}`}>
+                      <span className={`text-xs font-bold font-display tracking-wide ${isSelf ? 'text-gold-bright' : 'text-pharaoh'}`}>
                         {entry.userName}
                       </span>
-                      <span className="text-[8px] font-mono font-bold bg-sl-primary/60 px-1.5 py-0.5 rounded border border-sl-gold/20 text-slate-400">
+                      <span className="font-mono text-[8px] font-bold bg-obsidian-elevated px-1.5 py-0.5 rounded border border-gold/20 text-pharaoh-muted">
                         RANG {entry.rank}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-500 font-mono">Niveau {entry.level}</div>
+                    <div className="font-mono text-[10px] text-pharaoh-subtle">Niveau {entry.level}</div>
                   </div>
                 </div>
 
                 {/* Class */}
-                <div className="col-span-3 md:col-span-2 text-center text-[10px] font-display text-slate-400">
+                <div className="col-span-3 md:col-span-2 text-center font-mono text-[10px] font-display text-pharaoh-muted tracking-wide">
                   {entry.hunterClass}
                 </div>
 
                 {/* XP */}
-                <div className="col-span-2 text-right font-mono text-xs font-bold text-slate-300">
+                <div className="col-span-2 text-right font-mono text-xs font-bold text-pharaoh-muted">
                   {entry.totalXp.toLocaleString()}
                 </div>
               </div>

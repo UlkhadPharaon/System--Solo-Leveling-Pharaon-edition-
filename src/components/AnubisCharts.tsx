@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { TrendingUp, BarChart4, Award, Calendar } from 'lucide-react';
+import { TrendingUp, BarChart4, Medal, Calendar } from './ui/PharaohIcons';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import { PlayerProfile } from '../types';
 
@@ -44,40 +44,40 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
   if (!player) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 anim-in">
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-sl-primary/50 border border-sl-gold/15 rounded-2xl p-5 flex items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger">
+        <div className="bg-panel border border-gold-dim rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
           <div>
-            <div className="text-[10px] text-sl-gold font-display tracking-widest uppercase">Missions Accomplies</div>
-            <div className="text-2xl font-bold text-white font-mono mt-1">{totalCompletedTasks}</div>
-            <div className="text-[10px] text-slate-500 italic mt-1">Total de l'ascension</div>
+            <div className="text-[10px] text-gold font-display tracking-widest uppercase">Missions Accomplies</div>
+            <div className="text-2xl font-bold text-pharaoh font-mono mt-1">{totalCompletedTasks}</div>
+            <div className="text-[10px] text-pharaoh-subtle italic mt-1">Total de l'ascension</div>
           </div>
-          <div className="p-3 bg-sl-gold/10 rounded-xl text-sl-gold border border-sl-gold/20">
-            <Award className="w-5 h-5" />
+          <div className="p-3 bg-gold/10 rounded-xl text-gold border border-gold/20">
+            <Medal className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-sl-primary/50 border border-sl-gold/15 rounded-2xl p-5 flex items-center justify-between">
+        <div className="bg-panel border border-gold-dim rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
           <div>
-            <div className="text-[10px] text-sl-gold font-display tracking-widest uppercase">Niveau Actuel</div>
-            <div className="text-2xl font-bold text-white font-mono mt-1">NV. {player?.level || 1}</div>
-            <div className="text-[10px] text-emerald-400 font-mono mt-1">+{player?.attributePoints || 0} pts dispo.</div>
+            <div className="text-[10px] text-gold font-display tracking-widest uppercase">Niveau Actuel</div>
+            <div className="text-2xl font-bold text-pharaoh font-mono mt-1">NV. {player?.level || 1}</div>
+            <div className="text-[10px] text-emerald font-mono mt-1">+{player?.attributePoints || 0} pts dispo.</div>
           </div>
-          <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400 border border-blue-500/20">
+          <div className="p-3 bg-sapphire/10 rounded-xl text-sapphire border border-sapphire/20">
             <TrendingUp className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-sl-primary/50 border border-sl-gold/15 rounded-2xl p-5 flex items-center justify-between">
+        <div className="bg-panel border border-gold-dim rounded-2xl p-5 flex items-center justify-between hover-lift transition-all">
           <div>
-            <div className="text-[10px] text-sl-gold font-display tracking-widest uppercase">Moyenne Quotidienne</div>
-            <div className="text-2xl font-bold text-white font-mono mt-1">
-              {(totalCompletedTasks / 7).toFixed(1)} <span className="text-xs text-slate-400">/ jour</span>
+            <div className="text-[10px] text-gold font-display tracking-widest uppercase">Moyenne Quotidienne</div>
+            <div className="text-2xl font-bold text-pharaoh font-mono mt-1">
+              {(totalCompletedTasks / 7).toFixed(1)} <span className="text-xs text-pharaoh-muted">/ jour</span>
             </div>
-            <div className="text-[10px] text-slate-500 italic mt-1">Derniers 7 jours</div>
+            <div className="text-[10px] text-pharaoh-subtle italic mt-1">Derniers 7 jours</div>
           </div>
-          <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400 border border-purple-500/20">
+          <div className="p-3 bg-amethyst/10 rounded-xl text-amethyst border border-amethyst/20">
             <Calendar className="w-5 h-5" />
           </div>
         </div>
@@ -86,10 +86,10 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
       {/* Recharts Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: XP Area Chart */}
-        <div className="bg-sl-primary/30 border border-sl-gold/15 rounded-3xl p-5 space-y-4">
-          <div className="flex justify-between items-center border-b border-sl-gold/10 pb-3">
-            <h4 className="text-xs font-bold text-white font-display tracking-widest uppercase flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-sl-gold" /> Courbe d'Énergie (XP Capturée)
+        <div className="bg-panel border border-gold-dim rounded-3xl p-5 space-y-4 hover-lift transition-all">
+          <div className="flex justify-between items-center border-b border-lapis-border pb-3">
+            <h4 className="text-xs font-bold text-pharaoh font-display tracking-widest uppercase flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-gold" /> Courbe d'Énergie (XP Capturée)
             </h4>
           </div>
           <div className="h-64 w-full">
@@ -97,40 +97,40 @@ export const AnubisCharts: React.FC<AnubisChartsProps> = ({ player, totalComplet
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorXP" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#D4AF37" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#D4A81E" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#D4A81E" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#040d1a', borderColor: '#D4AF37', borderRadius: '12px', fontSize: '11px' }}
-                  labelStyle={{ color: '#D4AF37', fontWeight: 'bold' }}
+                  contentStyle={{ backgroundColor: '#0A1422', borderColor: '#D4A81E', borderRadius: '12px', fontSize: '11px' }}
+                  labelStyle={{ color: '#D4A81E', fontWeight: 'bold' }}
                 />
-                <Area type="monotone" dataKey="XP" stroke="#D4AF37" strokeWidth={2} fillOpacity={1} fill="url(#colorXP)" />
+                <Area type="monotone" dataKey="XP" stroke="#D4A81E" strokeWidth={2} fillOpacity={1} fill="url(#colorXP)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Chart 2: Missions & Focus Bar Chart */}
-        <div className="bg-sl-primary/30 border border-sl-gold/15 rounded-3xl p-5 space-y-4">
-          <div className="flex justify-between items-center border-b border-sl-gold/10 pb-3">
-            <h4 className="text-xs font-bold text-white font-display tracking-widest uppercase flex items-center gap-2">
-              <BarChart4 className="w-4 h-4 text-sl-gold" /> Discipline & Focus
+        <div className="bg-panel border border-gold-dim rounded-3xl p-5 space-y-4 hover-lift transition-all">
+          <div className="flex justify-between items-center border-b border-lapis-border pb-3">
+            <h4 className="text-xs font-bold text-pharaoh font-display tracking-widest uppercase flex items-center gap-2">
+              <BarChart4 className="w-4 h-4 text-gold" /> Discipline & Focus
             </h4>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#A8A090', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#040d1a', borderColor: '#D4AF37', borderRadius: '12px', fontSize: '11px' }}
+                  contentStyle={{ backgroundColor: '#0A1422', borderColor: '#D4A81E', borderRadius: '12px', fontSize: '11px' }}
                 />
                 <Legend wrapperStyle={{ fontSize: '10px' }} />
-                <Bar dataKey="Missions" fill="#00F0FF" radius={[4, 4, 0, 0]} name="Missions" />
-                <Bar dataKey="Focus" fill="#A855F7" radius={[4, 4, 0, 0]} name="Min Focus" />
+                <Bar dataKey="Missions" fill="#F0C42D" radius={[4, 4, 0, 0]} name="Missions" />
+                <Bar dataKey="Focus" fill="#7B3FE4" radius={[4, 4, 0, 0]} name="Min Focus" />
               </BarChart>
             </ResponsiveContainer>
           </div>

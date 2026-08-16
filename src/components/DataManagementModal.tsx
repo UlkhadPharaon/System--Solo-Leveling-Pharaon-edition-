@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Download, Upload, Trash2, X, Cloud } from 'lucide-react';
+import { Download, Upload, Trash2, X, Cloud } from './ui/PharaohIcons';
 import { cloudSync, SyncState } from '../lib/supabaseSync';
 
 interface DataManagementModalProps {
@@ -81,29 +81,29 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#051428] border border-cyan-500/30 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-6">
+      <div className="bg-glass-strong rounded-2xl p-6 w-full max-w-md shadow-card-hover space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Gestion des Données</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <h2 className="font-display text-xl font-light tracking-wide text-gradient-gold">Gestion des Données</h2>
+          <button onClick={onClose} className="btn-press text-pharaoh-muted hover:text-pharaoh transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-slate-300 text-sm">
+        <p className="text-pharaoh-muted text-sm">
           Exportez vos données pour les sauvegarder, importez une sauvegarde, ou réinitialisez complètement l'application pour repartir à zéro.
         </p>
 
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={exportData}
-            className="flex flex-col items-center gap-2 p-4 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 hover:border-cyan-400 transition-all"
+            className="btn-press hover-lift flex flex-col items-center gap-2 p-4 rounded-xl bg-gold/10 border border-gold/40 text-gold-bright hover:border-gold transition-all"
           >
             <Download className="w-6 h-6" />
             <span className="text-xs">Exporter</span>
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-900/50 border border-slate-800 text-slate-300 hover:border-slate-600 transition-all"
+            className="btn-press hover-lift flex flex-col items-center gap-2 p-4 rounded-xl bg-lapis/40 border border-lapis text-pharaoh-muted hover:border-gold hover:text-pharaoh transition-all"
           >
             <Upload className="w-6 h-6" />
             <span className="text-xs">Importer</span>
@@ -111,14 +111,14 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
         </div>
 
         {/* Cloud Sync Section */}
-        <div className="pt-2 border-t border-slate-800 space-y-3">
+        <div className="pt-2 border-t border-lapis space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold text-white flex items-center gap-2">
-                <Cloud className="w-4 h-4 text-cyan-400" />
+              <p className="text-xs font-semibold text-pharaoh flex items-center gap-2">
+                <Cloud className="w-4 h-4 text-sapphire" />
                 Synchronisation Nuage
               </p>
-              <p className="text-[10px] text-slate-500 mt-0.5">
+              <p className="text-[10px] text-pharaoh-subtle mt-0.5">
                 Sauvegarde automatique de votre progression (Supabase).
               </p>
             </div>
@@ -126,33 +126,33 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
               onClick={() => {
                 cloudSync.setEnabled(!syncEnabled);
               }}
-              className={`btn-press shrink-0 px-3 py-2 rounded-xl mono text-[10px] font-bold border transition-all ${
+              className={`btn-press shrink-0 px-3 py-2 rounded-xl font-mono text-[10px] font-bold border transition-all ${
                 syncEnabled
-                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-                  : 'bg-slate-900/50 border-slate-700 text-slate-400'
+                  ? 'bg-emerald/20 border-emerald/40 text-emerald'
+                  : 'bg-lapis/40 border-lapis text-pharaoh-muted'
               }`}
             >
               {syncEnabled ? 'ACTIVÉE' : 'DÉSACTIVÉE'}
             </button>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="mono text-[10px] text-slate-500">
+            <span className="font-mono text-[10px] text-pharaoh-subtle">
               {syncState.message}
               {syncState.lastSyncAt ? ` • ${new Date(syncState.lastSyncAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}` : ''}
             </span>
             <button
               onClick={() => cloudSync.flush()}
-              className="btn-press px-3 py-1.5 rounded-xl mono text-[10px] bg-cyan-950/40 border border-cyan/40 text-cyan-300"
+              className="btn-press px-3 py-1.5 rounded-xl font-mono text-[10px] bg-gold/10 border border-gold/40 text-gold-bright hover:bg-gold/20 transition-all"
             >
               Sauvegarder
             </button>
           </div>
         </div>
 
-        <div className="pt-2 border-t border-slate-800">
+        <div className="pt-2 border-t border-lapis">
           <button
             onClick={resetAllData}
-            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-400 hover:bg-red-950/70 hover:border-red-500 transition-all text-xs font-bold"
+            className="btn-press w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-blood/10 border border-blood/40 text-blood hover:bg-blood/20 hover:border-blood transition-all text-xs font-bold"
           >
             <Trash2 className="w-4 h-4" />
             <span>Réinitialiser & Vider toutes les données</span>
@@ -164,4 +164,3 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
     </div>
   );
 };
-

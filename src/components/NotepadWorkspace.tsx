@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { NoteItem, SchoolSubject, ProjectPhase, Domain } from '../types';
 import { ProjectTimelineView } from './ProjectTimelineView';
-import { 
-  FileText, 
-  Plus, 
-  Search, 
-  Pin, 
-  Trash2, 
-  Download, 
-  Share2, 
-  Check, 
+import {
+  FileText,
+  Plus,
+  Search,
+  Pin,
+  Trash2,
+  Download,
+  Share2,
+  Check,
   MapPin
-} from 'lucide-react';
+} from './ui/PharaohIcons';
 
 interface NotepadWorkspaceProps {
   notes: NoteItem[];
@@ -131,23 +131,23 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 anim-in">
       {/* Top Banner & Sub-Navigation */}
-      <div className="relative overflow-hidden rounded-xl bg-card border border-soft p-6">
+      <div className="relative overflow-hidden rounded-2xl bg-panel border border-lapis-border p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-xl text-[10px] mono tracking-wide font-medium bg-cyan-400/10 text-cyan-400 border border-cyan flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 accent-cyan" />
+              <span className="px-2.5 py-0.5 rounded-xl text-[10px] font-mono tracking-wide font-medium bg-emerald/10 text-emerald border border-emerald/40 flex items-center gap-1.5">
+                <FileText size={14} color="var(--color-emerald)" />
                 Espace Créatif & Académique
               </span>
             </div>
-            <h2 className="serif text-3xl font-light italic text-white tracking-tight">
+            <h2 className="font-display text-3xl font-light text-pharaoh tracking-wide">
               {activeTab === 'timeline'
                 ? 'Feuille de Route & Phases de Projets'
                 : 'Coffre à Idées & Éditeur de Scénarios'}
             </h2>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-pharaoh-muted mt-1">
               {activeTab === 'timeline'
                 ? domains.length > 0
                   ? `Planification des étapes multi-phases et livrables pour tes projets : ${domains.map((d) => d.label).join(', ')}.`
@@ -160,28 +160,28 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
 
           <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
             {/* Mode Tab Switchers */}
-            <div className="flex items-center gap-1 bg-cyan-950/40 p-1 rounded-xl border border-soft">
+            <div className="flex items-center gap-1 bg-obsidian p-1 rounded-xl border border-lapis-border">
               <button
                 onClick={() => setActiveTab('timeline')}
-                className={`px-3 py-1.5 rounded-xl mono text-xs uppercase flex items-center gap-2 transition-all ${
+                className={`btn-press px-3 py-1.5 rounded-xl font-mono text-xs uppercase flex items-center gap-2 transition-all ${
                   activeTab === 'timeline'
-                    ? 'bg-card text-amber-300 border border-cyan shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                    : 'text-pharaoh-muted hover:text-pharaoh'
                 }`}
               >
-                <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                <MapPin size={14} color="var(--color-gold)" />
                 <span>Feuille de Route</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('notes')}
-                className={`px-3 py-1.5 rounded-xl mono text-xs uppercase flex items-center gap-2 transition-all ${
+                className={`btn-press px-3 py-1.5 rounded-xl font-mono text-xs uppercase flex items-center gap-2 transition-all ${
                   activeTab === 'notes'
-                    ? 'bg-card text-amber-300 border border-cyan shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
+                    : 'text-pharaoh-muted hover:text-pharaoh'
                 }`}
               >
-                <FileText className="w-3.5 h-3.5 text-amber-400" />
+                <FileText size={14} color="var(--color-gold)" />
                 <span>Coffre à Notes ({notes.length})</span>
               </button>
             </div>
@@ -189,9 +189,9 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
             {activeTab === 'notes' && (
               <button
                 onClick={() => setIsCreating(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs uppercase transition-all"
+                className="btn-press flex items-center gap-1.5 px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs uppercase transition-all"
               >
-                <Plus className="w-4 h-4 text-cyan-400" />
+                <Plus size={16} color="var(--color-gold-bright)" />
                 <span>Créer une Note</span>
               </button>
             )}
@@ -213,17 +213,17 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
         /* Main Grid: Sidebar List + Editor */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[550px]">
         {/* Left Column: Note List & Filters */}
-        <div className="lg:col-span-4 bg-card border border-soft rounded-xl p-4 space-y-4 flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-panel border border-lapis-border rounded-2xl p-4 space-y-4 flex flex-col justify-between hover-lift">
           <div className="space-y-3">
             {/* Search */}
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+              <Search size={16} className="text-pharaoh-subtle absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Rechercher dans les notes ou tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-cyan-950/40 border border-soft rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-cyan"
+                className="w-full bg-obsidian border border-lapis-border rounded-xl pl-9 pr-3 py-2 text-xs text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
               />
             </div>
 
@@ -236,10 +236,10 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-2.5 py-1 rounded-xl mono text-[10px] uppercase transition-all whitespace-nowrap ${
+                  className={`btn-press px-2.5 py-1 rounded-xl font-mono text-[10px] uppercase transition-all whitespace-nowrap ${
                     selectedCategory === cat.id
-                      ? 'bg-card text-cyan-400 border border-cyan'
-                      : 'bg-cyan-950/40 text-slate-400 hover:bg-[#222630] border border-soft'
+                      ? 'bg-panel-gold text-gold-bright border border-gold/50'
+                      : 'bg-obsidian text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh border border-lapis-border'
                   }`}
                 >
                   {cat.label}
@@ -248,7 +248,7 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
             </div>
 
             {/* Note Cards List */}
-            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1 no-scrollbar">
+            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1 no-scrollbar stagger">
               {[...pinnedNotes, ...unpinnedNotes].map((note) => {
                 const isSelected = activeNoteId === note.id;
 
@@ -258,25 +258,25 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
                     onClick={() => setActiveNoteId(note.id)}
                     className={`w-full text-left p-3 rounded-xl border transition-all space-y-1 relative group ${
                       isSelected
-                        ? 'bg-cyan-950/40 border-cyan text-white'
-                        : 'bg-black/20 border-soft hover:border-soft text-slate-300'
+                        ? 'bg-panel-gold border-gold/50 text-pharaoh shadow-gold'
+                        : 'bg-obsidian/60 border-lapis-border hover:border-gold-dim hover-lift text-pharaoh-muted'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-1">
-                      <span className="serif text-sm font-light italic truncate pr-4">{note.title}</span>
-                      {note.isPinned && <Pin className="w-3 h-3 text-cyan-400 shrink-0 fill-[#00D4FF]" />}
+                      <span className="font-display text-sm font-light tracking-wide truncate pr-4">{note.title}</span>
+                      {note.isPinned && <Pin size={12} color="var(--color-gold)" className="shrink-0" />}
                     </div>
 
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-pharaoh-muted line-clamp-2 leading-relaxed">
                       {note.content}
                     </p>
 
                     <div className="flex items-center gap-1.5 pt-1 flex-wrap">
-                      <span className="mono text-[9px] tracking-wide font-medium px-1.5 py-0.5 rounded-xl bg-black/40 text-cyan-400 border border-soft">
+                      <span className="font-mono text-[9px] tracking-wide font-medium px-1.5 py-0.5 rounded-xl bg-obsidian text-gold border border-lapis-border">
                         {note.category.replace('_', ' ')}
                       </span>
                       {note.tags.map((tag) => (
-                        <span key={tag} className="mono text-[9px] opacity-50">
+                        <span key={tag} className="font-mono text-[9px] opacity-50">
                           #{tag}
                         </span>
                       ))}
@@ -289,70 +289,70 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
         </div>
 
         {/* Right Column: Active Note Reader & Editor */}
-        <div className="lg:col-span-8 bg-card border border-soft rounded-xl p-6 flex flex-col justify-between space-y-6">
+        <div className="lg:col-span-8 bg-panel border border-lapis-border rounded-2xl p-6 flex flex-col justify-between space-y-6 hover-lift">
           {activeNote ? (
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-soft pb-4">
+              <div className="flex items-center justify-between border-b border-lapis-border pb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="mono text-[9px] tracking-wide font-medium px-2 py-0.5 rounded-xl bg-cyan-950/40 text-cyan-400 border border-cyan">
+                    <span className="font-mono text-[9px] tracking-wide font-medium px-2 py-0.5 rounded-xl bg-obsidian text-gold border border-gold-dim">
                       {activeNote.category.replace('_', ' ')}
                     </span>
-                    <span className="mono text-[10px] opacity-50">
+                    <span className="font-mono text-[10px] text-pharaoh-subtle">
                       Mis à jour le {new Date(activeNote.updatedAt).toLocaleDateString('fr-FR')}
                     </span>
                   </div>
-                  <h3 className="serif text-2xl font-light italic text-white">{activeNote.title}</h3>
+                  <h3 className="font-display text-2xl font-light text-pharaoh tracking-wide">{activeNote.title}</h3>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleTogglePin(activeNote)}
-                    className={`p-2 rounded-xl border transition-all ${
+                    className={`btn-press p-2 rounded-xl border transition-all ${
                       activeNote.isPinned
-                        ? 'bg-card border-cyan text-cyan-400'
-                        : 'bg-cyan-950/40 border-soft text-slate-400 hover:text-slate-200'
+                        ? 'bg-panel-gold border-gold/50 text-gold-bright shadow-gold'
+                        : 'bg-obsidian border-lapis-border text-pharaoh-muted hover:text-gold hover:border-gold-dim'
                     }`}
                     title="Épingler la note"
                   >
-                    <Pin className="w-4 h-4" />
+                    <Pin size={16} />
                   </button>
 
                   <button
                     onClick={() => handleCopyNote(activeNote.content, activeNote.id)}
-                    className="p-2 rounded-xl bg-cyan-950/40 border border-soft text-slate-400 hover:text-slate-200"
+                    className="btn-press p-2 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted hover:text-gold hover:border-gold-dim transition-all"
                     title="Copier la note"
                   >
-                    {copiedId === activeNote.id ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
+                    {copiedId === activeNote.id ? <Check size={16} color="var(--color-emerald)" /> : <Share2 size={16} />}
                   </button>
 
                   <button
                     onClick={() => handleExportNote(activeNote)}
-                    className="p-2 rounded-xl bg-cyan-950/40 border border-soft text-slate-400 hover:text-slate-200"
+                    className="btn-press p-2 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted hover:text-gold hover:border-gold-dim transition-all"
                     title="Exporter en Markdown"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download size={16} />
                   </button>
 
                   <button
                     onClick={() => onDeleteNote(activeNote.id)}
-                    className="p-2 rounded-xl bg-cyan-950/40 border border-soft text-slate-500 hover:text-red-400"
+                    className="btn-press p-2 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-subtle hover:text-blood hover:border-blood/40 transition-all"
                     title="Supprimer la note"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
 
               {/* Note Body Text */}
-              <div className="bg-cyan-950/40 border border-soft rounded-xl p-5 mono text-xs text-white leading-relaxed min-h-[300px] whitespace-pre-wrap">
+              <div className="bg-obsidian border border-lapis-border rounded-xl p-5 font-mono text-xs text-pharaoh leading-relaxed min-h-[300px] whitespace-pre-wrap">
                 {activeNote.content}
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-2 py-12">
-              <FileText className="w-10 h-10 opacity-40" />
-              <p className="mono text-xs">Sélectionnez une note ou créez-en une nouvelle pour commencer l’édition.</p>
+            <div className="flex flex-col items-center justify-center h-full text-pharaoh-subtle space-y-2 py-12">
+              <FileText size={40} className="opacity-40" />
+              <p className="font-mono text-xs">Sélectionnez une note ou créez-en une nouvelle pour commencer l’édition.</p>
             </div>
           )}
         </div>
@@ -362,32 +362,32 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
       {/* New Note Modal */}
       {isCreating && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#051428] border border-cyan/50 rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <h3 className="serif text-2xl font-light italic text-white flex items-center gap-2 border-b border-soft pb-2">
-              <Plus className="w-5 h-5 accent-cyan" />
+          <div className="bg-lapis border border-gold/50 rounded-2xl max-w-lg w-full p-6 shadow-card-hover space-y-4 anim-pop">
+            <h3 className="font-display text-2xl font-light text-pharaoh tracking-wide flex items-center gap-2 border-b border-lapis-border pb-2">
+              <Plus size={20} color="var(--color-gold)" />
               Créer une Nouveau Parchemin
             </h3>
 
             <form onSubmit={handleCreateSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Titre</label>
+                <label className="block font-mono text-[10px] uppercase text-pharaoh-subtle mb-1">Titre</label>
                 <input
                   type="text"
                   required
                   placeholder="ex. Dialogues Scène 2 Scénario / Spécifications API Bangre Neo"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian border border-lapis-border rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block mono text-[10px] uppercase opacity-70 mb-1">Catégorie de Dossier</label>
+                  <label className="block font-mono text-[10px] uppercase text-pharaoh-subtle mb-1">Catégorie de Dossier</label>
                   <select
                     value={editCategory}
                     onChange={(e) => setEditCategory(e.target.value as any)}
-                    className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none"
+                    className="w-full bg-obsidian border border-lapis-border rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold"
                   >
                     {noteCategoryOptions.map((o) => (
                       <option key={o.id} value={o.id}>{o.label}</option>
@@ -396,40 +396,40 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
                 </div>
 
                 <div>
-                  <label className="block mono text-[10px] uppercase opacity-70 mb-1">Tags (séparés par virgules)</label>
+                  <label className="block font-mono text-[10px] uppercase text-pharaoh-subtle mb-1">Tags (séparés par virgules)</label>
                   <input
                     type="text"
                     placeholder="Scénario, Cinéma, Dialogue"
                     value={editTags}
                     onChange={(e) => setEditTags(e.target.value)}
-                    className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none"
+                    className="w-full bg-obsidian border border-lapis-border rounded-xl px-3 py-2 text-pharaoh focus:outline-none focus:border-gold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Contenu / Notes de Scénario</label>
+                <label className="block font-mono text-[10px] uppercase text-pharaoh-subtle mb-1">Contenu / Notes de Scénario</label>
                 <textarea
                   rows={8}
                   required
                   placeholder="Rédigez le brouillon de scénario, l'architecture ou les notes de cours ici..."
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl p-3 mono text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 font-mono text-pharaoh focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-soft">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-lapis-border">
                 <button
                   type="button"
                   onClick={() => setIsCreating(false)}
-                  className="px-4 py-2 rounded-xl bg-cyan-950/40 text-slate-300 mono text-xs uppercase"
+                  className="btn-press px-4 py-2 rounded-xl bg-obsidian text-pharaoh-muted border border-lapis-border font-mono text-xs uppercase"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs uppercase font-semibold"
+                  className="btn-press px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs uppercase font-semibold"
                 >
                   Enregistrer la Note
                 </button>

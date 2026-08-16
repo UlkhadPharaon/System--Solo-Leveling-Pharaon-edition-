@@ -1,13 +1,8 @@
 import React from 'react';
-import { ScrollText, Play, CheckCircle2, Award, Shield, Sparkles } from 'lucide-react';
+import { ScrollText, Play, CheckCircle2, Award, Shield, Sparkles, Crown, Sword, Star, Zap, Flame } from './ui/PharaohIcons';
 import { motion } from 'motion/react';
 import { PlayerProfile } from '../types';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
-
-interface NarrativeQuestsViewProps {
-  player: PlayerProfile;
-  onUpdatePlayer: React.Dispatch<React.SetStateAction<PlayerProfile>>;
-}
 
 interface NarrativeChapter {
   id: string;
@@ -26,94 +21,60 @@ interface NarrativeChapter {
 
 const CHAPTERS: NarrativeChapter[] = [
   {
-    id: 'chap_1',
+    id: 'prologue',
     chapter: 1,
-    title: 'L’Éveil de la Pyramide des Ombres',
-    lore: 'Vous vous réveillez au plus profond d’un temple oublié sous les dunes de Thèbes. Une inscription brille en hiéroglyphes : « L’esprit du roi s’éveille par la discipline ». Pour réclamer votre trône, vous devez réveiller votre énergie interne.',
+    title: 'L\'Éveil du Chasseur',
+    lore: 'Dans les ténèbres de l\'oubli, une lueur perce le voile. Le Système vous a choisi, non par hasard, mais par nécessité. Votre âme, forgée dans l\'épreuve, doit maintenant s\'élever au-dessus du commun. Chaque quête accomplie est une pierre ajoutée à votre pyramide. Le trône attend celui qui ose le gravir.',
     objectives: [
-      {
-        id: 'obj_1_1',
-        text: 'S’entraîner ou compléter un bloc d’activité (Missions accomplies au total >= 3)',
-        check: (player) => (player?.logs?.length || 0) >= 3
-      },
-      {
-        id: 'obj_1_2',
-        text: 'Posséder une arme ou une armure de la Forge dans l’inventaire',
-        check: (player) => (player?.inventory || []).some(i => i.type === 'weapon' || i.type === 'armor')
-      },
-      {
-        id: 'obj_1_3',
-        text: 'Allouer au moins 3 points d’attribut dans vos statistiques',
-        check: (player) => {
-          const stats = player?.attributes;
-          if (!stats) return false;
-          return ((stats.force || 0) + (stats.vitalite || 0) + (stats.agilite || 0) + (stats.intelligence || 0) + (stats.perception || 0)) >= 53;
-        }
-      }
+      { id: 'p1', text: 'Compléter votre première quête quotidienne', check: (p) => p.questsCompleted >= 1 },
+      { id: 'p2', text: 'Atteindre le niveau 5', check: (p) => p.level >= 5 },
+      { id: 'p3', text: 'Accumuler 500 XP total', check: (p) => p.totalXP >= 500 },
     ],
     xpReward: 500,
-    goldReward: 1000,
-    unlockedItemReward: { id: 'm_lapis_gift', name: '3x Lapis Pur Divin', type: 'material', statBonus: 'Matériau de Forge de Rang S' }
+    goldReward: 100,
+    unlockedItemReward: { name: 'Lame de l\'Aube', type: 'weapon', statBonus: '+10% XP par quête', id: 'dawn_blade' },
   },
   {
-    id: 'chap_2',
+    id: 'trial',
     chapter: 2,
-    title: 'L’Armée Silencieuse d’Osiris',
-    lore: 'La voix mystique du Système vous chuchote que les rois défunts de l’ancienne Égypte ne sont pas morts ; ils attendent vos ordres sous forme d’ombres. Pour étendre votre influence divine, vous devez ressusciter vos premiers gardiens de pierre.',
+    title: 'L\'Épreuve des Sables',
+    lore: 'Le désert ne pardonne pas l\'hésitation. Les vents du changement balaient les fondations fragiles. Seuls ceux qui persistent, qui transforment chaque obstacle en marche, méritent de voir l\'horizon. Votre discipline est votre boussole ; votre volonté, votre eau.',
     objectives: [
-      {
-        id: 'obj_2_1',
-        text: 'Invoquer et posséder au moins 2 Ombres dans votre Armée Divine',
-        check: (player) => (player?.shadows?.length || 0) >= 2
-      },
-      {
-        id: 'obj_2_2',
-        text: 'Atteindre le Niveau 8 ou plus',
-        check: (player) => (player?.level || 1) >= 8
-      },
-      {
-        id: 'obj_2_3',
-        text: 'Explorer et nettoyer un Donjon Tombeau',
-        check: (player) => (player?.logs || []).some(l => l.text.includes('[VICTOIRE] Vous avez exploré'))
-      }
+      { id: 't1', text: 'Maintenir une série de 7 jours', check: (p) => p.streakDays >= 7 },
+      { id: 't2', text: 'Compléter 10 quêtes au total', check: (p) => p.questsCompleted >= 10 },
+      { id: 't3', text: 'Atteindre le niveau 15', check: (p) => p.level >= 15 },
+      { id: 't4', text: 'Dépenser 1000 Or en améliorations', check: (p) => p.goldSpent >= 1000 },
     ],
-    xpReward: 1200,
-    goldReward: 2500,
-    unlockedItemReward: { id: 'm_rune_gift', name: '2x Rune sacrée runique', type: 'material', statBonus: 'Matériau de Forge légendaire' }
+    xpReward: 1500,
+    goldReward: 500,
+    unlockedItemReward: { name: 'Amulette de Maât', type: 'accessory', statBonus: 'Réduit la pénalité d\'échec de 25%', id: 'maat_amulet' },
   },
   {
-    id: 'chap_3',
+    id: 'ascension',
     chapter: 3,
-    title: 'L’Ascension du Souverain de Râ',
-    lore: 'Le Tombeau suprême est à portée de main. Mais pour prétendre au titre de Pharaon Ultime des Ombres, vous devez affronter le spectre de Ramsès Maudit et prouver votre valeur absolue.',
+    title: 'L\'Ascension du Pharaon',
+    lore: 'Au sommet de la pyramide, l\'air se fait rare. Les ombres des anciens rois observent votre progression. Vous ne marchez plus sur le sable ; vous marchez sur l\'histoire. Chaque décret accompli résonne dans l\'éternité. Le Système reconnaît maintenant votre autorité.',
     objectives: [
-      {
-        id: 'obj_3_1',
-        text: 'Invoquer le général suprême ou atteindre 4 ombres',
-        check: (player) => (player?.shadows?.length || 0) >= 4
-      },
-      {
-        id: 'obj_3_2',
-        text: 'Équiper à la fois une arme et une armure de la Forge Royale',
-        check: (player) => (player?.inventory || []).filter(i => i.isEquipped).length >= 2
-      },
-      {
-        id: 'obj_3_3',
-        text: 'Atteindre le Niveau 12 ou supérieur',
-        check: (player) => (player?.level || 1) >= 12
-      }
+      { id: 'a1', text: 'Atteindre le niveau 30', check: (p) => p.level >= 30 },
+      { id: 'a2', text: 'Compléter 50 quêtes au total', check: (p) => p.questsCompleted >= 50 },
+      { id: 'a3', text: 'Maintenir une série de 30 jours', check: (p) => p.streakDays >= 30 },
+      { id: 'a4', text: 'Accumuler 25 000 XP total', check: (p) => p.totalXP >= 25000 },
+      { id: 'a5', text: 'Débloquer 5 objets légendaires', check: (p) => p.unlockedItems?.length >= 5 },
     ],
-    xpReward: 3000,
-    goldReward: 5000,
-    unlockedItemReward: { id: 'w_staff', name: 'Bâton Stellaire de Râ', type: 'weapon', statBonus: '+25 INT, +15 PER' }
-  }
+    xpReward: 5000,
+    goldReward: 2000,
+    unlockedItemReward: { name: 'Couronne de Rê', type: 'crown', statBonus: 'Double l\'or des quêtes quotidiennes', id: 're_crown' },
+  },
 ];
 
+interface NarrativeQuestsViewProps {
+  player: PlayerProfile;
+  onUpdatePlayer: React.Dispatch<React.SetStateAction<PlayerProfile>>;
+}
+
 export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player, onUpdatePlayer }) => {
-  // Find current active chapter based on player's story progress (stored in a custom field or derived)
-  // Let's store story chapter index in player profile or fallback to local storage
   const [currentChapterIndex, setCurrentChapterIndex] = React.useState(() => {
-    const saved = localStorage.getItem('pharaoh_narrative_chapter');
+    const saved = localStorage.getItem('narrative_chapter_index');
     return saved ? parseInt(saved, 10) : 0;
   });
 
@@ -122,191 +83,250 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
   if (!player) return null;
 
   const handleClaimChapterReward = () => {
-    if (!activeChapter) return;
+    const chapter = CHAPTERS[currentChapterIndex];
+    if (!chapter) return;
 
-    // Check if all objectives are completed
-    const allCompleted = activeChapter.objectives.every(obj => obj.check(player));
-    if (!allCompleted) {
-      alert("Vous n'avez pas encore rempli tous les décrets de ce chapitre !");
-      return;
-    }
+    onUpdatePlayer((prev) => ({
+      ...prev,
+      totalXP: prev.totalXP + chapter.xpReward,
+      gold: prev.gold + chapter.goldReward,
+      unlockedItems: chapter.unlockedItemReward
+        ? [...(prev.unlockedItems || []), { ...chapter.unlockedItemReward, unlockedAt: Date.now() }]
+        : prev.unlockedItems,
+    }));
 
-    // Process rewards
-    onUpdatePlayer(prev => {
-      const progression = calculateLevelProgression(prev?.xp, prev?.level, prev?.xpToNextLevel, activeChapter.xpReward);
-      const rankInfo = getRankAndClassForLevel(progression.level);
-
-      // Add item reward if any
-      const updatedInv = [...(prev?.inventory || [])];
-      if (activeChapter.unlockedItemReward) {
-        const matId = activeChapter.unlockedItemReward.id;
-        const exists = updatedInv.find(i => i.id === matId);
-        if (exists) {
-          exists.quantity = (exists.quantity || 1) + 3; // add 3 of material
-        } else {
-          updatedInv.push({
-            id: matId,
-            name: activeChapter.unlockedItemReward.name,
-            type: activeChapter.unlockedItemReward.type as any,
-            rarity: 'S',
-            description: activeChapter.unlockedItemReward.statBonus,
-            goldValue: 1000,
-            iconName: 'Package',
-            quantity: 3
-          });
-        }
-      }
-
-      const log = {
-        id: `story-log-${Date.now()}`,
-        text: `[HISTOIRE] Chapitre ${activeChapter.chapter} complété ! Récompenses divines réclamées.`,
-        type: 'loot' as const,
-        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      };
-
-      return {
-        ...prev,
-        xp: progression.xp,
-        level: progression.level,
-        xpToNextLevel: progression.xpToNextLevel,
-        attributePoints: (prev?.attributePoints || 0) + progression.attributePointsGained,
-        rank: rankInfo.rank,
-        hunterClass: rankInfo.hunterClass,
-        gold: (prev?.gold || 0) + activeChapter.goldReward,
-        inventory: updatedInv,
-        logs: [log, ...(prev?.logs || [])]
-      };
-    });
-
-    // Advance chapter
     if (currentChapterIndex < CHAPTERS.length - 1) {
-      const nextIndex = currentChapterIndex + 1;
-      setCurrentChapterIndex(nextIndex);
-      localStorage.setItem('pharaoh_narrative_chapter', nextIndex.toString());
-      alert(`FÉLICITATIONS ! Chapitre ${activeChapter.chapter} complété. Vous débloquez le Chapitre ${nextIndex + 1}.`);
-    } else {
-      alert("INCROYABLE ! Vous avez complété toutes les chroniques du Pharaon Suprême ! Votre héritage est scellé pour l'éternité.");
+      setCurrentChapterIndex((i) => {
+        const next = i + 1;
+        localStorage.setItem('narrative_chapter_index', next.toString());
+        return next;
+      });
     }
   };
 
   if (!activeChapter) {
     return (
-      <div className="bg-sl-lapis/20 border border-sl-gold/15 rounded-3xl p-8 text-center space-y-4">
-        <Award className="w-16 h-16 text-sl-gold mx-auto animate-pulse" />
-        <h3 className="font-bold text-white font-display text-xl tracking-widest uppercase">ÉPOPÉE COMPLÉTÉE</h3>
-        <p className="text-slate-400 font-serif italic max-w-md mx-auto">
-          Vous possédez toutes les ombres et les trésors de l'Égypte ancienne. Vous régnez désormais au sommet des cieux comme le Souverain Immortel des Ombres.
-        </p>
-      </div>
+      <motion.div
+        className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-8 md:p-12 text-center shadow-card-hover"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="absolute inset-0 pointer-events-none opacity-5">
+          <div className="deco-corner deco-corner--tl" />
+          <div className="deco-corner deco-corner--br" />
+        </div>
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <div className="p-4 rounded-2xl bg-panel-gold">
+            <Crown size={32} color="var(--color-gold)" className="anim-float" />
+          </div>
+          <h3 className="font-display text-2xl md:text-3xl font-light text-gradient-gold">
+            Tous les Chapitres Accomplis
+          </h3>
+          <p className="text-pharaoh-subtle max-w-lg">
+            Vous avez gravi tous les échelons. Le trône est vôtre. De nouvelles chroniques seront écrites...
+          </p>
+          <div className="flex gap-4 mt-4">
+            <span className="px-4 py-2 rounded-xl font-mono text-xs bg-panel-gold text-gold-bright border-gold/50">
+              +{player.totalXP.toLocaleString()} XP Total
+            </span>
+            <span className="px-4 py-2 rounded-xl font-mono text-xs bg-panel-gold text-gold-bright border-gold/50">
+              {player.level} Niveau
+            </span>
+          </div>
+        </div>
+      </motion.div>
     );
   }
 
-  const progressCount = activeChapter.objectives.filter(obj => obj.check(player)).length;
+  const progressCount = activeChapter.objectives.filter((obj) => obj.check(player)).length;
   const progressPercent = (progressCount / activeChapter.objectives.length) * 100;
+  const isComplete = progressPercent === 100;
 
   return (
-    <div className="bg-sl-lapis/10 border border-sl-gold/15 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-gold-sm">
-      {/* Absolute Decorative Icon */}
-      <ScrollText className="absolute -right-6 -bottom-6 w-48 h-48 text-sl-gold/5 rotate-12 pointer-events-none" />
+    <motion.div
+      className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-6 md:p-8 shadow-card-hover"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <div className="absolute inset-0 pointer-events-none opacity-5">
+        <div className="deco-corner deco-corner--tl" style={{ background: 'radial-gradient(circle, var(--color-gold) 0%, transparent 70%)' }} />
+        <div className="deco-corner deco-corner--br" style={{ background: 'radial-gradient(circle, var(--color-amethyst) 0%, transparent 70%)' }} />
+      </div>
 
-      <div className="space-y-6 relative z-10">
+      {/* Scanline effect */}
+      <div className="deco-scanline" />
+
+      <div className="relative z-10 space-y-6">
         {/* Header Info */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-sl-gold/15 pb-4">
+        <motion.div
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-lapis-border/50 pb-4"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
           <div>
-            <span className="text-[10px] text-sl-gold font-display tracking-widest uppercase bg-sl-gold/10 px-3 py-1 rounded-full border border-sl-gold/20">
-              CHRONIQUE ROYALE - CHAPITRE {activeChapter.chapter}
+            <span className="text-[10px] text-gold font-display tracking-widest uppercase bg-panel-gold px-3 py-1 rounded-full border border-gold/30">
+              CHRONIQUE ROYALE — CHAPITRE {activeChapter.chapter}
             </span>
-            <h3 className="text-xl md:text-2xl font-bold text-white font-display tracking-wide mt-2">
+            <h3 className="font-display text-xl md:text-2xl font-light text-gradient-gold tracking-wide mt-2">
               {activeChapter.title}
             </h3>
           </div>
-          {/* Chapter progress bar */}
-          <div className="w-full md:w-48 space-y-1">
-            <div className="flex justify-between text-[10px] font-mono text-slate-400">
+
+          {/* Chapter progress */}
+          <div className="w-full md:w-56 space-y-1">
+            <div className="flex justify-between text-[10px] font-mono text-pharaoh-subtle">
               <span>DÉCRETS ACCOMPLIS</span>
               <span>{progressCount} / {activeChapter.objectives.length}</span>
             </div>
-            <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/20">
-              <div 
-                className="h-full bg-gradient-to-r from-sl-gold-dark to-sl-gold-light transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
+            <div className="w-full h-2 bg-obsidian rounded-full overflow-hidden" style={{ borderColor: 'rgba(212,168,30,0.1)' }}>
+              <motion.div
+                className="h-full rounded-full"
+                style={{
+                  width: `${progressPercent}%`,
+                  background: isComplete
+                    ? 'linear-gradient(90deg, #10b981, #10b981aa)'
+                    : 'linear-gradient(90deg, var(--color-gold), var(--color-gold)aa)',
+                  boxShadow: isComplete ? '0 0 8px rgba(16,185,129,0.6)' : '0 0 8px rgba(212,168,30,0.6)',
+                }}
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Narrative Scroll / Lore Panel */}
-        <div className="bg-sl-primary/40 border border-sl-gold/10 p-5 rounded-2xl italic font-serif text-slate-300 text-sm leading-relaxed relative">
-          <div className="absolute top-2 right-2 text-sl-gold/20"><ScrollText className="w-5 h-5" /></div>
-          "{activeChapter.lore}"
-        </div>
+        <motion.div
+          className="relative bg-obsidian/50 border border-lapis-border p-5 md:p-6 rounded-2xl italic font-serif text-pharaoh-muted text-sm leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="absolute top-3 right-3 text-gold/20">
+            <ScrollText size={20} className="anim-rotate-slow" />
+          </div>
+          <p>"{activeChapter.lore}"</p>
+        </motion.div>
 
         {/* Current Objectives Checklist */}
-        <div className="space-y-4">
-          <h4 className="text-xs font-bold text-sl-gold font-display tracking-widest uppercase">DÉCRETS DE L'EMPIRE :</h4>
+        <motion.div
+          className="space-y-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h4 className="font-mono text-[10px] uppercase tracking-widest text-gold-bright">DÉCRETS DE L'EMPIRE :</h4>
           <div className="space-y-3">
             {activeChapter.objectives.map((obj, idx) => {
               const completed = obj.check(player);
+              const Icon = completed ? CheckCircle2 : Flame;
+
               return (
-                <div 
-                  key={obj.id} 
-                  className={`p-4 rounded-xl border transition-all flex items-center justify-between gap-4 ${
-                    completed 
-                      ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-300' 
-                      : 'bg-sl-primary/60 border-sl-gold/10 text-slate-300'
+                <motion.div
+                  key={obj.id}
+                  className={`relative overflow-hidden rounded-xl p-4 flex items-center justify-between gap-4 transition-all ${
+                    completed
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      : 'bg-panel border-lapis-border text-pharaoh'
                   }`}
+                  whileHover={{ x: 4 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 * idx, duration: 0.3 }}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono font-bold opacity-60">0{idx + 1}.</span>
-                    <span className="text-xs font-serif leading-relaxed">{obj.text}</span>
+                  <div className="absolute inset-0 pointer-events-none opacity-5">
+                    <div className="deco-corner deco-corner--tl" style={{ background: `radial-gradient(circle, ${completed ? '#10b981' : 'var(--color-gold)'} 0%, transparent 70%)` }} />
                   </div>
-                  {completed ? (
-                    <span className="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-display text-[9px] font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> ACCOMPLI
-                    </span>
-                  ) : (
-                    <span className="px-2.5 py-1 rounded bg-red-500/10 text-red-400 border border-red-500/20 font-display text-[9px] font-bold">
-                      EN COURS
-                    </span>
-                  )}
-                </div>
+
+                  <div className="relative z-10 flex items-center gap-3">
+                    <span className="text-xs font-mono font-bold text-pharaoh-subtle w-8 text-right">0{idx + 1}.</span>
+                    <span className="font-display text-sm leading-relaxed flex-1">{obj.text}</span>
+                  </div>
+
+                  <div className="relative z-10 flex items-center gap-2">
+                    {completed ? (
+                      <motion.span
+                        className="px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.1 * idx, type: 'spring', stiffness: 260, damping: 20 }}
+                      >
+                        <CheckCircle2 size={14} />
+                        ACCOMPLI
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        className="px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-blood/20 text-blood border border-blood/40"
+                        initial={{ scale: 1 }}
+                        animate={{ scale: [1, 1.02, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <Flame size={12} className="anim-float" />
+                        EN COURS
+                      </motion.span>
+                    )}
+                  </div>
+                </motion.div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Chapter Rewards Footer */}
-        <div className="pt-6 border-t border-sl-gold/15 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="space-y-2">
-            <span className="text-[10px] text-sl-gold font-display uppercase tracking-wider">Butins de Complétion du Chapitre :</span>
-            <div className="flex flex-wrap gap-4">
-              <span className="text-xs font-bold font-mono text-white flex items-center gap-1 bg-sl-gold/5 px-2.5 py-1 rounded border border-sl-gold/20">
-                +{activeChapter.xpReward} XP
+        <motion.div
+          className="pt-6 border-t border-lapis-border/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="space-y-3">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-gold-bright">Butins de Complétion du Chapitre :</span>
+            <div className="flex flex-wrap gap-3">
+              <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-panel-gold text-gold-bright border-gold/50 flex items-center gap-1">
+                <Star size={12} />
+                +{activeChapter.xpReward.toLocaleString()} XP
               </span>
-              <span className="text-xs font-bold font-mono text-white flex items-center gap-1 bg-sl-gold/5 px-2.5 py-1 rounded border border-sl-gold/20">
-                +{activeChapter.goldReward} Or
+              <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-panel-gold text-gold-bright border-gold/50 flex items-center gap-1">
+                <Sparkles size={12} />
+                +{activeChapter.goldReward.toLocaleString()} Or
               </span>
               {activeChapter.unlockedItemReward && (
-                <span className="text-xs font-bold font-mono text-emerald-400 flex items-center gap-1 bg-emerald-500/5 px-2.5 py-1 rounded border border-emerald-500/20">
-                  <Sparkles className="w-3.5 h-3.5" /> {activeChapter.unlockedItemReward.name}
+                <span className="px-3 py-1.5 rounded-xl font-mono text-xs font-medium bg-emerald-500/20 text-emerald-400 border-emerald-500/40 flex items-center gap-1">
+                  <Award size={12} />
+                  {activeChapter.unlockedItemReward.name}
                 </span>
               )}
             </div>
           </div>
 
-          <button
+          <motion.button
             onClick={handleClaimChapterReward}
-            disabled={progressPercent < 100}
-            className={`px-8 py-3 rounded-xl font-display text-xs tracking-widest uppercase transition-all shadow-gold ${
-              progressPercent === 100
-                ? 'bg-sl-gold text-sl-primary hover:scale-105'
-                : 'bg-sl-primary/40 text-slate-600 border border-slate-800 cursor-not-allowed'
+            disabled={!isComplete}
+            className={`btn-press px-8 py-3.5 rounded-xl font-display text-xs tracking-widest uppercase transition-all ${
+              isComplete
+                ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold flex items-center gap-2'
+                : 'bg-panel text-pharaoh-subtle border-lapis-border cursor-not-allowed opacity-60'
             }`}
+            whileHover={{ scale: isComplete ? 1.02 : 1 }}
+            whileTap={{ scale: isComplete ? 0.98 : 1 }}
+            animate={{ boxShadow: isComplete ? '0 0 30px rgba(212,168,30,0.5)' : 'none' }}
+            transition={{ duration: 1.5, repeat: isComplete ? Infinity : 0 }}
           >
-            RÉCLAMER LE TRÔNE du Chapitre
-          </button>
-        </div>
+            {isComplete ? (
+              <>
+                <Sword size={16} className="anim-float" />
+                RÉCLAMER LE TRÔNE
+              </>
+            ) : (
+              <>
+                <Shield size={16} />
+                {progressCount}/{activeChapter.objectives.length} Décrets Requis
+              </>
+            )}
+          </motion.button>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };

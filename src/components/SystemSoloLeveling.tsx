@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Activity, 
-  CheckCircle2, 
-  Skull, 
-  Crown, 
-  ShoppingCart, 
-  History, 
-  Settings, 
-  Sword, 
-  Shield, 
-  Coins, 
-  Package, 
-  Award, 
-  Flame, 
-  AlertTriangle, 
-  Plus, 
-  Camera, 
-  Music, 
-  Play, 
+import {
+  Activity,
+  CheckCircle2,
+  Skull,
+  Crown,
+  ShoppingCart,
+  History,
+  Settings,
+  Sword,
+  Shield,
+  Coins,
+  Gift,
+  Medal,
+  Flame,
+  AlertTriangle,
+  Plus,
+  Camera,
+  Music,
+  Play,
   Lock,
   Sparkles,
   ChevronRight,
@@ -32,7 +32,7 @@ import {
   Timer,
   Trash2,
   Edit2
-} from 'lucide-react';
+} from './ui/PharaohIcons';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   PlayerProfile,
@@ -186,7 +186,7 @@ const PortalCountdown: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
   }, [expiresAt]);
   
   return (
-    <span className="text-red-400 bg-red-950/40 border border-red-900/50 px-2 py-0.5 rounded font-mono text-[9px] flex items-center gap-1 animate-pulse">
+    <span className="text-blood bg-blood/10 border border-blood/40 px-2 py-0.5 rounded font-mono text-[9px] flex items-center gap-1 animate-pulse">
       <Clock className="w-3 h-3" /> RESTANT : {timeLeft}
     </span>
   );
@@ -629,7 +629,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   ];
 
   return (
-    <div className="bg-[#070b14] min-h-screen text-slate-200 pb-20">
+    <div className="bg-[#070b14] min-h-screen text-pharaoh pb-20">
       {/* HEADER SECTION */}
       <div className="bg-sl-primary border-b border-sl-gold/30 p-4 md:p-6 sticky top-0 z-40 backdrop-blur-md bg-sl-primary/95">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -657,12 +657,12 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 min-w-[280px] md:min-w-[420px]">
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono">
-                <span className="text-red-400 font-display">SANTÉ (HP)</span>
+                <span className="text-blood font-display">SANTÉ (HP)</span>
                 <span>{safePlayer.hp || 100} / {safePlayer.maxHp || 100}</span>
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/30">
                 <div
-                  className="h-full bg-gradient-to-r from-red-800 via-red-600 to-red-400 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-blood via-blood to-blood/60 transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(0, ((safePlayer.hp || 100) / (safePlayer.maxHp || 100)) * 100))}%` }}
                 />
               </div>
@@ -670,7 +670,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono">
-                <span className="text-amber-400 font-display">ÉNERGIE (MP)</span>
+                <span className="text-gold-bright font-display">ÉNERGIE (MP)</span>
                 <span>{safePlayer.mp || 50} / {safePlayer.maxMp || 50}</span>
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/30">
@@ -683,14 +683,14 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono">
-                <span className="text-cyan-400 font-display flex items-center gap-1">
+                <span className="text-sapphire font-display flex items-center gap-1">
                   <Sparkles className="w-2.5 h-2.5" /> EXP (XP)
                 </span>
-                <span className="text-cyan-200">{safePlayer.xp || 0} / {safePlayer.xpToNextLevel || 100}</span>
+                <span className="text-sapphire">{safePlayer.xp || 0} / {safePlayer.xpToNextLevel || 100}</span>
               </div>
-              <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-cyan-500/30">
+              <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sapphire/30">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-600 via-cyan-400 to-emerald-400 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-sapphire via-sapphire/80 to-emerald transition-all duration-300"
                   style={{ width: `${Math.min(100, Math.max(0, ((safePlayer.xp || 0) / (safePlayer.xpToNextLevel || 100)) * 100))}%` }}
                 />
               </div>
@@ -786,17 +786,17 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 {/* Badges Section */}
                 <div className="space-y-6 pt-6">
                   <h2 className="text-md font-bold text-white flex items-center gap-2 border-b border-sl-gold/20 pb-3 font-display uppercase tracking-widest">
-                    <Award className="w-5 h-5 text-sl-gold" /> Badges de Gloire
+                    <Medal className="w-5 h-5 text-sl-gold" /> Badges de Gloire
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                      {(safePlayer.badges || []).map(badgeId => (
                        <div key={badgeId} className="p-4 bg-sl-gold/10 border border-sl-gold rounded-2xl flex flex-col items-center text-center gap-2 shadow-gold-sm animate-in zoom-in-50">
-                          <Award className="w-10 h-10 text-sl-gold animate-pulse" />
+                          <Medal className="w-10 h-10 text-sl-gold animate-pulse" />
                           <div className="text-[10px] font-display text-white">{badgeId}</div>
                        </div>
                      ))}
                      {(!safePlayer.badges || safePlayer.badges.length === 0) && (
-                       <div className="col-span-full text-center py-6 text-slate-600 italic text-xs">
+                       <div className="col-span-full text-center py-6 text-pharaoh-subtle italic text-xs">
                          Aucun badge débloqué pour le moment.
                        </div>
                      )}
@@ -854,12 +854,144 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 </h2>
               </div>
 
+              {(safePlayer.dailyQuests || []).length === 0 && (
+                <div className="rounded-2xl border border-sl-gold/20 bg-sl-primary p-8 text-center">
+                  <p className="text-xs text-sl-gold-light/70 italic font-serif max-w-md mx-auto leading-relaxed">
+                    Aucune mission quotidienne active pour le moment. Le Système en assignera dès que vos domaines seront définis lors de l’Éveil.
+                  </p>
+                </div>
+              )}
+
+              {safePlayer.penaltyQuest && safePlayer.penaltyQuest.isActive && !safePlayer.penaltyQuest.resolved && (
+                <div className="rounded-2xl border border-blood/40 bg-blood/5 overflow-hidden shadow-gold-sm mb-4">
+                  <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-blood/30 bg-blood/10">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-blood animate-pulse" />
+                      <span className="font-display font-bold text-white text-sm tracking-widest uppercase">
+                        {safePlayer.penaltyQuest.title || 'QUÊTE DE CHÂTIMENT'}
+                      </span>
+                    </div>
+                    <div className="font-mono text-xs text-blood bg-blood/10 border border-blood/40 px-2 py-1 rounded flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span id="penalty-countdown">{/* countdown set in componentDidMount */}</span>
+                    </div>
+                  </div>
+
+                  <div className="px-5 py-4 space-y-4">
+                    <p className="text-xs text-pharaoh-muted">
+                      {safePlayer.penaltyQuest.description}
+                      <span className="block mt-1 italic text-blood/80">Raison : {safePlayer.penaltyQuest.reason}</span>
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {safePlayer.penaltyQuest.tasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2 ${
+                            task.isCompleted
+                              ? 'border-emerald/40 bg-emerald/10'
+                              : 'border-lapis/40 bg-lapis/10'
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <p className="text-[11px] text-pharaoh font-medium leading-tight">{task.title}</p>
+                            <p className="font-mono text-[10px] text-pharaoh-muted">
+                              {task.current} / {task.target} {task.unit}
+                            </p>
+                          </div>
+                          {!task.isCompleted ? (
+                            <button
+                              onClick={() => {
+                                // progress task: +1 current
+                                const updatedTasks = safePlayer.penaltyQuest.tasks.map((t) =>
+                                  t.id === task.id
+                                    ? { ...t, current: Math.min(t.target, t.current + 1), isCompleted: t.current + 1 >= t.target }
+                                    : t
+                                );
+                                onUpdatePlayer((prev) => ({
+                                  ...prev,
+                                  penaltyQuest: {
+                                    ...prev.penaltyQuest,
+                                    tasks: updatedTasks,
+                                  },
+                                }));
+                              }}
+                              className="btn-press shrink-0 flex items-center gap-1 px-2 py-1 rounded-lg bg-blood/15 border border-blood/50 text-blood hover:bg-blood hover:text-inverse text-[10px] font-display tracking-wider transition-all"
+                            >
+                              +1
+                            </button>
+                          ) : (
+                            <CheckCircle2 className="w-4 h-4 text-emerald shrink-0" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-emerald flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4" /> Toutes les tâches accomplies
+                      </p>
+                      <button
+                        className="btn-press inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald/20 border border-emerald/40 text-emerald hover:bg-emerald hover:text-inverse text-[11px] font-display tracking-wider transition-all"
+                        onClick={() => {
+                          const penalty = safePlayer.penaltyQuest;
+                          if (!penalty || penalty.resolved) return;
+                          
+                          // Mark penalty as resolved
+                          onUpdatePlayer((prev) => ({
+                            ...prev,
+                            penaltyQuest: {
+                              ...penalty,
+                              resolved: true,
+                            },
+                          }));
+                          
+                          // Grant absolution rewards
+                          onUpdatePlayer((prev) => {
+                            if (!prev) return prev;
+                            const progression = calculateLevelProgression(
+                              prev.xp,
+                              prev.level,
+                              prev.xpToNextLevel,
+                              100
+                            );
+                            const rankInfo = getRankAndClassForLevel(progression.level);
+                            
+                            return {
+                              ...prev,
+                              xp: progression.xp,
+                              level: progression.level,
+                              xpToNextLevel: progression.xpToNextLevel,
+                              attributePoints: (prev.attributePoints || 0) + progression.attributePointsGained,
+                              rank: rankInfo.rank,
+                              hunterClass: rankInfo.hunterClass,
+                              gold: (prev.gold || 0) + 50,
+                              logs: [
+                                {
+                                  id: `log-absolve-${Date.now()}`,
+                                  text: '[PÉNALITÉ] Châtiment annulé par absolution. +100 XP, +50 Or attribués par le Système.',
+                                  type: 'xp',
+                                  timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                                },
+                                ...(prev.logs || []),
+                              ],
+                            };
+                          });
+                        }}
+                      >
+                        <Zap className="w-4 h-4" /> ABSOLUTION
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(safePlayer.dailyQuests || []).map((quest) => (
                   <div key={quest.id} className="bg-sl-primary border border-sl-gold/20 rounded-2xl p-5 flex flex-col gap-4 shadow-gold-sm">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-3">
-                         <div className={`p-2 rounded-lg bg-sl-lapis/40 ${quest.isCompleted ? 'text-emerald-400' : 'text-sl-gold'}`}>
+                         <div className={`p-2 rounded-lg bg-sl-lapis/40 ${quest.isCompleted ? 'text-emerald' : 'text-sl-gold'}`}>
                             <CheckCircle2 className="w-5 h-5" />
                          </div>
                          <div>
@@ -869,11 +1001,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       </div>
                       <div className="flex items-center gap-2">
                         {quest.isCompleted && (
-                          <span className="text-[10px] font-display text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900">TERMINÉ</span>
+                          <span className="text-[10px] font-display text-emerald bg-emerald/20 px-2 py-0.5 rounded border border-emerald/50">TERMINÉ</span>
                         )}
                         <button 
                           onClick={() => setEditingMission(quest)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-sl-gold hover:bg-sl-gold/10 transition-all"
+                          className="p-1.5 rounded-lg text-pharaoh-subtle hover:text-sl-gold hover:bg-sl-gold/10 transition-all"
                           title="Modifier la mission"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -882,20 +1014,20 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+                      <div className="flex justify-between text-[10px] font-mono text-pharaoh-muted uppercase tracking-widest">
                         <span>Progression</span>
                         <span>{quest.currentCount} / {quest.targetCount} {quest.unit}</span>
                       </div>
                       <div className="w-full h-2 bg-sl-lapis/40 rounded-full overflow-hidden border border-sl-gold/10">
                         <div 
-                          className={`h-full transition-all duration-500 ${quest.isCompleted ? 'bg-emerald-500' : 'bg-sl-gold'}`}
+                          className={`h-full transition-all duration-500 ${quest.isCompleted ? 'bg-emerald' : 'bg-sl-gold'}`}
                           style={{ width: `${Math.min(100, (quest.currentCount / quest.targetCount) * 100)}%` }}
                         />
                       </div>
                       
                       {!quest.isCompleted && (
                         <div className="flex items-center gap-1.5 pt-1.5">
-                          <span className="text-[9px] text-slate-500 font-display">AJOUTER :</span>
+                          <span className="text-[9px] text-pharaoh-subtle font-display">AJOUTER :</span>
                           {questStepOptions(quest.unit).map(step => (
                             <button 
                               key={step}
@@ -907,7 +1039,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                           ))}
                           <button 
                             onClick={() => handleCompleteQuestInstantly(quest.id)}
-                            className="ml-auto px-2 py-0.5 bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white text-[9px] font-display rounded transition-all"
+                            className="ml-auto px-2 py-0.5 bg-emerald/20 border border-emerald/40 text-emerald hover:bg-emerald hover:text-inverse text-[9px] font-display rounded transition-all"
                           >
                             Remplir Direct
                           </button>
@@ -960,7 +1092,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                         Radar de Portes Dimensionnelles
                       </h3>
                     </div>
-                    <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                    <p className="text-xs text-pharaoh-muted max-w-xl leading-relaxed">
                       L'énergie mystique s'accumule. Utilisez <strong className="text-sl-gold">20 points d'énergie (MP)</strong> pour forcer la détection d'une porte dimensionnelle de vie réelle à durée limitée (24h) et obtenir des récompenses colossales et de fidèles soldats d'ombres !
                     </p>
                     <div className="text-[10px] text-sl-gold-light/60 font-mono tracking-wide">
@@ -980,7 +1112,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
                 <h2 className="text-xl font-bold text-white font-display tracking-widest flex items-center gap-2">
-                  <Skull className="w-6 h-6 text-red-500" /> TOMBEAUX & PORTES ÉTABLIS
+                  <Skull className="w-6 h-6 text-blood" /> TOMBEAUX & PORTES ÉTABLIS
                 </h2>
               </div>
 
@@ -1007,7 +1139,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       <div className="p-5 space-y-4">
                         <div>
                           <h3 className="font-bold text-white font-display text-lg tracking-wide leading-tight">{dungeon.title}</h3>
-                          <div className="flex items-center gap-2 text-xs text-red-400 font-serif italic mt-1">
+                          <div className="flex items-center gap-2 text-xs text-blood font-serif italic mt-1">
                             <Skull className="w-3.5 h-3.5" /> Boss : {dungeon.bossName}
                           </div>
                         </div>
@@ -1017,10 +1149,10 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             <span className="text-[10px] font-display text-sl-gold font-bold flex items-center gap-1 uppercase tracking-wider">
                               <Sparkles className="w-3.5 h-3.5" /> Défi d'amélioration de vie :
                             </span>
-                            <p className="text-xs text-slate-100 font-medium leading-relaxed">
+                            <p className="text-xs text-pharaoh font-medium leading-relaxed">
                               {dungeon.lifeImprovementGoal}
                             </p>
-                            <p className="text-[9px] text-slate-400 italic">
+                            <p className="text-[9px] text-pharaoh-muted italic">
                               Objectif : {dungeon.description}
                             </p>
                           </div>
@@ -1032,8 +1164,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             <span>BUTIN : {dungeon.goldReward} Or</span>
                           </div>
                           {dungeon.isDefeated && (
-                            <span className="text-emerald-400 flex items-center gap-1 font-bold">
-                              <CheckCircle2 className="w-3 h-3 fill-emerald-950 text-emerald-400" /> NETTOYÉ
+                            <span className="text-emerald flex items-center gap-1 font-bold">
+                              <CheckCircle2 className="w-3 h-3 fill-none text-emerald" /> NETTOYÉ
                             </span>
                           )}
                         </div>
@@ -1051,7 +1183,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                               <CheckCircle2 className="w-4 h-4 fill-current" /> VALIDER LA RÉUSSITE DU DÉFI
                             </button>
                           ) : (
-                            <div className="w-full py-2 text-center rounded-xl bg-emerald-950/20 border border-emerald-900/50 text-emerald-400 text-xs font-display tracking-widest uppercase font-bold">
+                            <div className="w-full py-2 text-center rounded-xl bg-emerald/10 border border-emerald/50 text-emerald text-xs font-display tracking-widest uppercase font-bold">
                               DÉFI ACCOMPLI AVEC SUCCÈS
                             </div>
                           )}
@@ -1061,7 +1193,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                           onClick={() => handleEnterDungeon(dungeon)}
                           className={`w-full py-2.5 rounded-xl font-display text-sm tracking-widest transition-all border ${
                             dungeon.isDefeated 
-                            ? 'bg-emerald-950/20 border-emerald-900/50 text-emerald-500' 
+                            ? 'bg-emerald/10 border-emerald/50 text-emerald' 
                             : 'bg-sl-gold/10 border-sl-gold text-sl-gold hover:bg-sl-gold hover:text-sl-primary'
                           }`}
                         >
@@ -1097,8 +1229,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
               {(!safePlayer.shadows || safePlayer.shadows.length === 0) ? (
                 <div className="text-center py-20 bg-sl-lapis/10 rounded-3xl border border-sl-gold/10">
-                   <Crown className="w-16 h-16 text-slate-800 mx-auto mb-4 opacity-30" />
-                   <p className="text-slate-500 font-serif italic">Aucune essence n'a encore été éveilleé.</p>
+                   <Crown className="w-16 h-16 text-lapis-light mx-auto mb-4 opacity-30" />
+                   <p className="text-pharaoh-subtle font-serif italic">Aucune essence n'a encore été éveilleé.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1106,7 +1238,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                     <div key={shadow.id} className="bg-sl-primary border border-sl-gold/20 rounded-2xl p-5 space-y-4 shadow-gold-sm hover:border-sl-gold/60 transition-all">
                       <div className="flex justify-between items-center">
                         <RankBadge rank={shadow.rank} size={26} />
-                        <span className="text-xs font-mono text-amber-500">POUVOIR: {shadow.power}</span>
+                        <span className="text-xs font-mono text-gold-bright">POUVOIR: {shadow.power}</span>
                       </div>
                       <h3 className="text-lg font-bold text-white font-display">{shadow.name}</h3>
                       <p className="text-xs text-sl-gold-light/60 italic font-serif leading-relaxed">« {shadow.quote} »</p>
@@ -1139,7 +1271,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       <div key={item.id} className="p-4 bg-sl-primary/60 border border-sl-gold/10 rounded-2xl flex items-center justify-between group hover:border-sl-gold/40 transition-all">
                          <div className="flex items-center gap-4">
                             <div className="p-3 bg-sl-lapis/40 rounded-xl text-sl-gold">
-                               <Package className="w-5 h-5" />
+                               <Gift className="w-5 h-5" />
                             </div>
                             <div>
                                <div className="text-sm font-bold text-white font-display">{item.name}</div>
@@ -1159,18 +1291,18 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
               <div className="space-y-6">
                  <h2 className="text-xl font-bold text-white font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
-                    <Package className="w-6 h-6 text-sl-gold" /> VOTRE INVENTAIRE
+                    <Gift className="w-6 h-6 text-sl-gold" /> VOTRE INVENTAIRE
                  </h2>
                  <div className="space-y-3">
                     {(safePlayer.inventory || []).map(item => (
                       <div key={item.id} className="p-4 bg-sl-lapis/10 border border-sl-gold/5 rounded-2xl flex items-center justify-between">
                          <div className="flex items-center gap-3">
                             <div className="text-sl-gold/60">
-                               <Package className="w-4 h-4" />
+                               <Gift className="w-4 h-4" />
                             </div>
                             <div>
                                <div className="text-sm font-bold text-white font-display">{item.name} {item.quantity! > 1 && `(x${item.quantity})`}</div>
-                               <div className="text-[10px] text-slate-500 italic">{item.description}</div>
+                               <div className="text-[10px] text-pharaoh-subtle italic">{item.description}</div>
                             </div>
                          </div>
                          {item.type === 'potion' && (
@@ -1184,7 +1316,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       </div>
                     ))}
                     {(!safePlayer.inventory || safePlayer.inventory.length === 0) && (
-                      <div className="text-center py-10 text-slate-600 italic text-xs font-serif">
+                      <div className="text-center py-10 text-pharaoh-subtle italic text-xs font-serif">
                          L'inventaire royal est vide.
                       </div>
                     )}
@@ -1208,12 +1340,12 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                  {(safePlayer.logs || []).map(log => (
                    <div key={log.id} className="p-3 bg-sl-primary/40 border border-sl-gold/5 rounded-xl flex items-center justify-between font-mono text-[10px]">
                       <div className="flex items-center gap-3">
-                         <span className={`px-2 py-0.5 rounded ${log.type === 'xp' ? 'bg-emerald-950 text-emerald-400' : log.type === 'level' ? 'bg-sl-gold/20 text-sl-gold' : 'bg-slate-900 text-slate-500'}`}>
+                         <span className={`px-2 py-0.5 rounded ${log.type === 'xp' ? 'bg-emerald/20 text-emerald' : log.type === 'level' ? 'bg-sl-gold/20 text-sl-gold' : 'bg-lapis/40 text-pharaoh-subtle'}`}>
                             {log.type.toUpperCase()}
                          </span>
-                         <span className="text-slate-300">{log.text}</span>
+                         <span className="text-pharaoh-muted">{log.text}</span>
                       </div>
-                      <span className="text-slate-600 font-display">{log.timestamp}</span>
+                      <span className="text-pharaoh-subtle font-display">{log.timestamp}</span>
                    </div>
                  ))}
               </div>
@@ -1265,13 +1397,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                    ].map((music, i) => (
                      <div key={i} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${music.active ? 'bg-sl-gold/20 border-sl-gold shadow-gold-sm' : 'bg-sl-primary border-sl-gold/5 opacity-50'}`}>
                        <div className="flex items-center gap-3">
-                         <Music className={`w-5 h-5 ${music.active ? 'text-sl-gold' : 'text-slate-500'}`} />
+                         <Music className={`w-5 h-5 ${music.active ? 'text-sl-gold' : 'text-pharaoh-subtle'}`} />
                          <div>
                            <div className="text-sm font-bold text-white font-display">{music.name}</div>
-                           <div className="text-[10px] text-slate-500 font-serif">{music.desc}</div>
+                           <div className="text-[10px] text-pharaoh-subtle font-serif">{music.desc}</div>
                          </div>
                        </div>
-                       <button className={`p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-slate-800 text-slate-500'}`}>
+                       <button className={`p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-lapis text-pharaoh-subtle'}`}>
                          {music.active ? <Play className="w-4 h-4 fill-current" /> : <Lock className="w-4 h-4" />}
                        </button>
                      </div>
@@ -1369,22 +1501,22 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             <div className="bg-sl-lapis/40 border border-sl-gold/20 rounded-2xl p-5 space-y-3 relative z-10">
               <div className="text-[10px] font-display text-sl-gold tracking-widest uppercase">Épreuve active :</div>
               <h4 className="font-bold text-white text-md font-display leading-snug">{confirmDungeonChallengeBoss.title}</h4>
-              <p className="text-sm text-slate-100 leading-relaxed font-sans font-medium">
+              <p className="text-sm text-pharaoh leading-relaxed font-sans font-medium">
                 {confirmDungeonChallengeBoss.lifeImprovementGoal}
               </p>
-              <div className="text-[10px] text-slate-400 font-sans italic mt-1 bg-sl-primary/50 p-2 rounded-lg border border-sl-gold/15">
+              <div className="text-[10px] text-pharaoh-muted font-sans italic mt-1 bg-sl-primary/50 p-2 rounded-lg border border-sl-gold/15">
                 <strong>Objectif de vie :</strong> {confirmDungeonChallengeBoss.description}
               </div>
             </div>
 
-            <div className="text-center text-xs text-slate-400 max-w-sm mx-auto relative z-10 leading-relaxed">
+            <div className="text-center text-xs text-pharaoh-muted max-w-sm mx-auto relative z-10 leading-relaxed">
               En prêtant serment, vous certifiez de manière intègre avoir relevé ce défi d'amélioration personnelle dans votre vie réelle aujourd'hui.
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
               <button
                 onClick={() => setConfirmDungeonChallengeBoss(null)}
-                className="flex-1 py-3 border border-slate-700 hover:border-slate-500 rounded-xl font-display text-xs text-slate-400 transition-all uppercase tracking-widest"
+                className="flex-1 py-3 border border-lapis hover:border-gold-dim rounded-xl font-display text-xs text-pharaoh-muted hover:text-pharaoh transition-all uppercase tracking-widest"
               >
                 Y travailler encore
               </button>
@@ -1489,7 +1621,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingMission(null)}
-                  className="px-5 py-2.5 rounded-xl font-display text-xs tracking-widest text-slate-400 hover:text-white transition-colors uppercase"
+                  className="px-5 py-2.5 rounded-xl font-display text-xs tracking-widest text-pharaoh-muted hover:text-pharaoh transition-colors uppercase"
                 >
                   Annuler
                 </button>

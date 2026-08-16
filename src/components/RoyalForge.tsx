@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hammer, Sword, Shield, Package, Sparkles, Check } from 'lucide-react';
+import { Hammer, Sword, Shield, Layers, Sparkles, Check } from './ui/PharaohIcons';
 import { motion } from 'motion/react';
 import { PlayerProfile, SystemItem, HunterRank } from '../types';
 
@@ -200,26 +200,26 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
   const forgedInventory = (player?.inventory || []).filter(i => i.type === 'weapon' || i.type === 'armor');
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 anim-in">
       {/* Dynamic Resource Panel */}
-      <div className="bg-sl-lapis/20 border border-sl-gold/15 rounded-3xl p-6">
-        <h3 className="text-xs font-bold text-white font-display tracking-widest uppercase mb-4 flex items-center gap-2">
-          <Package className="w-4 h-4 text-sl-gold" /> Vos Réserves de Matériaux Sacrés
+      <div className="bg-lapis/40 border border-gold-dim rounded-3xl p-6 bg-panel">
+        <h3 className="text-xs font-bold text-pharaoh font-display tracking-widest uppercase mb-4 flex items-center gap-2">
+          <Layers className="w-4 h-4 text-gold" /> Vos Réserves de Matériaux Sacrés
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger">
           {[
-            { id: 'm_lapis', name: 'Lapis Pur Divin', color: 'bg-blue-600', text: 'Bleu Sacré' },
-            { id: 'm_gold', name: 'Éclat d’Or Royal', color: 'bg-yellow-500', text: 'Métal Pur' },
-            { id: 'm_linen', name: 'Tissu Sacré d’Osiris', color: 'bg-amber-100', text: 'Lin d’Embaumement' },
-            { id: 'm_rune', name: 'Rune runique sacrée', color: 'bg-purple-500', text: 'Pierre d’Âme' }
+            { id: 'm_lapis', name: 'Lapis Pur Divin', color: 'bg-sapphire', text: 'Bleu Sacré' },
+            { id: 'm_gold', name: 'Éclat d’Or Royal', color: 'bg-gold', text: 'Métal Pur' },
+            { id: 'm_linen', name: 'Tissu Sacré d’Osiris', color: 'bg-gold-bright', text: 'Lin d’Embaumement' },
+            { id: 'm_rune', name: 'Rune runique sacrée', color: 'bg-amethyst', text: 'Pierre d’Âme' }
           ].map(mat => {
             const qty = getMaterialQty(mat.id);
             return (
-              <div key={mat.id} className="bg-sl-primary/40 border border-sl-gold/10 rounded-2xl p-4 flex items-center gap-3 relative overflow-hidden">
+              <div key={mat.id} className="bg-obsidian-elevated border border-gold-dim/40 rounded-2xl p-4 flex items-center gap-3 relative overflow-hidden hover-lift transition-all">
                 <div className={`w-3.5 h-3.5 rounded-full ${mat.color} shrink-0`} />
                 <div>
-                  <div className="text-[10px] text-sl-gold font-display leading-none mb-1">{mat.name}</div>
-                  <div className="text-lg font-bold text-white font-mono leading-none">{qty} <span className="text-xs text-slate-500">pcs</span></div>
+                  <div className="font-mono text-[10px] text-gold font-display leading-none mb-1">{mat.name}</div>
+                  <div className="text-lg font-bold text-pharaoh font-mono leading-none">{qty} <span className="text-xs text-pharaoh-subtle">pcs</span></div>
                 </div>
               </div>
             );
@@ -229,51 +229,51 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
 
       {/* Crafting Options */}
       <div className="space-y-4">
-        <h3 className="text-md font-bold text-white font-display tracking-widest uppercase flex items-center gap-2 border-b border-sl-gold/15 pb-3">
-          <Hammer className="w-5 h-5 text-sl-gold" /> FORGER DES RELIQUES ANCIENNES
+        <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2 border-b border-gold-dim pb-3">
+          <Hammer className="w-5 h-5 text-gold" /> FORGER DES RELIQUES ANCIENNES
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger">
           {CRAFTABLE_ITEMS.map(craft => {
             const canAffordGold = currentGold >= craft.goldCost;
             const hasMaterials = craft.materialsRequired.every(req => getMaterialQty(req.materialId) >= req.quantity);
             const isCraftable = canAffordGold && hasMaterials;
 
             return (
-              <div key={craft.id} className="bg-sl-primary/60 border border-sl-gold/15 rounded-3xl p-5 flex flex-col justify-between group hover:border-sl-gold/40 transition-all relative overflow-hidden">
+              <div key={craft.id} className="bg-panel border border-gold-dim rounded-3xl p-5 flex flex-col justify-between group hover:border-gold/40 hover-lift transition-all relative overflow-hidden">
                 <div className="space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-bold text-white font-display text-md tracking-wide">{craft.name}</h4>
-                      <span className="text-[9px] px-2 py-0.5 rounded bg-sl-gold/10 text-sl-gold border border-sl-gold/30 font-display">
+                      <h4 className="font-display font-bold text-pharaoh text-md tracking-wide">{craft.name}</h4>
+                      <span className="font-mono text-[9px] px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/30 font-display">
                         RANG {craft.rarity} - {craft.type === 'weapon' ? 'ARME' : 'ARMURE'}
                       </span>
                     </div>
                     {/* Stat Bonuses */}
                     <div className="text-right">
                       {Object.entries(craft.statBonus).map(([stat, val]) => (
-                        <div key={stat} className="text-xs text-emerald-400 font-mono font-bold">
+                        <div key={stat} className="font-mono text-xs text-emerald font-bold">
                           +{val} {stat.toUpperCase()}
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-400 font-serif italic leading-relaxed">{craft.description}</p>
+                  <p className="text-xs text-pharaoh-muted italic leading-relaxed">{craft.description}</p>
 
                   {/* Blueprint cost display */}
-                  <div className="py-2.5 border-t border-b border-sl-gold/10 space-y-1.5">
-                    <div className="text-[9px] text-sl-gold font-display tracking-widest">INGRÉDIENTS NÉCESSAIRES :</div>
+                  <div className="py-2.5 border-t border-b border-gold-dim/40 space-y-1.5">
+                    <div className="font-mono text-[9px] text-gold font-display tracking-widest">INGRÉDIENTS NÉCESSAIRES :</div>
                     <div className="flex flex-wrap gap-3">
                       {craft.materialsRequired.map(req => {
                         const held = getMaterialQty(req.materialId);
                         const met = held >= req.quantity;
                         return (
-                          <div key={req.materialId} className={`text-[10px] flex items-center gap-1 ${met ? 'text-emerald-400' : 'text-red-400'} font-mono`}>
+                          <div key={req.materialId} className={`font-mono text-[10px] flex items-center gap-1 ${met ? 'text-emerald' : 'text-blood'}`}>
                             {req.name} ({held}/{req.quantity})
                           </div>
                         );
                       })}
-                      <div className={`text-[10px] flex items-center gap-1 ${canAffordGold ? 'text-emerald-400' : 'text-red-400'} font-mono`}>
+                      <div className={`font-mono text-[10px] flex items-center gap-1 ${canAffordGold ? 'text-emerald' : 'text-blood'}`}>
                         Coût : {craft.goldCost} Or
                       </div>
                     </div>
@@ -284,10 +284,10 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
                   <button
                     onClick={() => handleCraft(craft)}
                     disabled={!isCraftable}
-                    className={`w-full py-2.5 rounded-xl font-display text-xs tracking-widest transition-all ${
+                    className={`btn-press w-full py-2.5 rounded-xl font-display text-xs tracking-widest transition-all ${
                       isCraftable
-                        ? 'bg-sl-gold text-sl-primary hover:scale-[1.02] shadow-gold'
-                        : 'bg-sl-primary/30 text-slate-600 border border-slate-800 cursor-not-allowed'
+                        ? 'bg-gold text-obsidian hover:scale-[1.02] shadow-gold'
+                        : 'bg-obsidian-elevated text-pharaoh-subtle border border-lapis-border cursor-not-allowed'
                     }`}
                   >
                     FORGER LA RELIQUE
@@ -301,31 +301,31 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
 
       {/* Equipment Inventory Manager */}
       <div className="space-y-4 pt-4">
-        <h3 className="text-md font-bold text-white font-display tracking-widest uppercase flex items-center gap-2 border-b border-sl-gold/15 pb-3">
-          <Sword className="w-5 h-5 text-sl-gold" /> VOS ARMES & ARMURES DANS LE SYSTÈME
+        <h3 className="font-display text-md font-bold text-pharaoh tracking-widest uppercase flex items-center gap-2 border-b border-gold-dim pb-3">
+          <Sword className="w-5 h-5 text-gold" /> VOS ARMES & ARMURES DANS LE SYSTÈME
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
           {forgedInventory.map(item => (
             <div key={item.id} className={`p-4 rounded-2xl border flex flex-col justify-between transition-all ${
               item.isEquipped 
-                ? 'bg-sl-lapis/40 border-sl-gold shadow-gold-sm' 
-                : 'bg-sl-primary/40 border-sl-gold/10 hover:border-sl-gold/30'
+                ? 'bg-lapis/40 border-gold shadow-gold' 
+                : 'bg-obsidian-elevated border-gold-dim/40 hover:border-gold/30 hover-lift'
             }`}>
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-white font-display text-sm">{item.name}</span>
+                  <span className="font-display font-bold text-pharaoh text-sm">{item.name}</span>
                   {item.isEquipped && (
-                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[8px] font-display flex items-center gap-0.5 border border-emerald-500/30">
+                    <span className="px-1.5 py-0.5 rounded bg-emerald/20 text-emerald font-mono text-[8px] font-display flex items-center gap-0.5 border border-emerald/30">
                       <Check className="w-2.5 h-2.5" /> ÉQUIPÉ
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-sl-gold font-display uppercase tracking-wider">{item.type === 'weapon' ? 'Arme' : 'Armure'}</div>
-                <div className="text-xs text-slate-400 font-serif italic mb-2">{item.description}</div>
+                <div className="font-mono text-[10px] text-gold font-display uppercase tracking-wider">{item.type === 'weapon' ? 'Arme' : 'Armure'}</div>
+                <div className="text-xs text-pharaoh-muted italic mb-2">{item.description}</div>
                 {/* Stat displays */}
                 <div className="flex flex-wrap gap-2 pt-1">
                   {item.statBonus && Object.entries(item.statBonus).map(([stat, val]) => (
-                    <span key={stat} className="px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-900/30 font-mono text-[9px] font-bold">
+                    <span key={stat} className="px-2 py-0.5 rounded bg-emerald/10 text-emerald border border-emerald/30 font-mono text-[9px] font-bold">
                       +{val} {stat.toUpperCase()}
                     </span>
                   ))}
@@ -336,14 +336,14 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
                 {item.isEquipped ? (
                   <button
                     onClick={() => handleUnequip(item.id, item.type as any)}
-                    className="w-full py-1.5 bg-red-950/20 hover:bg-red-950/40 text-red-400 border border-red-900/40 hover:border-red-500/40 rounded-xl font-display text-[10px] tracking-widest transition-all"
+                    className="btn-press w-full py-1.5 bg-blood/20 hover:bg-blood/40 text-blood border border-blood/40 hover:border-blood/60 rounded-xl font-display font-mono text-[10px] tracking-widest transition-all"
                   >
                     DÉSÉQUIPER
                   </button>
                 ) : (
                   <button
                     onClick={() => handleEquip(item.id, item.type as any)}
-                    className="w-full py-1.5 bg-sl-gold text-sl-primary rounded-xl font-display text-[10px] tracking-widest hover:scale-105 transition-all shadow-gold-sm"
+                    className="btn-press w-full py-1.5 bg-gold text-obsidian rounded-xl font-display font-mono text-[10px] tracking-widest hover:scale-105 transition-all shadow-gold"
                   >
                     ÉQUIPER SUR LE PHARAON
                   </button>
@@ -352,7 +352,7 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
             </div>
           ))}
           {forgedInventory.length === 0 && (
-            <div className="col-span-full py-8 text-center text-slate-600 italic text-xs">
+            <div className="col-span-full py-8 text-center text-pharaoh-subtle italic text-xs">
               Vous ne possédez aucune relique forgée pour le moment. Rassemblez des ingrédients dans les tombes.
             </div>
           )}

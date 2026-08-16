@@ -56,7 +56,7 @@ export interface Domain {
 
 export type CoachingIntensity = 'gentle' | 'balanced' | 'demanding';
 
-export type PenaltyCategory = 'in_app_restriction' | 'creative_makeup' | 'none';
+export type PenaltyCategory = 'in_app_restriction' | 'creative_makeup' | 'physical_penalty' | 'xp_loss' | 'none';
 
 export interface OnboardingAnswers {
   /** Bloc 1 — free-text vision, stored verbatim. */
@@ -83,6 +83,9 @@ export interface GeneratedQuest {
   difficulty: 'easy' | 'medium' | 'hard';
   /** Deterministic template used as fallback when the LLM is unavailable. */
   source: 'llm' | 'template';
+  /** Lifecycle on the Quest Board (older saves have no status = active). */
+  status?: 'active' | 'completed' | 'abandoned';
+  completedAt?: string; // ISO date (YYYY-MM-DD)
 }
 
 export type SchoolSubject = 'svt' | 'math' | 'pc' | 'hist_geo';
@@ -393,6 +396,10 @@ export interface PenaltyQuest {
   tasks: PenaltyTask[];
   hpPenalty: number;
   xpPenalty: number;
+  /** ISO timestamp of the grace deadline (persisted — survives reloads). */
+  deadlineAt?: string;
+  /** True once the penalty has been settled (paid or cancelled). */
+  resolved?: boolean;
 }
 
 export interface SystemLog {
@@ -437,6 +444,16 @@ export interface PlayerProfile {
   domain_weights?: Record<string, number>;
   /** First quests generated from each domain's goal_text at onboarding. */
   generatedQuests?: GeneratedQuest[];
+  /** Total number of daily quests completed across all time. */
+  questsCompleted: number;
+  /** Total XP accumulated across all time. */
+  totalXP: number;
+  /** Current consecutive day streak. */
+  streakDays: number;
+  /** Total gold spent via the system. */
+  goldSpent: number;
+  /** List of unlocked item IDs. */
+  unlockedItems?: string[];
 }
 
 export type TransactionType = 'income' | 'expense';
@@ -528,6 +545,24 @@ export interface UserPersonalization {
   dailyQuote?: string;
   notificationsEnabled?: boolean;
   notificationLeadMinutes?: number;
+  /** Hour (0-23) of the evening "quests still open / streak at risk" reminder. Default 19. */
+  questReminderHour?: number;
+  /** Opt-in morning briefing ("N quests assigned today"). Default false. */
+  morningBriefingEnabled?: boolean;
+  notifyStreakRescue?: boolean;
+  // ── Push notification category toggles (default all true when push is on) ──
+  notifyScheduleStart?: boolean;
+  notifyFocusComplete?: boolean;
+  notifyStreakWarning?: boolean;
+  notifyDailyBonus?: boolean;
+  notifyLevelUp?: boolean;
+  notifyRitualNudge?: boolean;
+  /** True once the device has successfully subscribed to the push server. */
+  pushSubscriptionSynced?: boolean;
+  /** Preferred local hour (0-23) the morning daily-bonus nudge fires. Default 8. */
+  dailyBonusReminderHour?: number;
+  /** Preferred local hour (0-23) for the ritual blessing nudge. Default 7. */
+  ritualNudgeHour?: number;
   workoutFocusByDay: Record<string, string>;
   cinemaProject: CinemaProjectProfile;
   bangreLab: BangreLabProfile;

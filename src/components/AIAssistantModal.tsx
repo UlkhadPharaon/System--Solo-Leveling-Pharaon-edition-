@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, X, Send, Bot, User, RefreshCw } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, RefreshCw } from './ui/PharaohIcons';
 
 interface AIAssistantModalProps {
   isOpen: boolean;
@@ -16,7 +16,12 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([
     {
       role: 'assistant',
-      text: "Salutations ! Je suis votre Mentor IA de Routine & Performance. Comment puis-je vous aider aujourd'hui concernant votre emploi du temps, vos objectifs Bangre Neo Lab, l'écriture de scénario ou vos cours de SVT/Maths/PC ?",
+      text: (() => {
+        const doms: any[] = contextData?.domains || [];
+        return doms.length > 0
+          ? `Salutations ! Je suis votre Mentor IA. Parlez-moi de ${doms.map((d) => d.label).join(', ')} — emploi du temps, objectifs, blocages.`
+          : "Salutations ! Je suis votre Mentor IA de Routine & Performance. Comment puis-je vous aider aujourd'hui concernant votre emploi du temps, vos objectifs Bangre Neo Lab, l'écriture de scénario ou vos cours de SVT/Maths/PC ?";
+      })(),
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +43,9 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
         body: JSON.stringify({
           prompt: textToSend,
           context: contextData,
+          // Replay recent turns so the mentor keeps the conversation's thread
+          // (server-side providers are stateless).
+          history: messages.slice(-10).map((m) => ({ role: m.role, text: m.text })),
         }),
       });
 
@@ -49,7 +57,7 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
           ...prev,
           {
             role: 'assistant',
-            text: data.error || 'Impossible de se connecter au Coach IA. Veuillez vérifier votre clé GEMINI_API_KEY.',
+            text: data.error || 'Impossible de se connecter au Mentor IA. Vérifiez la configuration du serveur (GEMINI_API_KEY ou NVIDIA NIM).',
           },
         ]);
       }
@@ -67,31 +75,42 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
     }
   };
 
-  const quickPrompts = [
-    'Analyser mes heures hebdomadaires & me conseiller pour atteindre 15-20h sur Bangre Neo',
-    'Générer un plan de révision de 45 min pour les Mathématiques et la SVT',
-    'Conseils de dialogue de scénario pour une scène de film intense',
-    'Comment maintenir une énergie physique élevée après ma musculation du matin ?',
-  ];
+  const quickPrompts = (() => {
+    const doms: any[] = contextData?.domains || [];
+    if (doms.length > 0) {
+      return [
+        `Analyser mes heures hebdomadaires & objectifs sur ${doms.map((d) => d.label).join(', ')}`,
+        'Générer un plan de travail pour le domaine le plus en retard',
+        'Réorganiser mon emploi du temps pour tenir mes budgets hebdomadaires',
+        'Me remotiver quand une quête est difficile',
+      ];
+    }
+    return [
+      'Analyser mes heures hebdomadaires & me conseiller pour atteindre 15-20h sur Bangre Neo',
+      'Générer un plan de révision de 45 min pour les Mathématiques et la SVT',
+      'Conseils de dialogue de scénario pour une scène de film intense',
+      'Comment maintenir une énergie physique élevée après ma musculation du matin ?',
+    ];
+  })();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="bg-[#051428] border border-cyan/50 rounded-xl max-w-2xl w-full h-[600px] flex flex-col justify-between shadow-2xl overflow-hidden">
+      <div className="bg-glass-strong rounded-2xl max-w-2xl w-full h-[600px] flex flex-col justify-between shadow-card-hover overflow-hidden">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-soft flex items-center justify-between bg-black/40">
+        <div className="px-6 py-4 border-b border-lapis flex items-center justify-between bg-obsidian/40">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-cyan-950/40 text-cyan-400 border border-cyan">
+            <div className="p-2 rounded-xl bg-gold/10 text-gold-bright border border-gold/40 shadow-gold">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="serif text-xl font-light italic text-white tracking-tight">Mentor IA Routine & Études</h3>
-              <p className="mono text-[10px] uppercase opacity-60">Propulsé par le Moteur Gemini AI</p>
+              <h3 className="font-display text-xl font-light tracking-wide text-gradient-gold">Mentor IA Routine & Études</h3>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-pharaoh-subtle">Moteur IA du Système — Gemini / NIM</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-cyan-950/40 transition-all"
+            className="btn-press p-2 rounded-xl text-pharaoh-muted hover:text-pharaoh hover:bg-gold/10 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -105,7 +124,7 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {m.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-xl bg-cyan-950/40 text-cyan-400 border border-cyan flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-panel text-gold-bright border border-gold/40 flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4" />
                 </div>
               )}
@@ -113,15 +132,15 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               <div
                 className={`p-4 rounded-xl max-w-[80%] text-xs leading-relaxed ${
                   m.role === 'user'
-                    ? 'bg-card text-cyan-400 border border-cyan font-mono'
-                    : 'bg-cyan-950/40 border border-soft text-white font-sans'
+                    ? 'bg-gold/10 text-gold-bright border border-gold/30 font-mono'
+                    : 'bg-panel border-lapis text-pharaoh font-sans'
                 }`}
               >
                 {m.text}
               </div>
 
               {m.role === 'user' && (
-                <div className="w-8 h-8 rounded-xl bg-card text-cyan-400 border border-cyan flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-gold/10 text-gold-bright border border-gold/40 flex items-center justify-center shrink-0">
                   <User className="w-4 h-4" />
                 </div>
               )}
@@ -129,7 +148,7 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
           ))}
 
           {isLoading && (
-            <div className="flex items-center gap-2 mono text-xs text-cyan-400 animate-pulse">
+            <div className="flex items-center gap-2 font-mono text-xs text-gold-bright animate-pulse">
               <RefreshCw className="w-4 h-4 animate-spin" />
               <span>Le Mentor IA synthétise vos conseils...</span>
             </div>
@@ -137,13 +156,13 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
         </div>
 
         {/* Quick Suggestions & Input Form */}
-        <div className="p-4 border-t border-soft bg-black/40 space-y-3">
+        <div className="p-4 border-t border-lapis bg-obsidian/40 space-y-3">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
             {quickPrompts.map((qp, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(qp)}
-                className="px-2.5 py-1 rounded-xl bg-cyan-950/40 border border-soft mono text-[10px] text-slate-300 hover:border-cyan hover:text-cyan-400 transition-all whitespace-nowrap"
+                className="btn-press px-2.5 py-1 rounded-xl bg-lapis/40 border border-lapis font-mono text-[10px] text-pharaoh-muted hover:border-gold hover:text-gold-bright transition-all whitespace-nowrap"
               >
                 {qp}
               </button>
@@ -162,12 +181,12 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               placeholder="Demandez au Coach IA des conseils d'emploi du temps, de scénario, de révision..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="flex-1 bg-cyan-950/40 border border-soft rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan"
+              className="flex-1 bg-lapis/40 border border-lapis rounded-xl px-4 py-2.5 text-xs text-pharaoh placeholder:text-pharaoh-subtle focus:outline-none focus:border-gold"
             />
             <button
               type="submit"
               disabled={isLoading || !prompt.trim()}
-              className="p-2.5 rounded-xl bg-card hover:bg-card-hover disabled:opacity-50 text-cyan-400 border border-cyan font-semibold transition-all"
+              className="btn-press p-2.5 rounded-xl bg-gradient-to-r from-gold-dim via-gold to-gold-bright hover:shadow-gold disabled:opacity-50 text-inverse border border-gold font-semibold transition-all"
             >
               <Send className="w-4 h-4" />
             </button>

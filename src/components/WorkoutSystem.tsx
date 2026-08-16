@@ -17,24 +17,16 @@ import {
   Flame, 
   Trophy, 
   Activity, 
-  TrendingUp, 
-  BarChart3, 
   Sparkles, 
   Trash2, 
-  Edit3, 
-  Save, 
-  RotateCcw, 
-  Award, 
-  Zap, 
-  Calendar, 
-  ChevronRight, 
   Scale, 
   Layers, 
-  Pause, 
   Check, 
-  ArrowRight,
-  Info
-} from 'lucide-react';
+  Calendar, 
+  X, 
+  Info, 
+  Timer
+} from './ui/PharaohIcons';
 import { UlkhadProgramView } from './UlkhadProgramView';
 
 interface WorkoutSystemProps {
@@ -388,18 +380,18 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
     setPrExerciseName('');
   };
 
-  // Muscle group badge color
+  // Muscle group badge color — Pharaoh palette
   const getMuscleBadgeColor = (group: MuscleGroup) => {
     switch (group) {
-      case 'pecs': return 'bg-rose-950/50 text-rose-300 border-rose-500/40';
-      case 'dos': return 'bg-cyan-950/50 text-cyan-300 border-cyan-500/40';
-      case 'epaules': return 'bg-amber-950/50 text-amber-300 border-amber-500/40';
-      case 'biceps': return 'bg-purple-950/50 text-purple-300 border-purple-500/40';
-      case 'triceps': return 'bg-indigo-950/50 text-indigo-300 border-indigo-500/40';
-      case 'jambes': return 'bg-emerald-950/50 text-emerald-300 border-emerald-500/40';
-      case 'abdos': return 'bg-orange-950/50 text-orange-300 border-orange-500/40';
-      case 'cardio': return 'bg-red-950/50 text-red-300 border-red-500/40';
-      default: return 'bg-slate-800 text-slate-300 border-slate-700';
+      case 'pecs': return 'bg-blood/10 text-blood border-blood/40';
+      case 'dos': return 'bg-sapphire/10 text-sapphire border-sapphire/40';
+      case 'epaules': return 'bg-gold/10 text-gold border-gold/40';
+      case 'biceps': return 'bg-amethyst/10 text-amethyst border-amethyst/40';
+      case 'triceps': return 'bg-amethyst/20 text-pharaoh border-amethyst/40';
+      case 'jambes': return 'bg-emerald/10 text-emerald border-emerald/40';
+      case 'abdos': return 'bg-gold/20 text-gold-bright border-gold/50';
+      case 'cardio': return 'bg-blood/20 text-blood border-blood/50';
+      default: return 'bg-lapis text-pharaoh-muted border-lapis-border';
     }
   };
 
@@ -412,10 +404,10 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
   if (!hasPhysicalDomain) {
     return (
-      <div className="max-w-2xl mx-auto bg-card border border-soft rounded-xl p-10 text-center space-y-3">
-        <Dumbbell className="w-10 h-10 text-slate-500 mx-auto" />
-        <h2 className="serif text-2xl italic text-white">Aucun domaine physique déclaré</h2>
-        <p className="text-sm text-slate-400">
+      <div className="max-w-2xl mx-auto bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3 hover-lift">
+        <Dumbbell size={40} className="mx-auto text-pharaoh-subtle" />
+        <h2 className="font-display text-2xl italic text-pharaoh tracking-wide">Aucun domaine physique déclaré</h2>
+        <p className="text-sm text-pharaoh-muted">
           Le Système n'a généré aucun contenu d'entraînement car tu n'as déclaré aucun domaine
           physique lors de l'éveil. Tu peux en ajouter un à tout moment depuis tes domaines de vie.
         </p>
@@ -424,30 +416,30 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#030914] text-slate-200 pb-24">
+    <div className="min-h-screen bg-obsidian text-pharaoh pb-24">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex flex-col h-full">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-xl bg-card border border-soft p-6 shadow-xl">
+      <div className="relative overflow-hidden rounded-xl bg-panel border border-lapis-border p-6 shadow-glow-gold">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <Dumbbell className="w-64 h-64 text-cyan-400" />
+          <Dumbbell size={256} className="text-gold" />
         </div>
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="px-2.5 py-1 rounded-xl bg-cyan-500/10 border border-cyan/30 text-cyan-400 mono text-[11px] font-semibold tracking-wider uppercase">
+              <span className="px-2.5 py-1 rounded-xl bg-gold/10 border border-gold/40 text-gold font-mono text-[11px] font-semibold tracking-wider uppercase">
                 ATHLETIC TRAINING HUB
               </span>
               {isTimerRunning && (
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-400 mono text-[11px] font-semibold animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blood/20 border border-blood/50 text-blood font-mono text-[11px] font-semibold animate-pulse">
+                  <span className="w-2 h-2 rounded-full bg-blood"></span>
                   SÉANCE EN COURS ({formatTime(elapsedSeconds)})
                 </span>
               )}
             </div>
-            <h1 className="text-2xl lg:text-3xl font-light tracking-tight text-slate-100 font-display">
-              Centre de <span className="text-cyan-400 font-medium">{domainLabel} & Condition Physique</span>
+            <h1 className="text-2xl lg:text-3xl font-light tracking-tight text-pharaoh font-display">
+              Centre de <span className="text-gradient-gold font-medium">{domainLabel} & Condition Physique</span>
             </h1>
-            <p className="text-xs lg:text-sm text-slate-400 max-w-2xl mt-1">
+            <p className="text-xs lg:text-sm text-pharaoh-muted max-w-2xl mt-1">
               Programmes de musculation sur-mesure, suivi interactif des séries en temps réel, calcul du 1RM et synchronisation des récompenses XP avec le Système Solo.
             </p>
           </div>
@@ -455,80 +447,80 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#051428] hover:bg-card text-cyan-400 border border-cyan text-xs font-medium transition-all shadow-sm"
+              className="btn-press flex items-center gap-2 px-4 py-2 rounded-xl bg-panel-gold hover:bg-panel-hover text-gold-bright border border-gold text-xs font-medium transition-all shadow-gold"
             >
-              <Plus className="w-4 h-4" />
+              <Plus size={16} />
               <span>Créer un Programme</span>
             </button>
             <button
               onClick={() => setIsMetricModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all"
+              className="btn-press flex items-center gap-2 px-4 py-2 rounded-xl bg-lapis hover:bg-lapis-light text-pharaoh border border-lapis-border text-xs font-medium transition-all"
             >
-              <Scale className="w-4 h-4 accent-cyan" />
+              <Scale size={16} className="text-gold" />
               <span>Saisir Mensurations</span>
             </button>
           </div>
         </div>
 
         {/* Sub-navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 border-t border-soft/60 pt-4 overflow-x-auto">
+        <div className="flex items-center gap-2 mt-6 border-t border-lapis-border/60 pt-4 overflow-x-auto">
           <button
             onClick={() => setActiveTab('ulkhad')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+            className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
               activeTab === 'ulkhad'
-                ? 'bg-[#051428] text-[#D4AF37] border border-[#D4AF37]/60 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-card border border-transparent'
+                ? 'bg-panel-gold text-gold-bright border border-gold/60 shadow-gold'
+                : 'text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover border border-transparent'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles size={16} />
             <span>Programme Ulkhad — 10 Mois</span>
           </button>
 
           <button
             onClick={() => setActiveTab('programs')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+            className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
               activeTab === 'programs'
-                ? 'bg-[#051428] text-cyan-400 border border-cyan shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-card border border-transparent'
+                ? 'bg-panel-gold text-gold-bright border border-gold shadow-gold'
+                : 'text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover border border-transparent'
             }`}
           >
-            <Layers className="w-4 h-4" />
+            <Layers size={16} />
             <span>Programmes & Routines ({(routines || []).length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('active_session')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+            className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
               activeTab === 'active_session'
-                ? 'bg-rose-950/80 text-rose-300 border border-rose-500/60 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-card border border-transparent'
+                ? 'bg-blood/20 text-blood border border-blood/60 shadow-lg'
+                : 'text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover border border-transparent'
             }`}
           >
-            <Play className="w-4 h-4 text-rose-400" />
+            <Play size={16} className="text-blood" />
             <span>Séance Active {isTimerRunning && `(${formatTime(elapsedSeconds)})`}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('progress')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+            className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
               activeTab === 'progress'
-                ? 'bg-[#051428] text-cyan-400 border border-cyan shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-card border border-transparent'
+                ? 'bg-panel-gold text-gold-bright border border-gold shadow-gold'
+                : 'text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover border border-transparent'
             }`}
           >
-            <Trophy className="w-4 h-4" />
+            <Trophy size={16} />
             <span>Records & Biométrie ({(personalRecords || []).length} PRs)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+            className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${
               activeTab === 'history'
-                ? 'bg-[#051428] text-cyan-400 border border-cyan shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-card border border-transparent'
+                ? 'bg-panel-gold text-gold-bright border border-gold shadow-gold'
+                : 'text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover border border-transparent'
             }`}
           >
-            <Activity className="w-4 h-4" />
+            <Activity size={16} />
             <span>Historique ({(completedSessions || []).length} Séances)</span>
           </button>
         </div>
@@ -549,54 +541,54 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
             {(routines || []).map((routine) => (
               <div
                 key={routine.id}
-                className="bg-card border border-soft rounded-xl p-5 hover:border-cyan/50 transition-all flex flex-col justify-between group shadow-lg"
+                className="bg-panel border border-lapis-border rounded-xl p-5 hover:border-gold/50 transition-all flex flex-col justify-between group shadow-card hover-lift"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded-xl bg-card border border-soft text-slate-300 mono text-[10px] uppercase">
+                        <span className="px-2 py-0.5 rounded-xl bg-lapis border border-lapis-border text-pharaoh-muted font-mono text-[10px] uppercase">
                           {routine.category}
                         </span>
                         {routine.isCustom && (
-                          <span className="px-2 py-0.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-300 mono text-[10px]">
+                          <span className="px-2 py-0.5 rounded-xl bg-amethyst/10 border border-amethyst/40 text-amethyst font-mono text-[10px]">
                             Sur Mesure
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg font-medium text-slate-100 group-hover:text-cyan-400 transition-colors">
+                      <h3 className="font-display text-lg font-medium text-pharaoh group-hover:text-gold-bright transition-colors tracking-wide">
                         {routine.name}
                       </h3>
                     </div>
 
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#051428] border border-soft text-slate-300 mono text-xs">
-                      <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted font-mono text-xs">
+                      <Clock size={14} className="text-gold" />
                       <span>~{routine.estimatedDurationMin} min</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-400 mb-4 line-clamp-2">
+                  <p className="text-xs text-pharaoh-muted mb-4 line-clamp-2">
                     {routine.description}
                   </p>
 
                   {/* Exercises List Preview */}
                   <div className="space-y-2 mb-5">
-                    <span className="text-[11px] mono uppercase text-slate-500 tracking-wider font-semibold">
+                    <span className="text-[11px] font-mono uppercase text-pharaoh-subtle tracking-wider font-semibold">
                       EXERCICES INCLUS ({(routine.exercises || []).length})
                     </span>
                     <div className="space-y-1.5">
                       {((routine?.exercises) || []).map((ex) => (
                         <div
                           key={ex.id}
-                          className="flex items-center justify-between p-2 rounded-xl bg-[#051428]/60 border border-soft/50 text-xs"
+                          className="flex items-center justify-between p-2 rounded-xl bg-obsidian/60 border border-lapis-border/50 text-xs"
                         >
                           <div className="flex items-center gap-2">
                             <span className={`px-1.5 py-0.5 rounded-xl border text-[10px] uppercase font-mono ${getMuscleBadgeColor(ex.muscleGroup)}`}>
                               {ex.muscleGroup}
                             </span>
-                            <span className="text-slate-200 font-medium">{ex.name}</span>
+                            <span className="text-pharaoh font-medium">{ex.name}</span>
                           </div>
-                          <span className="mono text-slate-400 text-[11px]">
+                          <span className="font-mono text-pharaoh-muted text-[11px]">
                             {ex.sets.length} séries × {ex.sets[0]?.targetReps || 10} reps ({ex.sets[0]?.weightKg || 0} kg)
                           </span>
                         </div>
@@ -605,28 +597,38 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 pt-3 border-t border-soft/60">
+                <div className="flex items-center gap-3 pt-3 border-t border-lapis-border/60">
                   <button
                     onClick={() => handleStartSession(routine)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-xs hover:brightness-110 transition-all shadow-md"
+                    className="btn-press flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-bright text-obsidian font-semibold text-xs hover:brightness-110 transition-all shadow-glow-gold"
                   >
-                    <Play className="w-4 h-4 fill-current" />
+                    <Play size={16} className="fill-current" />
                     <span>DÉMARRER LA SÉANCE</span>
                   </button>
 
                   {routine.isCustom && (
                     <button
                       onClick={() => onDeleteRoutine(routine.id)}
-                      className="p-2.5 rounded-xl bg-rose-950/30 text-rose-400 border border-rose-500/30 hover:bg-rose-900/50 transition-all"
+                      className="p-2.5 rounded-xl bg-blood/10 text-blood border border-blood/30 hover:bg-blood/20 transition-all"
                       title="Supprimer la routine"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 size={16} />
                     </button>
                   )}
                 </div>
               </div>
             ))}
           </div>
+
+          {(routines || []).length === 0 && (
+            <div className="bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3 hover-lift">
+              <Dumbbell size={48} className="mx-auto text-pharaoh-subtle" />
+              <h3 className="font-display text-lg font-medium text-pharaoh tracking-wide">Aucun programme d'entraînement</h3>
+              <p className="text-xs text-pharaoh-muted max-w-md mx-auto leading-relaxed">
+                Créez votre premier programme sur mesure avec le bouton « Créer un Programme », ou suivez le Programme Ulkhad guidé.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -634,15 +636,15 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
       {activeTab === 'active_session' && (
         <div className="space-y-6">
           {!activeRoutine ? (
-            <div className="bg-card border border-soft rounded-xl p-12 text-center max-w-xl mx-auto space-y-4">
-              <Dumbbell className="w-16 h-16 text-slate-600 mx-auto" />
-              <h3 className="text-lg font-medium text-slate-200">Aucune Séance Active</h3>
-              <p className="text-xs text-slate-400">
+            <div className="bg-panel border border-lapis-border rounded-xl p-12 text-center max-w-xl mx-auto space-y-4 hover-lift">
+              <Dumbbell size={64} className="mx-auto text-pharaoh-subtle" />
+              <h3 className="font-display text-lg font-medium text-pharaoh tracking-wide">Aucune Séance Active</h3>
+              <p className="text-xs text-pharaoh-muted">
                 Sélectionnez un programme dans l'onglet « Programmes & Routines » pour démarrer votre entraînement en temps réel.
               </p>
               <button
                 onClick={() => setActiveTab('programs')}
-                className="px-4 py-2 rounded-xl bg-[#051428] text-cyan-400 border border-cyan text-xs font-medium"
+                className="btn-press px-4 py-2 rounded-xl bg-panel-gold text-gold-bright border border-gold text-xs font-medium"
               >
                 Parcourir les Programmes
               </button>
@@ -650,41 +652,41 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           ) : (
             <div className="space-y-6">
               {/* Active Session Control Bar */}
-              <div className="bg-[#051428] border border-rose-500/50 rounded-xl p-5 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="bg-obsidian-elevated border border-blood/50 rounded-xl p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-                    <span className="mono text-xs text-rose-400 uppercase font-semibold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blood animate-ping"></span>
+                    <span className="font-mono text-xs text-blood uppercase font-semibold">
                       MODE ENTRAÎNEMENT INTENSIF
                     </span>
                   </div>
-                  <h2 className="text-xl font-medium text-slate-100">{activeRoutine.name}</h2>
+                  <h2 className="font-display text-xl font-medium text-pharaoh tracking-wide">{activeRoutine.name}</h2>
                 </div>
 
                 {/* Session Live Counters */}
                 <div className="flex flex-wrap items-center gap-4">
-                  <div className="px-3.5 py-2 rounded-xl bg-card border border-soft text-center min-w-[100px]">
-                    <div className="text-[10px] mono text-slate-500 uppercase">CHRONO</div>
-                    <div className="text-lg font-bold mono text-cyan-400">{formatTime(elapsedSeconds)}</div>
+                  <div className="px-3.5 py-2 rounded-xl bg-panel border border-lapis-border text-center min-w-[100px]">
+                    <div className="text-[10px] font-mono text-pharaoh-subtle uppercase">CHRONO</div>
+                    <div className="text-lg font-bold font-mono text-gold-bright">{formatTime(elapsedSeconds)}</div>
                   </div>
 
-                  <div className="px-3.5 py-2 rounded-xl bg-card border border-soft text-center min-w-[100px]">
-                    <div className="text-[10px] mono text-slate-500 uppercase">VOLUME</div>
-                    <div className="text-lg font-bold mono text-cyan-400">{totalVolumeKg} kg</div>
+                  <div className="px-3.5 py-2 rounded-xl bg-panel border border-lapis-border text-center min-w-[100px]">
+                    <div className="text-[10px] font-mono text-pharaoh-subtle uppercase">VOLUME</div>
+                    <div className="text-lg font-bold font-mono text-gold-bright">{totalVolumeKg} kg</div>
                   </div>
 
-                  <div className="px-3.5 py-2 rounded-xl bg-card border border-soft text-center min-w-[100px]">
-                    <div className="text-[10px] mono text-slate-500 uppercase">SÉRIES</div>
-                    <div className="text-lg font-bold mono text-emerald-400">
+                  <div className="px-3.5 py-2 rounded-xl bg-panel border border-lapis-border text-center min-w-[100px]">
+                    <div className="text-[10px] font-mono text-pharaoh-subtle uppercase">SÉRIES</div>
+                    <div className="text-lg font-bold font-mono text-emerald">
                       {completedSetsCount} / {totalSetsCount}
                     </div>
                   </div>
 
                   <button
                     onClick={handleFinishSession}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2"
+                    className="btn-press px-5 py-2.5 rounded-xl bg-emerald hover:brightness-110 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-2"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 size={16} />
                     <span>TERMINER & VALIDER</span>
                   </button>
                 </div>
@@ -692,25 +694,25 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
               {/* Rest Timer Banner if Active */}
               {isRestActive && (
-                <div className="bg-amber-950/80 border border-amber-500/60 rounded-xl p-4 flex items-center justify-between animate-pulse">
+                <div className="bg-gold/10 border border-gold/60 rounded-xl p-4 flex items-center justify-between animate-pulse">
                   <div className="flex items-center gap-3">
-                    <Clock className="w-6 h-6 text-amber-400" />
+                    <Timer size={24} className="text-gold" />
                     <div>
-                      <div className="text-xs font-semibold text-amber-300 uppercase mono">TEMPS DE REPOS ENTRE SÉRIES</div>
-                      <div className="text-2xl font-black mono text-amber-100">{formatTime(restSecondsLeft)}</div>
+                      <div className="text-xs font-semibold text-gold-bright uppercase font-mono">TEMPS DE REPOS ENTRE SÉRIES</div>
+                      <div className="text-2xl font-black font-mono text-pharaoh">{formatTime(restSecondsLeft)}</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => addRestTime(30)}
-                      className="px-3 py-1.5 rounded-xl bg-amber-900/60 text-amber-200 border border-amber-500/40 text-xs font-mono hover:bg-amber-800"
+                      className="px-3 py-1.5 rounded-xl bg-gold/20 text-gold-bright border border-gold/40 text-xs font-mono hover:bg-gold/30"
                     >
                       +30s
                     </button>
                     <button
                       onClick={() => setIsRestActive(false)}
-                      className="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 border border-slate-700 text-xs"
+                      className="px-3 py-1.5 rounded-xl bg-obsidian text-pharaoh-muted border border-lapis-border text-xs"
                     >
                       Passer
                     </button>
@@ -721,14 +723,14 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
               {/* Active Exercises Set-by-Set Logging Cards */}
               <div className="space-y-6">
                 {activeExercises.map((ex, exIdx) => (
-                  <div key={ex.id} className="bg-card border border-soft rounded-xl p-5 space-y-4">
-                    <div className="flex items-center justify-between border-b border-soft pb-3">
+                  <div key={ex.id} className="bg-panel border border-lapis-border rounded-xl p-5 space-y-4 hover-lift">
+                    <div className="flex items-center justify-between border-b border-lapis-border pb-3">
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-full bg-[#051428] border border-cyan text-cyan-400 mono text-xs flex items-center justify-center font-bold">
+                        <span className="w-7 h-7 rounded-full bg-obsidian border border-gold text-gold font-mono text-xs flex items-center justify-center font-bold">
                           {exIdx + 1}
                         </span>
                         <div>
-                          <h3 className="text-base font-medium text-slate-100">{ex.name}</h3>
+                          <h3 className="text-base font-medium text-pharaoh">{ex.name}</h3>
                           <span className={`px-2 py-0.5 rounded-xl border text-[10px] uppercase font-mono ${getMuscleBadgeColor(ex.muscleGroup)}`}>
                             {ex.muscleGroup} • Repos recommandé : {ex.restSeconds}s
                           </span>
@@ -736,8 +738,8 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                       </div>
 
                       {ex.notes && (
-                        <p className="text-xs text-slate-400 italic hidden md:block">
-                          💡 {ex.notes}
+                        <p className="text-xs text-pharaoh-muted italic hidden md:flex items-center gap-1">
+                          <Info size={14} className="text-gold flex-shrink-0" /> {ex.notes}
                         </p>
                       )}
                     </div>
@@ -746,22 +748,22 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-soft/50 text-slate-500 font-mono text-[11px] uppercase">
+                          <tr className="border-b border-lapis-border/50 text-pharaoh-subtle font-mono text-[11px] uppercase">
                             <th className="py-2 px-3">Série</th>
                             <th className="py-2 px-3">Charge (kg)</th>
                             <th className="py-2 px-3">Répétitions</th>
                             <th className="py-2 px-3">Valider</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-soft/30">
+                        <tbody className="divide-y divide-lapis-border/30">
                           {((ex?.sets) || []).map((set) => (
                             <tr
                               key={set.id}
                               className={`transition-colors ${
-                                set.isCompleted ? 'bg-emerald-950/20' : 'hover:bg-[#051428]/40'
+                                set.isCompleted ? 'bg-emerald/10' : 'hover:bg-obsidian/40'
                               }`}
                             >
-                              <td className="py-3 px-3 font-mono font-bold text-slate-300">
+                              <td className="py-3 px-3 font-mono font-bold text-pharaoh-muted">
                                 #{set.setNumber}
                               </td>
 
@@ -773,9 +775,9 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                                     onChange={(e) =>
                                       handleUpdateSet(ex.id, set.id, 'weightKg', parseFloat(e.target.value) || 0)
                                     }
-                                    className="w-20 px-2 py-1 rounded-xl bg-[#051428] border border-soft text-slate-100 mono text-xs font-semibold focus:border-cyan outline-none"
+                                    className="w-20 px-2 py-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh font-mono text-xs font-semibold focus:border-gold outline-none"
                                   />
-                                  <span className="text-slate-500 font-mono">kg</span>
+                                  <span className="text-pharaoh-subtle font-mono">kg</span>
                                 </div>
                               </td>
 
@@ -787,22 +789,22 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                                     onChange={(e) =>
                                       handleUpdateSet(ex.id, set.id, 'actualReps', parseInt(e.target.value) || 0)
                                     }
-                                    className="w-20 px-2 py-1 rounded-xl bg-[#051428] border border-soft text-slate-100 mono text-xs font-semibold focus:border-cyan outline-none"
+                                    className="w-20 px-2 py-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh font-mono text-xs font-semibold focus:border-gold outline-none"
                                   />
-                                  <span className="text-slate-500 font-mono">reps</span>
+                                  <span className="text-pharaoh-subtle font-mono">reps</span>
                                 </div>
                               </td>
 
                               <td className="py-3 px-3">
                                 <button
                                   onClick={() => handleToggleSet(ex.id, set.id)}
-                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-xs transition-all ${
+                                  className={`btn-press flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-xs transition-all ${
                                     set.isCompleted
-                                      ? 'bg-emerald-600 text-white shadow-sm'
-                                      : 'bg-[#051428] text-slate-400 border border-soft hover:border-cyan hover:text-slate-200'
+                                      ? 'bg-emerald text-white shadow-lg'
+                                      : 'bg-obsidian text-pharaoh-muted border border-lapis-border hover:border-gold hover:text-pharaoh'
                                   }`}
                                 >
-                                  <Check className="w-3.5 h-3.5" />
+                                  <Check size={14} />
                                   <span>{set.isCompleted ? 'Validée' : 'Valider'}</span>
                                 </button>
                               </td>
@@ -816,13 +818,13 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
               </div>
 
               {/* Notes & Rating Footer */}
-              <div className="bg-card border border-soft rounded-xl p-5 space-y-4">
-                <h3 className="text-sm font-medium text-slate-200">Bilan & Remarques de la Séance</h3>
+              <div className="bg-panel border border-lapis-border rounded-xl p-5 space-y-4">
+                <h3 className="font-display text-sm font-medium text-pharaoh tracking-wide">Bilan & Remarques de la Séance</h3>
                 <textarea
                   value={sessionNotes}
                   onChange={(e) => setSessionNotes(e.target.value)}
                   placeholder="Ex: Excellentes sensations sur le développé couché. Bonne congestion des épaules..."
-                  className="w-full h-20 p-3 rounded-xl bg-[#051428] border border-soft text-slate-200 text-xs outline-none focus:border-cyan"
+                  className="w-full h-20 p-3 rounded-xl bg-obsidian border border-lapis-border text-pharaoh text-xs outline-none focus:border-gold"
                 />
               </div>
             </div>
@@ -837,40 +839,40 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-medium text-slate-100">Records Personnels (PRs & 1RM Estimé)</h2>
-                <p className="text-xs text-slate-400">Performances maximales enregistrées par exercice.</p>
+                <h2 className="font-display text-lg font-medium text-pharaoh tracking-wide">Records Personnels (PRs & 1RM Estimé)</h2>
+                <p className="text-xs text-pharaoh-muted">Performances maximales enregistrées par exercice.</p>
               </div>
               <button
                 onClick={() => setIsPRModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#051428] text-cyan-400 border border-cyan text-xs font-medium"
+                className="btn-press flex items-center gap-2 px-3 py-1.5 rounded-xl bg-panel-gold text-gold-bright border border-gold text-xs font-medium"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus size={14} />
                 <span>Nouveau Record</span>
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {(personalRecords || []).map((pr) => (
-                <div key={pr.id} className="bg-card border border-soft rounded-xl p-4 hover:border-cyan/50 transition-all">
+                <div key={pr.id} className="bg-panel border border-lapis-border rounded-xl p-4 hover:border-gold/50 transition-all hover-lift">
                   <div className="flex items-center justify-between mb-2">
                     <span className={`px-2 py-0.5 rounded-xl border text-[10px] uppercase font-mono ${getMuscleBadgeColor(pr.muscleGroup)}`}>
                       {pr.muscleGroup}
                     </span>
-                    <span className="mono text-[10px] text-slate-500">{pr.date}</span>
+                    <span className="font-mono text-[10px] text-pharaoh-subtle">{pr.date}</span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-100 mb-3">{pr.exerciseName}</h3>
+                  <h3 className="text-sm font-bold text-pharaoh mb-3">{pr.exerciseName}</h3>
 
-                  <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-[#051428] border border-soft text-center">
+                  <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-obsidian border border-lapis-border text-center">
                     <div>
-                      <div className="text-[10px] mono text-slate-500 uppercase">CHARGE MAX</div>
-                      <div className="text-base font-black mono text-cyan-400">
-                        {pr.maxWeightKg} kg <span className="text-xs text-slate-400 font-normal">×{pr.maxReps}</span>
+                      <div className="text-[10px] font-mono text-pharaoh-subtle uppercase">CHARGE MAX</div>
+                      <div className="text-base font-black font-mono text-gold">
+                        {pr.maxWeightKg} kg <span className="text-xs text-pharaoh-muted font-normal">×{pr.maxReps}</span>
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] mono text-slate-500 uppercase">1RM ESTIMÉ</div>
-                      <div className="text-base font-black mono text-cyan-400">{pr.estimated1RM} kg</div>
+                      <div className="text-[10px] font-mono text-pharaoh-subtle uppercase">1RM ESTIMÉ</div>
+                      <div className="text-base font-black font-mono text-gold">{pr.estimated1RM} kg</div>
                     </div>
                   </div>
                 </div>
@@ -879,57 +881,57 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
           </div>
 
           {/* Section 2: Biometrics Tracker */}
-          <div className="space-y-4 border-t border-soft/60 pt-6">
+          <div className="space-y-4 border-t border-lapis-border/60 pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-medium text-slate-100">Suivi Biométrique & Mensurations</h2>
-                <p className="text-xs text-slate-400">Évolution du poids corporel et des mensurations musculaires.</p>
+                <h2 className="font-display text-lg font-medium text-pharaoh tracking-wide">Suivi Biométrique & Mensurations</h2>
+                <p className="text-xs text-pharaoh-muted">Évolution du poids corporel et des mensurations musculaires.</p>
               </div>
               <button
                 onClick={() => setIsMetricModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 border border-slate-700 text-xs font-medium"
+                className="btn-press flex items-center gap-2 px-3 py-1.5 rounded-xl bg-lapis text-pharaoh border border-lapis-border text-xs font-medium"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus size={14} />
                 <span>Enregistrer Pesée</span>
               </button>
             </div>
 
             <div className="space-y-4">
               {(bodyMetrics || []).map((metric) => (
-                <div key={metric.id} className="bg-card border border-soft rounded-xl p-5 space-y-3">
-                  <div className="flex items-center justify-between border-b border-soft pb-2">
+                <div key={metric.id} className="bg-panel border border-lapis-border rounded-xl p-5 space-y-3 hover-lift">
+                  <div className="flex items-center justify-between border-b border-lapis-border pb-2">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-cyan-400" />
-                      <span className="mono text-xs font-bold text-slate-200">{metric.date}</span>
+                      <Calendar size={16} className="text-gold" />
+                      <span className="font-mono text-xs font-bold text-pharaoh">{metric.date}</span>
                     </div>
-                    <span className="mono text-sm font-black text-cyan-400">{metric.weightKg} kg</span>
+                    <span className="font-mono text-sm font-black text-gold">{metric.weightKg} kg</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center">
-                    <div className="p-2 rounded-xl bg-[#051428] border border-soft">
-                      <div className="text-[10px] mono text-slate-500">GRASSE (%)</div>
-                      <div className="text-xs font-bold mono text-rose-400">{metric.bodyFatPercentage || '-'}%</div>
+                    <div className="p-2 rounded-xl bg-obsidian border border-lapis-border">
+                      <div className="text-[10px] font-mono text-pharaoh-subtle">GRASSE (%)</div>
+                      <div className="text-xs font-bold font-mono text-blood">{metric.bodyFatPercentage || '-'}%</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-[#051428] border border-soft">
-                      <div className="text-[10px] mono text-slate-500">MUSCLE (%)</div>
-                      <div className="text-xs font-bold mono text-emerald-400">{metric.muscleMassPercentage || '-'}%</div>
+                    <div className="p-2 rounded-xl bg-obsidian border border-lapis-border">
+                      <div className="text-[10px] font-mono text-pharaoh-subtle">MUSCLE (%)</div>
+                      <div className="text-xs font-bold font-mono text-emerald">{metric.muscleMassPercentage || '-'}%</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-[#051428] border border-soft">
-                      <div className="text-[10px] mono text-slate-500">POITRINE</div>
-                      <div className="text-xs font-bold mono text-slate-200">{metric.chestCm || '-'} cm</div>
+                    <div className="p-2 rounded-xl bg-obsidian border border-lapis-border">
+                      <div className="text-[10px] font-mono text-pharaoh-subtle">POITRINE</div>
+                      <div className="text-xs font-bold font-mono text-pharaoh">{metric.chestCm || '-'} cm</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-[#051428] border border-soft">
-                      <div className="text-[10px] mono text-slate-500">TAILLE</div>
-                      <div className="text-xs font-bold mono text-slate-200">{metric.waistCm || '-'} cm</div>
+                    <div className="p-2 rounded-xl bg-obsidian border border-lapis-border">
+                      <div className="text-[10px] font-mono text-pharaoh-subtle">TAILLE</div>
+                      <div className="text-xs font-bold font-mono text-pharaoh">{metric.waistCm || '-'} cm</div>
                     </div>
-                    <div className="p-2 rounded-xl bg-[#051428] border border-soft">
-                      <div className="text-[10px] mono text-slate-500">BICEPS</div>
-                      <div className="text-xs font-bold mono text-slate-200">{metric.bicepsCm || '-'} cm</div>
+                    <div className="p-2 rounded-xl bg-obsidian border border-lapis-border">
+                      <div className="text-[10px] font-mono text-pharaoh-subtle">BICEPS</div>
+                      <div className="text-xs font-bold font-mono text-pharaoh">{metric.bicepsCm || '-'} cm</div>
                     </div>
                   </div>
 
                   {metric.notes && (
-                    <p className="text-xs text-slate-400 italic bg-[#051428]/50 p-2 rounded-xl">
+                    <p className="text-xs text-pharaoh-muted italic bg-obsidian/50 p-2 rounded-xl">
                       "{metric.notes}"
                     </p>
                   )}
@@ -943,42 +945,42 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
       {/* TAB 4: COMPLETED SESSIONS HISTORY */}
       {activeTab === 'history' && (
         <div className="space-y-4">
-          <h2 className="text-lg font-medium text-slate-100">Historique des Séances Validées</h2>
+          <h2 className="font-display text-lg font-medium text-pharaoh tracking-wide">Historique des Séances Validées</h2>
 
           {(completedSessions || []).length === 0 ? (
-            <div className="bg-card border border-soft rounded-xl p-8 text-center text-slate-400 text-xs">
+            <div className="bg-panel border border-lapis-border rounded-xl p-8 text-center text-pharaoh-muted text-xs">
               Aucune séance enregistrée pour le moment.
             </div>
           ) : (
             <div className="space-y-4">
               {(completedSessions || []).map((session) => (
-                <div key={session.id} className="bg-card border border-soft rounded-xl p-5 space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-soft pb-3">
+                <div key={session.id} className="bg-panel border border-lapis-border rounded-xl p-5 space-y-3 hover-lift">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-lapis-border pb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="mono text-xs font-bold text-cyan-400">{session.date}</span>
-                        <span className="text-slate-500">•</span>
-                        <span className="mono text-xs text-slate-400">{session.startTime}</span>
+                        <span className="font-mono text-xs font-bold text-gold">{session.date}</span>
+                        <span className="text-pharaoh-subtle">•</span>
+                        <span className="font-mono text-xs text-pharaoh-muted">{session.startTime}</span>
                       </div>
-                      <h3 className="text-base font-bold text-slate-100">{session.routineName}</h3>
+                      <h3 className="text-base font-bold text-pharaoh">{session.routineName}</h3>
                     </div>
 
                     <div className="flex items-center gap-3 font-mono text-xs">
-                      <div className="px-2.5 py-1 rounded-xl bg-[#051428] border border-soft text-slate-300">
-                        ⏱️ {session.durationMinutes} min
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh-muted">
+                        <Timer size={14} className="text-gold" /> {session.durationMinutes} min
                       </div>
-                      <div className="px-2.5 py-1 rounded-xl bg-[#051428] border border-soft text-cyan-400 font-bold">
-                        🏋️ {session.totalVolumeKg} kg
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-obsidian border border-lapis-border text-gold font-bold">
+                        <Dumbbell size={14} /> {session.totalVolumeKg} kg
                       </div>
-                      <div className="px-2.5 py-1 rounded-xl bg-[#051428] border border-soft text-emerald-400 font-bold">
-                        🔥 {session.caloriesBurned} kcal
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-obsidian border border-lapis-border text-blood font-bold">
+                        <Flame size={14} /> {session.caloriesBurned} kcal
                       </div>
                     </div>
                   </div>
 
                   {session.notes && (
-                    <p className="text-xs text-slate-300 italic bg-[#051428] p-3 rounded-xl border border-soft/50">
-                      💬 {session.notes}
+                    <p className="text-xs text-pharaoh italic bg-obsidian p-3 rounded-xl border border-lapis-border/50 flex items-start gap-1.5">
+                      <Sparkles size={14} className="text-gold flex-shrink-0 mt-0.5" /> {session.notes}
                     </p>
                   )}
                 </div>
@@ -991,34 +993,34 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
       {/* MODAL 1: CREATE CUSTOM PROGRAM */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#051428] border border-cyan/60 rounded-xl w-full max-w-2xl p-6 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-soft pb-3">
-              <h3 className="text-lg font-bold text-cyan-400 font-display">Créer un Programme Sur Mesure</h3>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-200">
-                ✕
+          <div className="bg-obsidian-elevated border border-gold/60 rounded-xl w-full max-w-2xl p-6 space-y-5 shadow-glow-gold-lg">
+            <div className="flex items-center justify-between border-b border-lapis-border pb-3">
+              <h3 className="font-display text-lg font-bold text-gold tracking-wide">Créer un Programme Sur Mesure</h3>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-pharaoh-muted hover:text-pharaoh">
+                <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleSaveCustomRoutine} className="space-y-4">
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Nom du Programme</label>
+                <label className="block text-xs font-mono text-pharaoh-muted uppercase mb-1">Nom du Programme</label>
                 <input
                   type="text"
                   required
                   placeholder="Ex: Upper Body Hypertrophie, Core & Cardio..."
                   value={newRoutineName}
                   onChange={(e) => setNewRoutineName(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-card border border-soft text-slate-100 text-xs focus:border-cyan outline-none"
+                  className="w-full p-2.5 rounded-xl bg-panel border border-lapis-border text-pharaoh text-xs focus:border-gold outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Catégorie</label>
+                  <label className="block text-xs font-mono text-pharaoh-muted uppercase mb-1">Catégorie</label>
                   <select
                     value={newRoutineCategory}
                     onChange={(e: any) => setNewRoutineCategory(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-card border border-soft text-slate-100 text-xs focus:border-cyan outline-none"
+                    className="w-full p-2.5 rounded-xl bg-panel border border-lapis-border text-pharaoh text-xs focus:border-gold outline-none"
                   >
                     <option value="hypertrophy">Hypertrophie</option>
                     <option value="strength">Force Athlétique</option>
@@ -1029,41 +1031,41 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Durée Estimée (min)</label>
+                  <label className="block text-xs font-mono text-pharaoh-muted uppercase mb-1">Durée Estimée (min)</label>
                   <input
                     type="number"
                     value={newRoutineEstMin}
                     onChange={(e) => setNewRoutineEstMin(parseInt(e.target.value) || 30)}
-                    className="w-full p-2.5 rounded-xl bg-card border border-soft text-slate-100 text-xs focus:border-cyan outline-none"
+                    className="w-full p-2.5 rounded-xl bg-panel border border-lapis-border text-pharaoh text-xs focus:border-gold outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-slate-400 uppercase mb-1">Description / Objectif</label>
+                <label className="block text-xs font-mono text-pharaoh-muted uppercase mb-1">Description / Objectif</label>
                 <textarea
                   value={newRoutineDesc}
                   onChange={(e) => setNewRoutineDesc(e.target.value)}
                   placeholder="Notes sur la fréquence, le tempo ou la méthode de surcharge..."
-                  className="w-full h-16 p-2.5 rounded-xl bg-card border border-soft text-slate-100 text-xs focus:border-cyan outline-none"
+                  className="w-full h-16 p-2.5 rounded-xl bg-panel border border-lapis-border text-pharaoh text-xs focus:border-gold outline-none"
                 />
               </div>
 
               {/* Dynamic Exercises List */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-cyan-400 uppercase font-bold">Exercices du Programme</span>
+                  <span className="text-xs font-mono text-gold uppercase font-bold">Exercices du Programme</span>
                   <button
                     type="button"
                     onClick={handleAddCustomExerciseRow}
-                    className="text-xs text-cyan-400 flex items-center gap-1 hover:underline"
+                    className="text-xs text-gold flex items-center gap-1 hover:underline"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Ajouter un exercice
+                    <Plus size={14} /> Ajouter un exercice
                   </button>
                 </div>
 
                 {newExercises.map((ne, idx) => (
-                  <div key={idx} className="p-3 rounded-xl bg-card border border-soft space-y-2 text-xs">
+                  <div key={idx} className="p-3 rounded-xl bg-panel border border-lapis-border space-y-2 text-xs">
                     <div className="grid grid-cols-2 gap-2">
                       <input
                         type="text"
@@ -1074,7 +1076,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                           setNewExercises(updated);
                         }}
                         placeholder="Nom de l'exercice"
-                        className="p-1.5 rounded-xl bg-[#051428] border border-soft text-slate-100 outline-none"
+                        className="p-1.5 rounded-xl bg-obsidian border border-lapis-border text-pharaoh outline-none focus:border-gold"
                       />
                       <select
                         value={ne.muscleGroup}
@@ -1083,7 +1085,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                           updated[idx].muscleGroup = e.target.value;
                           setNewExercises(updated);
                         }}
-                        className="p-1.5 rounded-xl bg-[#051428] border border-soft text-slate-100 outline-none"
+                        className="p-1.5 rounded-xl bg-obsidian border border-lapis-border text-pharaoh outline-none focus:border-gold"
                       >
                         <option value="pecs">Pectoraux</option>
                         <option value="dos">Dos</option>
@@ -1098,7 +1100,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
                     <div className="grid grid-cols-3 gap-2 font-mono">
                       <div>
-                        <span className="text-[10px] text-slate-500">Séries:</span>
+                        <span className="text-[10px] text-pharaoh-subtle">Séries:</span>
                         <input
                           type="number"
                           value={ne.setsCount}
@@ -1107,11 +1109,11 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                             updated[idx].setsCount = parseInt(e.target.value) || 1;
                             setNewExercises(updated);
                           }}
-                          className="w-full p-1 rounded-xl bg-[#051428] border border-soft text-slate-100 outline-none"
+                          className="w-full p-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh outline-none focus:border-gold"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500">Reps:</span>
+                        <span className="text-[10px] text-pharaoh-subtle">Reps:</span>
                         <input
                           type="number"
                           value={ne.targetReps}
@@ -1120,11 +1122,11 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                             updated[idx].targetReps = parseInt(e.target.value) || 10;
                             setNewExercises(updated);
                           }}
-                          className="w-full p-1 rounded-xl bg-[#051428] border border-soft text-slate-100 outline-none"
+                          className="w-full p-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh outline-none focus:border-gold"
                         />
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-500">Charge (kg):</span>
+                        <span className="text-[10px] text-pharaoh-subtle">Charge (kg):</span>
                         <input
                           type="number"
                           value={ne.weightKg}
@@ -1133,7 +1135,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                             updated[idx].weightKg = parseFloat(e.target.value) || 0;
                             setNewExercises(updated);
                           }}
-                          className="w-full p-1 rounded-xl bg-[#051428] border border-soft text-slate-100 outline-none"
+                          className="w-full p-1 rounded-xl bg-obsidian border border-lapis-border text-pharaoh outline-none focus:border-gold"
                         />
                       </div>
                     </div>
@@ -1141,17 +1143,17 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                 ))}
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-soft">
+              <div className="flex justify-end gap-3 pt-4 border-t border-lapis-border">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs"
+                  className="btn-press px-4 py-2 rounded-xl bg-lapis text-pharaoh-muted text-xs"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs"
+                  className="btn-press px-5 py-2 rounded-xl bg-gradient-to-r from-gold to-gold-bright text-obsidian font-bold text-xs shadow-glow-gold"
                 >
                   Sauvegarder le Programme
                 </button>
@@ -1164,86 +1166,86 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
       {/* MODAL 2: ADD BODY METRIC */}
       {isMetricModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#051428] border border-cyan/60 rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-soft pb-2">
-              <h3 className="text-base font-bold text-cyan-400">Saisir Mesures Biométriques</h3>
-              <button onClick={() => setIsMetricModalOpen(false)} className="text-slate-400">✕</button>
+          <div className="bg-obsidian-elevated border border-gold/60 rounded-xl w-full max-w-md p-6 space-y-4 shadow-glow-gold-lg">
+            <div className="flex items-center justify-between border-b border-lapis-border pb-2">
+              <h3 className="font-display text-base font-bold text-gold tracking-wide">Saisir Mesures Biométriques</h3>
+              <button onClick={() => setIsMetricModalOpen(false)} className="text-pharaoh-muted"><X size={18} /></button>
             </div>
 
             <form onSubmit={handleSaveBodyMetric} className="space-y-3 text-xs">
               <div>
-                <label className="block font-mono text-slate-400 mb-1">Poids Corporel (kg)</label>
+                <label className="block font-mono text-pharaoh-muted mb-1">Poids Corporel (kg)</label>
                 <input
                   type="number"
                   step="0.1"
                   required
                   value={metricWeight}
                   onChange={(e) => setMetricWeight(parseFloat(e.target.value) || 0)}
-                  className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none focus:border-cyan"
+                  className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Masse Grasse (%)</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Masse Grasse (%)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={metricBodyFat}
                     onChange={(e) => setMetricBodyFat(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none focus:border-cyan"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Masse Musculaire (%)</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Masse Musculaire (%)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={metricMuscleMass}
                     onChange={(e) => setMetricMuscleMass(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none focus:border-cyan"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Poitrine (cm)</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Poitrine (cm)</label>
                   <input
                     type="number"
                     value={metricChest}
                     onChange={(e) => setMetricChest(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Taille (cm)</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Taille (cm)</label>
                   <input
                     type="number"
                     value={metricWaist}
                     onChange={(e) => setMetricWaist(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Biceps (cm)</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Biceps (cm)</label>
                   <input
                     type="number"
                     value={metricBiceps}
                     onChange={(e) => setMetricBiceps(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-mono text-slate-400 mb-1">Notes / État d'esprit</label>
+                <label className="block font-mono text-pharaoh-muted mb-1">Notes / État d'esprit</label>
                 <input
                   type="text"
                   placeholder="Ex: Forme olympique..."
                   value={metricNotes}
                   onChange={(e) => setMetricNotes(e.target.value)}
-                  className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                  className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                 />
               </div>
 
@@ -1251,13 +1253,13 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsMetricModalOpen(false)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300"
+                  className="btn-press px-3 py-1.5 rounded-xl bg-lapis text-pharaoh-muted"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-cyan-400 text-white font-bold"
+                  className="btn-press px-4 py-1.5 rounded-xl bg-gold text-obsidian font-bold shadow-glow-gold"
                 >
                   Enregistrer
                 </button>
@@ -1270,31 +1272,31 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
       {/* MODAL 3: ADD RECORD PERSONNAL (PR) */}
       {isPRModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#051428] border border-cyan/60 rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-soft pb-2">
-              <h3 className="text-base font-bold text-cyan-400">Enregistrer un Record Personnel</h3>
-              <button onClick={() => setIsPRModalOpen(false)} className="text-slate-400">✕</button>
+          <div className="bg-obsidian-elevated border border-gold/60 rounded-xl w-full max-w-md p-6 space-y-4 shadow-glow-gold-lg">
+            <div className="flex items-center justify-between border-b border-lapis-border pb-2">
+              <h3 className="font-display text-base font-bold text-gold tracking-wide">Enregistrer un Record Personnel</h3>
+              <button onClick={() => setIsPRModalOpen(false)} className="text-pharaoh-muted"><X size={18} /></button>
             </div>
 
             <form onSubmit={handleSavePR} className="space-y-3 text-xs">
               <div>
-                <label className="block font-mono text-slate-400 mb-1">Nom de l'exercice</label>
+                <label className="block font-mono text-pharaoh-muted mb-1">Nom de l'exercice</label>
                 <input
                   type="text"
                   required
                   placeholder="Ex: Développé Couché, Soulevé de terre..."
                   value={prExerciseName}
                   onChange={(e) => setPrExerciseName(e.target.value)}
-                  className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none focus:border-cyan"
+                  className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-slate-400 mb-1">Groupe Musculaire</label>
+                <label className="block font-mono text-pharaoh-muted mb-1">Groupe Musculaire</label>
                 <select
                   value={prMuscleGroup}
                   onChange={(e: any) => setPrMuscleGroup(e.target.value)}
-                  className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                  className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                 >
                   <option value="pecs">Pectoraux</option>
                   <option value="dos">Dos</option>
@@ -1309,30 +1311,30 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Poids Soulevé (kg)</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Poids Soulevé (kg)</label>
                   <input
                     type="number"
                     required
                     value={prWeightKg}
                     onChange={(e) => setPrWeightKg(parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-slate-400 mb-1">Répétitions</label>
+                  <label className="block font-mono text-pharaoh-muted mb-1">Répétitions</label>
                   <input
                     type="number"
                     required
                     value={prReps}
                     onChange={(e) => setPrReps(parseInt(e.target.value) || 1)}
-                    className="w-full p-2 rounded-xl bg-card border border-soft text-slate-100 outline-none"
+                    className="w-full p-2 rounded-xl bg-panel border border-lapis-border text-pharaoh outline-none focus:border-gold"
                   />
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-card border border-soft text-center font-mono">
-                <span className="text-[10px] text-slate-500 uppercase">1RM ESTIMÉ CALCULÉ:</span>
-                <div className="text-base font-bold text-cyan-400">
+              <div className="p-2.5 rounded-xl bg-panel border border-lapis-border text-center font-mono">
+                <span className="text-[10px] text-pharaoh-subtle uppercase">1RM ESTIMÉ CALCULÉ:</span>
+                <div className="text-base font-bold text-gold">
                   {Math.round(prWeightKg * (1 + prReps / 30))} kg
                 </div>
               </div>
@@ -1341,13 +1343,13 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsPRModalOpen(false)}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300"
+                  className="btn-press px-3 py-1.5 rounded-xl bg-lapis text-pharaoh-muted"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-cyan-400 text-white font-bold"
+                  className="btn-press px-4 py-1.5 rounded-xl bg-gold text-obsidian font-bold shadow-glow-gold"
                 >
                   Enregistrer
                 </button>

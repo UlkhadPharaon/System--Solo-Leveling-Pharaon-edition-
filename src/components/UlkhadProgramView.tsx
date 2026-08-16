@@ -9,7 +9,7 @@ import { motion } from 'motion/react';
 import {
   Calendar, Play, Check, ChevronRight, X, Trophy, BookOpen,
   Zap, Dumbbell, Info, RotateCcw, TrendingUp, Utensils, Sparkles, Moon,
-} from 'lucide-react';
+} from './ui/PharaohIcons';
 import { CompletedWorkoutSession, PersonalRecord, MuscleGroup, WorkoutExercise } from '../types';
 import {
   ULKHAD_MESOCYCLES, ULKHAD_TOTAL_WEEKS, ULKHAD_GOALS, ULKHAD_PHILOSOPHY,
@@ -27,14 +27,14 @@ interface Props {
 }
 
 const MUSCLE_BADGE: Record<MuscleGroup, string> = {
-  pecs: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-  dos: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-  epaules: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-  biceps: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-  triceps: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
-  jambes: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  abdos: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-  cardio: 'bg-red-500/15 text-red-300 border-red-500/30',
+  pecs: 'bg-blood/15 text-blood border-blood/30',
+  dos: 'bg-sapphire/15 text-sapphire border-sapphire/30',
+  epaules: 'bg-gold/15 text-gold-bright border-gold/30',
+  biceps: 'bg-amethyst/15 text-amethyst border-amethyst/30',
+  triceps: 'bg-amethyst/15 text-amethyst border-amethyst/30',
+  jambes: 'bg-emerald/15 text-emerald border-emerald/30',
+  abdos: 'bg-blood/15 text-blood border-blood/30',
+  cardio: 'bg-blood/15 text-blood border-blood/30',
 };
 const MUSCLE_LABEL: Record<MuscleGroup, string> = {
   pecs: 'Pecs', dos: 'Dos', epaules: 'Épaules', biceps: 'Biceps', triceps: 'Triceps',
@@ -43,10 +43,10 @@ const MUSCLE_LABEL: Record<MuscleGroup, string> = {
 const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 const MICRO_STYLE: Record<string, { ring: string; chip: string; emoji: string }> = {
-  mecanique: { ring: 'from-cyan-500/60 to-blue-600/40', chip: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30', emoji: '⚙️' },
-  metabolique: { ring: 'from-emerald-500/60 to-teal-600/40', chip: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', emoji: '🔥' },
-  overreaching: { ring: 'from-red-500/60 to-orange-600/40', chip: 'bg-red-500/15 text-red-300 border-red-500/30', emoji: '⚡' },
-  deload: { ring: 'from-slate-400/60 to-slate-600/40', chip: 'bg-slate-500/15 text-slate-300 border-slate-500/30', emoji: '🌙' },
+  mecanique: { ring: 'from-gold/60 to-sapphire/40', chip: 'bg-gold/15 text-gold-bright border-gold/30', emoji: '⚙️' },
+  metabolique: { ring: 'from-emerald/60 to-emerald/40', chip: 'bg-emerald/15 text-emerald border-emerald/30', emoji: '🔥' },
+  overreaching: { ring: 'from-blood/60 to-blood/40', chip: 'bg-blood/15 text-blood border-blood/30', emoji: '⚡' },
+  deload: { ring: 'from-lapis-light/60 to-lapis/40', chip: 'bg-lapis-light/15 text-pharaoh-muted border-lapis-border', emoji: '🌙' },
 };
 
 const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -148,26 +148,26 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
   // =========================================================================
   if (view === 'session') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 anim-in">
         {/* En-tête session */}
-        <div className="rounded-2xl border border-cyan-500/30 bg-card p-4 shadow-lg">
+        <div className="rounded-2xl border border-gold/30 bg-panel p-4 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md">
-                <Dumbbell size={22} className="text-white" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-gold to-sapphire shadow-md">
+                <Dumbbell size={22} className="text-obsidian" />
               </div>
               <div>
-                <p className="font-display text-sm text-cyan-300">{sessionTitle}</p>
-                <p className="text-xs text-slate-400">{doneSets}/{totalSets} séries · {fmtTime(elapsed)}</p>
+                <p className="font-display text-sm text-gold-bright tracking-wide">{sessionTitle}</p>
+                <p className="font-mono text-xs text-pharaoh-muted">{doneSets}/{totalSets} séries · {fmtTime(elapsed)}</p>
               </div>
             </div>
             <button onClick={() => { setRunning(false); setView('program'); }}
-              className="rounded-lg border border-soft p-2 text-slate-400 hover:text-white" aria-label="Fermer">
+              className="btn-press rounded-lg border border-lapis-border p-2 text-pharaoh-muted hover:text-pharaoh" aria-label="Fermer">
               <X size={18} />
             </button>
           </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#051428]">
-            <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500"
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-obsidian border border-lapis-border">
+            <div className="h-full rounded-full bg-gradient-to-r from-gold to-gold-bright transition-all duration-500"
               style={{ width: `${totalSets ? (doneSets / totalSets) * 100 : 0}%` }} />
           </div>
         </div>
@@ -175,52 +175,52 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
         {/* Minuteur de repos */}
         {restLeft > 0 && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+            className="flex items-center gap-4 rounded-2xl border border-gold/40 bg-panel-gold p-4">
             <Lottie animationData={REST_ANIMATION} loop className="h-16 w-16" />
             <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-300">Repos</p>
-              <p className="font-mono text-3xl font-bold text-amber-200">{fmtTime(restLeft)}</p>
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-gold">Repos</p>
+              <p className="font-mono text-3xl font-bold text-gold-bright">{fmtTime(restLeft)}</p>
             </div>
-            <button onClick={() => setRestLeft(0)} className="rounded-lg border border-amber-500/40 px-3 py-2 text-xs text-amber-300 hover:bg-amber-500/20">
+            <button onClick={() => setRestLeft(0)} className="btn-press rounded-lg border border-gold/40 px-3 py-2 font-mono text-xs text-gold-bright hover:bg-gold/20">
               Passer
             </button>
           </motion.div>
         )}
 
         {/* Fiches exercices */}
-        <div className="space-y-3">
+        <div className="space-y-3 stagger">
           {sessionExercises.map((ex, i) => {
             const info = selectedDay.exercises[i];
             const anim = animationForExercise(ex.name);
             return (
               <motion.div key={ex.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                className="overflow-hidden rounded-2xl border border-soft bg-card">
+                className="overflow-hidden rounded-2xl border border-lapis-border bg-panel">
                 <div className="flex items-start gap-3 p-4">
-                  <div className="shrink-0 overflow-hidden rounded-xl border border-cyan-500/20 bg-[#051428]">
+                  <div className="shrink-0 overflow-hidden rounded-xl border border-gold/20 bg-obsidian-elevated">
                     <Lottie animationData={anim} loop className="h-20 w-30" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-display text-sm font-semibold text-white">{ex.name}</h3>
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${MUSCLE_BADGE[ex.muscleGroup]}`}>
+                      <h3 className="font-display text-sm font-semibold text-pharaoh tracking-wide">{ex.name}</h3>
+                      <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium ${MUSCLE_BADGE[ex.muscleGroup]}`}>
                         {MUSCLE_LABEL[ex.muscleGroup]}
                       </span>
                     </div>
                     {info && (
-                      <p className="mt-1 text-xs text-slate-400">
-                        <span className="text-cyan-300">{info.reps} reps</span> · repos {info.restLabel} · {info.intensification}
+                      <p className="mt-1 font-mono text-xs text-pharaoh-muted">
+                        <span className="text-gold-bright">{info.reps} reps</span> · repos {info.restLabel} · {info.intensification}
                       </p>
                     )}
-                    {info?.technique && <p className="mt-1 text-xs italic text-slate-500">{info.technique}</p>}
+                    {info?.technique && <p className="mt-1 text-xs italic text-pharaoh-subtle">{info.technique}</p>}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 px-4 pb-4">
                   {ex.sets.map((s, j) => (
                     <button key={s.id} onClick={() => toggleSet(i, j)}
-                      className={`flex h-11 min-w-11 items-center justify-center gap-1 rounded-xl border px-3 font-mono text-sm transition-all ${
+                      className={`btn-press flex h-11 min-w-11 items-center justify-center gap-1 rounded-xl border px-3 font-mono text-sm transition-all ${
                         s.isCompleted
-                          ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-300'
-                          : 'border-soft bg-[#051428] text-slate-300 hover:border-cyan-500/50'
+                          ? 'border-emerald/50 bg-emerald/20 text-emerald'
+                          : 'border-lapis-border bg-obsidian-elevated text-pharaoh-muted hover:border-gold/50'
                       }`}>
                       {s.isCompleted ? <Check size={14} /> : <span>{s.setNumber}</span>}
                     </button>
@@ -233,21 +233,21 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
 
         {/* Terminer */}
         <button onClick={finishSession} disabled={!allDone}
-          className={`w-full rounded-2xl py-4 font-display font-semibold transition-all ${
+          className={`btn-press w-full rounded-2xl py-4 font-display font-semibold tracking-wide transition-all ${
             allDone
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-              : 'cursor-not-allowed border border-soft bg-[#051428] text-slate-500'
+              ? 'bg-gradient-to-r from-gold to-gold-bright text-obsidian shadow-gold'
+              : 'cursor-not-allowed border border-lapis-border bg-obsidian-elevated text-pharaoh-subtle'
           }`}>
           {allDone ? '🏆 Terminer la séance (XP + Or)' : `Valider toutes les séries (${doneSets}/${totalSets})`}
         </button>
 
         {finished && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-6 text-center">
+            className="flex flex-col items-center gap-2 rounded-2xl border border-emerald/40 bg-emerald/10 p-6 text-center">
             <Lottie animationData={COMPLETE_ANIMATION} loop={false} className="h-28 w-40" />
-            <p className="font-display text-lg text-emerald-300">Séance terminée !</p>
-            <p className="text-xs text-slate-400">{fmtTime(elapsed)} · {doneSets} séries · +XP, +Or, +1 Force</p>
-            <button onClick={() => setView('program')} className="mt-2 rounded-xl border border-emerald-500/40 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/20">
+            <p className="font-display text-lg text-emerald tracking-wide">Séance terminée !</p>
+            <p className="font-mono text-xs text-pharaoh-muted">{fmtTime(elapsed)} · {doneSets} séries · +XP, +Or, +1 Force</p>
+            <button onClick={() => setView('program')} className="btn-press mt-2 rounded-xl border border-emerald/40 px-4 py-2 font-mono text-sm text-emerald hover:bg-emerald/20">
               Retour au programme
             </button>
           </motion.div>
@@ -263,47 +263,47 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
   const isDeloadDay = selectedDay.exercises.length === 0;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 anim-in">
       {/* --- Carte phase actuelle --- */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-card p-5">
+        className="relative overflow-hidden rounded-2xl border border-gold/30 bg-panel p-5">
         <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${microStyle.ring}`} />
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-cyan-400">Programme Ulkhad · 10 mois</p>
-            <h2 className="mt-1 font-display text-xl text-white">{pos.mesocycle.subtitle}</h2>
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-gold">Programme Ulkhad · 10 mois</p>
+            <h2 className="mt-1 font-display text-xl text-pharaoh tracking-wide">{pos.mesocycle.subtitle}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${microStyle.chip}`}>
+              <span className={`rounded-full border px-2.5 py-1 font-mono text-xs font-medium ${microStyle.chip}`}>
                 {microStyle.emoji} {pos.microcycle.name}
               </span>
-              <span className="rounded-full border border-soft bg-[#051428] px-2.5 py-1 text-xs text-slate-300">
+              <span className="rounded-full border border-lapis-border bg-obsidian-elevated px-2.5 py-1 font-mono text-xs text-pharaoh-muted">
                 Semaine {pos.weekInMicro}/{pos.microcycle.weeks}
               </span>
-              <span className="rounded-full border border-soft bg-[#051428] px-2.5 py-1 text-xs text-slate-300">
+              <span className="rounded-full border border-lapis-border bg-obsidian-elevated px-2.5 py-1 font-mono text-xs text-pharaoh-muted">
                 Semaine {pos.weekGlobal}/{ULKHAD_TOTAL_WEEKS} au total
               </span>
             </div>
           </div>
           <div className="flex flex-col gap-2">
             <button onClick={resetProgram} title="Recommencer à la semaine 1"
-              className="rounded-lg border border-soft p-2 text-slate-400 hover:text-white"><RotateCcw size={16} /></button>
+              className="btn-press rounded-lg border border-lapis-border p-2 text-pharaoh-muted hover:text-pharaoh"><RotateCcw size={16} /></button>
           </div>
         </div>
-        <p className="mt-3 text-xs text-slate-400">
-          Repos : <span className="text-slate-200">{pos.microcycle.rest}</span> · Reps : <span className="text-slate-200">{pos.microcycle.reps}</span> · Charge : <span className="text-slate-200">{pos.microcycle.workload}</span>
+        <p className="mt-3 font-mono text-xs text-pharaoh-muted">
+          Repos : <span className="text-pharaoh">{pos.microcycle.rest}</span> · Reps : <span className="text-pharaoh">{pos.microcycle.reps}</span> · Charge : <span className="text-pharaoh">{pos.microcycle.workload}</span>
         </p>
         {pos.microcycle.extras?.map((e) => (
-          <p key={e} className="mt-1 text-xs font-medium text-amber-300">{e}</p>
+          <p key={e} className="mt-1 font-mono text-xs font-medium text-gold-bright">{e}</p>
         ))}
       </motion.div>
 
       {/* --- Timeline des 10 mois --- */}
-      <div className="rounded-2xl border border-soft bg-card p-4">
-        <p className="mb-3 flex items-center gap-2 font-display text-sm text-white"><TrendingUp size={16} className="text-cyan-400" /> Feuille de route</p>
+      <div className="rounded-2xl border border-lapis-border bg-panel p-4">
+        <p className="mb-3 flex items-center gap-2 font-display text-sm text-pharaoh tracking-wide"><TrendingUp size={16} className="text-gold" /> Feuille de route</p>
         <div className="space-y-3">
           {ULKHAD_MESOCYCLES.map((meso) => (
             <div key={meso.id}>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{meso.subtitle}</p>
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-pharaoh-subtle">{meso.subtitle}</p>
               <div className="mt-1.5 flex gap-1.5">
                 {meso.microcycles.map((mc) => {
                   const active = meso.id === pos.mesocycle.id && mc.id === pos.microcycle.id;
@@ -311,10 +311,10 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
                   return (
                     <button key={mc.id} onClick={() => { /* navigation informative via sélecteur de jour */ }}
                       title={`${mc.name} (${mc.weeks} sem)`}
-                      className={`h-8 flex-1 rounded-lg border text-[10px] font-medium transition-all ${
-                        active ? `${MICRO_STYLE[mc.id].chip} border-current ring-1 ring-cyan-400/50 animate-pulse`
-                        : past ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400/70'
-                        : 'border-soft bg-[#051428] text-slate-500'
+                      className={`h-8 flex-1 rounded-lg border font-mono text-[10px] font-medium transition-all ${
+                        active ? `${MICRO_STYLE[mc.id].chip} border-current ring-1 ring-gold/50 animate-pulse`
+                        : past ? 'border-emerald/30 bg-emerald/10 text-emerald/70'
+                        : 'border-lapis-border bg-obsidian-elevated text-pharaoh-subtle'
                       }`}
                       style={{ flexGrow: mc.weeks }}>
                       {mc.weeks}sem
@@ -325,60 +325,60 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
             </div>
           ))}
         </div>
-        <div className="mt-3 flex items-center gap-4 text-[10px] text-slate-500">
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-cyan-400" /> En cours</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500/60" /> Terminé</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-slate-600" /> À venir</span>
+        <div className="mt-3 flex items-center gap-4 font-mono text-[10px] text-pharaoh-subtle">
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-gold" /> En cours</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald/60" /> Terminé</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-lapis-light" /> À venir</span>
         </div>
       </div>
 
       {/* --- Séance du jour --- */}
-      <div className="rounded-2xl border border-cyan-500/30 bg-card p-5">
+      <div className="rounded-2xl border border-gold/30 bg-panel p-5">
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-2 font-display text-sm text-white">
-            <Calendar size={16} className="text-cyan-400" /> Aujourd'hui — {DAY_NAMES[new Date().getDay()]}
+          <p className="flex items-center gap-2 font-display text-sm text-pharaoh tracking-wide">
+            <Calendar size={16} className="text-gold" /> Aujourd'hui — {DAY_NAMES[new Date().getDay()]}
           </p>
-          <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${microStyle.chip}`}>
+          <span className={`rounded-full border px-2.5 py-1 font-mono text-xs font-medium ${microStyle.chip}`}>
             {selectedDay.id} · {selectedDay.title}
           </span>
         </div>
 
         {!isDeloadDay ? (
           <>
-            <p className="mt-1 text-xs text-slate-500">{ULKHAD_SESSION_RULES}</p>
-            <div className="mt-4 space-y-3">
+            <p className="mt-1 text-xs text-pharaoh-subtle">{ULKHAD_SESSION_RULES}</p>
+            <div className="mt-4 space-y-3 stagger">
               {selectedDay.exercises.map((ex, i) => {
                 const anim = animationForExercise(ex.name);
                 return (
                   <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
-                    className="flex items-center gap-3 rounded-xl border border-soft bg-[#051428] p-3">
-                    <div className="shrink-0 overflow-hidden rounded-lg border border-cyan-500/20">
+                    className="flex items-center gap-3 rounded-xl border border-lapis-border bg-obsidian-elevated p-3">
+                    <div className="shrink-0 overflow-hidden rounded-lg border border-gold/20">
                       <Lottie animationData={anim} loop className="h-16 w-24" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <h4 className="text-sm font-semibold text-white">{ex.name}</h4>
-                        <span className={`rounded-full border px-1.5 py-0.5 text-[9px] ${MUSCLE_BADGE[ex.muscleGroup]}`}>{MUSCLE_LABEL[ex.muscleGroup]}</span>
+                        <h4 className="text-sm font-semibold text-pharaoh">{ex.name}</h4>
+                        <span className={`rounded-full border px-1.5 py-0.5 font-mono text-[9px] ${MUSCLE_BADGE[ex.muscleGroup]}`}>{MUSCLE_LABEL[ex.muscleGroup]}</span>
                       </div>
-                      <p className="mt-0.5 font-mono text-xs text-cyan-300">
-                        {ex.sets} × {ex.reps} <span className="text-slate-500">·</span> {ex.restLabel} repos
+                      <p className="mt-0.5 font-mono text-xs text-gold-bright">
+                        {ex.sets} × {ex.reps} <span className="text-pharaoh-subtle">·</span> {ex.restLabel} repos
                       </p>
-                      <p className="text-xs text-amber-300/90">{ex.intensification}</p>
+                      <p className="font-mono text-xs text-gold/90">{ex.intensification}</p>
                     </div>
                   </motion.div>
                 );
               })}
             </div>
             <button onClick={() => startSession(selectedDay, pos.microcycle)}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 py-4 font-display font-semibold text-white shadow-lg shadow-cyan-500/30 transition-transform active:scale-98">
+              className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-gold to-gold-bright py-4 font-display font-semibold text-obsidian shadow-gold transition-transform active:scale-98">
               <Play size={18} /> Lancer la séance
             </button>
           </>
         ) : (
-          <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-soft bg-[#051428] p-8 text-center">
-            <Moon size={36} className="text-slate-500" />
-            <p className="font-display text-white">Repos complet</p>
-            <p className="max-w-xs text-xs text-slate-400">
+          <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-lapis-border bg-obsidian-elevated p-8 text-center">
+            <Moon size={36} className="text-pharaoh-subtle" />
+            <p className="font-display text-pharaoh tracking-wide">Repos complet</p>
+            <p className="max-w-xs text-xs text-pharaoh-muted">
               La récupération fait partie du programme. Ton corps supercompense : force et muscle augmentent pendant le repos.
             </p>
           </div>
@@ -386,16 +386,16 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
       </div>
 
       {/* --- Sélecteur de jour (explore les autres séances de la semaine) --- */}
-      <div className="rounded-2xl border border-soft bg-card p-4">
-        <p className="mb-3 font-display text-sm text-white">Structure hebdomadaire</p>
+      <div className="rounded-2xl border border-lapis-border bg-panel p-4">
+        <p className="mb-3 font-display text-sm text-pharaoh tracking-wide">Structure hebdomadaire</p>
         <div className="grid grid-cols-2 gap-2">
           {pos.microcycle.days.filter((d) => d.weekdays.length > 0).map((d) => (
             <button key={d.id} onClick={() => setSelectedDay(d)}
-              className={`rounded-xl border p-3 text-left transition-all ${
-                selectedDay.id === d.id ? 'border-cyan-500/60 bg-[#051428] text-white' : 'border-soft bg-[#051428]/50 text-slate-300 hover:border-cyan-500/30'
+              className={`btn-press rounded-xl border p-3 text-left transition-all ${
+                selectedDay.id === d.id ? 'border-gold/60 bg-obsidian-elevated text-pharaoh' : 'border-lapis-border bg-obsidian-elevated/50 text-pharaoh-muted hover:border-gold/30'
               }`}>
-              <p className="text-xs font-semibold">{d.id} — {d.title}</p>
-              <p className="text-[10px] text-slate-500">
+              <p className="font-mono text-xs font-semibold">{d.id} — {d.title}</p>
+              <p className="font-mono text-[10px] text-pharaoh-subtle">
                 {d.weekdays.map((w) => DAY_NAMES[w].slice(0, 3)).join(' · ')} {d.exercises.length ? `· ${d.exercises.length} exos` : ''}
               </p>
             </button>
@@ -405,64 +405,64 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
 
       {/* --- Objectifs & guide --- */}
       <button onClick={() => setGuideOpen(true)}
-        className="flex w-full items-center justify-between rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-r from-[#0a1628] to-[#051428] p-4 text-left hover:border-[#D4AF37]/60">
+        className="btn-press flex w-full items-center justify-between rounded-2xl border border-gold-dim bg-gradient-to-r from-lapis to-obsidian-elevated p-4 text-left hover:border-gold/60">
         <span className="flex items-center gap-3">
-          <BookOpen size={20} className="text-[#D4AF37]" />
+          <BookOpen size={20} className="text-gold" />
           <span>
-            <span className="block font-display text-sm text-white">Guide complet du programme</span>
-            <span className="block text-xs text-slate-400">Objectifs, techniques, nutrition, astuces</span>
+            <span className="block font-display text-sm text-pharaoh tracking-wide">Guide complet du programme</span>
+            <span className="block text-xs text-pharaoh-muted">Objectifs, techniques, nutrition, astuces</span>
           </span>
         </span>
-        <ChevronRight size={18} className="text-slate-500" />
+        <ChevronRight size={18} className="text-pharaoh-subtle" />
       </button>
 
-      <p className="pb-2 text-center font-display text-sm italic text-[#D4AF37]">{ULKHAD_PHILOSOPHY}</p>
+      <p className="pb-2 text-center font-display text-sm italic text-shimmer">{ULKHAD_PHILOSOPHY}</p>
 
       {/* --- Modale guide --- */}
       {guideOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 backdrop-blur-md sm:items-center" onClick={() => setGuideOpen(false)}>
           <motion.div initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-cyan-500/30 bg-[#0a1628] p-5 sm:rounded-2xl">
+            className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-gold/30 bg-lapis p-5 sm:rounded-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-display text-lg text-white">Guide Ulkhad</h3>
-              <button onClick={() => setGuideOpen(false)} className="rounded-lg border border-soft p-2 text-slate-400"><X size={16} /></button>
+              <h3 className="font-display text-lg text-pharaoh tracking-wide">Guide Ulkhad</h3>
+              <button onClick={() => setGuideOpen(false)} className="btn-press rounded-lg border border-lapis-border p-2 text-pharaoh-muted"><X size={16} /></button>
             </div>
 
             <section className="mb-5">
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-cyan-300"><Trophy size={14} /> Objectifs</h4>
+              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gold-bright"><Trophy size={14} /> Objectifs</h4>
               <ul className="space-y-1">{ULKHAD_GOALS.map((g) => (
-                <li key={g} className="flex items-center gap-2 text-xs text-slate-300"><Sparkles size={12} className="text-[#D4AF37]" />{g}</li>
+                <li key={g} className="flex items-center gap-2 text-xs text-pharaoh-muted"><Sparkles size={12} className="text-gold" />{g}</li>
               ))}</ul>
             </section>
 
             <section className="mb-5">
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-cyan-300"><TrendingUp size={14} /> {ULKHAD_PROGRESSIVE_OVERLOAD.title}</h4>
+              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gold-bright"><TrendingUp size={14} /> {ULKHAD_PROGRESSIVE_OVERLOAD.title}</h4>
               <ul className="space-y-1">{ULKHAD_PROGRESSIVE_OVERLOAD.rules.map((r) => (
-                <li key={r} className="flex items-center gap-2 text-xs text-slate-300"><span className="h-1 w-1 rounded-full bg-cyan-400" />{r}</li>
+                <li key={r} className="flex items-center gap-2 text-xs text-pharaoh-muted"><span className="h-1 w-1 rounded-full bg-gold" />{r}</li>
               ))}</ul>
             </section>
 
             <section className="mb-5">
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-cyan-300"><Zap size={14} /> Techniques d'intensification</h4>
+              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gold-bright"><Zap size={14} /> Techniques d'intensification</h4>
               <div className="grid grid-cols-1 gap-2">
                 {ULKHAD_INTENSIFICATION_TECHNIQUES.map((t) => (
-                  <div key={t.name} className="rounded-xl border border-soft bg-[#051428] p-3">
-                    <p className="text-xs font-semibold text-white">{t.name}</p>
-                    <p className="text-xs text-slate-400">{t.desc}</p>
+                  <div key={t.name} className="rounded-xl border border-lapis-border bg-obsidian-elevated p-3">
+                    <p className="font-mono text-xs font-semibold text-pharaoh">{t.name}</p>
+                    <p className="text-xs text-pharaoh-muted">{t.desc}</p>
                   </div>
                 ))}
               </div>
             </section>
 
             <section className="mb-5">
-              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-cyan-300"><Calendar size={14} /> Structure hebdomadaire</h4>
-              <div className="overflow-hidden rounded-xl border border-soft">
+              <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gold-bright"><Calendar size={14} /> Structure hebdomadaire</h4>
+              <div className="overflow-hidden rounded-xl border border-lapis-border">
                 {ULKHAD_WEEKLY_STRUCTURE.map((s, i) => (
-                  <div key={s.day} className={`flex items-center justify-between p-2.5 text-xs ${i % 2 ? 'bg-[#051428]' : 'bg-transparent'}`}>
-                    <span className="font-mono text-cyan-300">{s.day}</span>
-                    <span className="text-slate-300">{s.group}</span>
-                    <span className="text-slate-500">{s.freq}</span>
+                  <div key={s.day} className={`flex items-center justify-between p-2.5 font-mono text-xs ${i % 2 ? 'bg-obsidian-elevated' : 'bg-transparent'}`}>
+                    <span className="text-gold-bright">{s.day}</span>
+                    <span className="text-pharaoh-muted">{s.group}</span>
+                    <span className="text-pharaoh-subtle">{s.freq}</span>
                   </div>
                 ))}
               </div>
@@ -470,16 +470,16 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
 
             {ULKHAD_TIPS.map((tip) => (
               <section key={tip.title} className="mb-4">
-                <h4 className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-cyan-300">
+                <h4 className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-gold-bright">
                   {tip.title === 'Optimise ton alimentation' ? <Utensils size={14} /> : <Info size={14} />} {tip.title}
                 </h4>
                 <ul className="space-y-1">{tip.items.map((it) => (
-                  <li key={it} className="flex items-start gap-2 text-xs text-slate-400"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#D4AF37]" />{it}</li>
+                  <li key={it} className="flex items-start gap-2 text-xs text-pharaoh-muted"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-gold" />{it}</li>
                 ))}</ul>
               </section>
             ))}
 
-            <p className="mt-4 text-center font-display text-sm italic text-[#D4AF37]">{ULKHAD_PHILOSOPHY}</p>
+            <p className="mt-4 text-center font-display text-sm italic text-shimmer">{ULKHAD_PHILOSOPHY}</p>
           </motion.div>
         </div>
       )}

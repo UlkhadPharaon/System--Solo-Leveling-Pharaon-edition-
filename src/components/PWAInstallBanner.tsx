@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Sparkles, X } from 'lucide-react';
+import { Download, Sparkles, X } from './ui/PharaohIcons';
 
 export const PWAInstallBanner: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -38,27 +38,27 @@ export const PWAInstallBanner: React.FC = () => {
   if (!showInstallBanner) return null;
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 max-w-sm bg-gradient-to-r from-slate-900 via-[#0a192f] to-slate-900 border border-cyan-500/40 rounded-2xl p-4 shadow-[0_0_25px_rgba(0,212,255,0.25)] backdrop-blur-md animate-bounce-subtle">
+    <div className="fixed bottom-20 right-4 z-50 max-w-sm bg-glass-strong rounded-2xl p-4 shadow-gold backdrop-blur-md animate-bounce-subtle">
       <div className="flex items-start gap-3">
-        <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex-shrink-0">
+        <div className="p-2.5 rounded-xl bg-gold/20 text-gold-bright border border-gold/40 flex-shrink-0">
           <Sparkles className="w-5 h-5 animate-pulse" />
         </div>
         <div className="flex-1">
-          <h4 className="text-sm font-bold text-white mb-1">Installer le Système PWA</h4>
-          <p className="text-xs text-slate-300 mb-3">
+          <h4 className="font-display text-sm tracking-wide text-gold-bright mb-1">Installer le Système PWA</h4>
+          <p className="text-xs text-pharaoh-muted mb-3">
             Installez l'application sur votre appareil pour un accès instantané hors-ligne et une expérience en plein écran.
           </p>
           <div className="flex items-center gap-2">
             <button
               onClick={handleInstallClick}
-              className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow transition-all"
+              className="btn-press px-3 py-1.5 rounded-lg bg-gradient-to-r from-gold to-gold-bright hover:shadow-gold text-inverse text-xs font-bold flex items-center gap-1.5 transition-all"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Installer</span>
             </button>
             <button
               onClick={() => setShowInstallBanner(false)}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition-all"
+              className="btn-press px-3 py-1.5 rounded-lg bg-lapis hover:bg-lapis-light text-pharaoh-muted hover:text-pharaoh text-xs transition-all"
             >
               Plus tard
             </button>
@@ -66,7 +66,7 @@ export const PWAInstallBanner: React.FC = () => {
         </div>
         <button
           onClick={() => setShowInstallBanner(false)}
-          className="text-slate-500 hover:text-slate-300 p-1"
+          className="text-pharaoh-subtle hover:text-pharaoh-muted p-1 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>

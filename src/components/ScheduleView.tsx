@@ -23,7 +23,7 @@ import {
   Filter,
   Calendar,
   Sliders
-} from 'lucide-react';
+} from './ui/PharaohIcons';
 
 interface ScheduleViewProps {
   blocks: RoutineBlock[];
@@ -179,48 +179,49 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner Hero with Personalization Context */}
-      <div className="relative overflow-hidden rounded-xl bg-card border border-soft p-4 md:p-6 space-y-6">
+      <div className="relative overflow-hidden rounded-xl bg-panel border border-lapis p-4 md:p-6 space-y-6 hover-lift transition-all">
+        <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-xl text-[10px] mono tracking-wide font-medium bg-cyan-400/10 text-cyan-400 border border-cyan flex items-center gap-1.5">
-                <Zap className="w-3 h-3 accent-cyan" />
+              <span className="px-2.5 py-0.5 rounded-xl text-[10px] font-mono tracking-wide font-medium bg-gold/10 text-gold border border-gold/40 flex items-center gap-1.5">
+                <Zap className="w-3 h-3 text-gold" />
                 Programme du {dayNameInFrench[selectedDay]}
               </span>
               {selectedDay === todayName && (
-                <span className="px-2 py-0.5 rounded-xl text-[9px] mono uppercase font-bold bg-cyan-400 text-black">
+                <span className="px-2 py-0.5 rounded-xl text-[9px] font-mono uppercase font-bold bg-gold text-obsidian">
                   Aujourd’hui
                 </span>
               )}
               <span className="text-xs font-mono opacity-60 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 accent-cyan" />
-                Heure : <strong className="text-white font-normal">{currentTimeStr}</strong>
+                <Clock className="w-3.5 h-3.5 text-gold" />
+                Heure : <strong className="text-pharaoh font-normal">{currentTimeStr}</strong>
               </span>
             </div>
 
-            <h2 className="serif text-3xl md:text-4xl font-light italic text-white tracking-tight">
+            <h2 className="font-display text-2xl md:text-3xl font-light text-white tracking-wide text-gradient-gold">
               Panneau des Quêtes (Système) • {personalization.userName}
             </h2>
-            <p className="text-xs text-slate-300 mt-2 max-w-2xl leading-relaxed">
+            <p className="text-xs text-pharaoh-muted mt-2 max-w-2xl leading-relaxed">
               {personalization.userTagline} • Programme structuré pour le <strong>{dayNameInFrench[selectedDay]}</strong>.
             </p>
           </div>
 
           {/* Progress gauge card & Personalize Button */}
           <div className="flex flex-col items-end gap-3">
-            <div className="bg-cyan-950/40 border border-soft rounded-xl p-4 min-w-[210px] w-full flex flex-col items-center justify-center text-center">
-              <div className="mono text-[10px] tracking-wide font-medium opacity-60 mb-1">
+            <div className="bg-lapis/40 border border-lapis rounded-xl p-4 min-w-[210px] w-full flex flex-col items-center justify-center text-center">
+              <div className="font-mono text-[10px] tracking-wide font-medium opacity-60 mb-1">
                 Complété ({dayNameInFrench[selectedDay]})
               </div>
-              <div className="serif text-4xl font-light accent-cyan tracking-tight italic">
+              <div className="font-display text-4xl font-light text-gold-bright tracking-wide text-shimmer">
                 {progressPercent}%
               </div>
-              <p className="mono text-[10px] opacity-60 mt-1">
+              <p className="font-mono text-[10px] opacity-60 mt-1">
                 {completedCount} / {blocks.length} blocs validés
               </p>
               <div className="w-full bg-white/5 rounded-none h-1.5 mt-3 overflow-hidden">
                 <div
-                  className="bg-cyan-400 h-full transition-all duration-500"
+                  className="bg-gradient-to-r from-gold-dim via-gold to-gold-bright h-full transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -229,9 +230,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             {openPersonalizationModal && (
               <button
                 onClick={openPersonalizationModal}
-                className="w-full py-2 px-3 rounded-xl bg-cyan-950/40 hover:bg-[#222630] text-cyan-400 border border-cyan mono text-xs flex items-center justify-center gap-2 transition-all"
+                className="btn-press w-full py-2 px-3 rounded-xl bg-panel hover:bg-panel-gold text-gold border border-gold-dim hover:border-gold font-mono text-xs flex items-center justify-center gap-2 transition-all"
               >
-                <Sliders className="w-3.5 h-3.5 accent-cyan" />
+                <Sliders className="w-3.5 h-3.5 text-gold" />
                 <span>Personnaliser le Programme & Projets</span>
               </button>
             )}
@@ -239,9 +240,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         </div>
 
         {/* Day-of-Week Selector Tabs */}
-        <div className="pt-4 border-t border-soft">
+        <div className="relative z-10 pt-4 border-t border-lapis">
           <div className="flex items-center justify-between mb-2">
-            <span className="mono text-[10px] tracking-wide font-medium text-cyan-400 flex items-center gap-1.5">
+            <span className="font-mono text-[10px] tracking-wide font-medium text-gold flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" /> Sélectionner le jour d’emploi du temps :
             </span>
           </div>
@@ -255,15 +256,15 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 <button
                   key={day}
                   onClick={() => onSelectDay(day)}
-                  className={`p-2.5 rounded-xl text-center border transition-all flex flex-col items-center justify-center ${
+                  className={`btn-press p-2.5 rounded-xl text-center border transition-all flex flex-col items-center justify-center ${
                     isSelected
-                      ? 'bg-cyan-950/40 border-cyan text-cyan-400 shadow-sm font-semibold'
-                      : 'bg-black/30 border-soft hover:border-cyan/40 text-slate-400 hover:text-slate-200'
+                      ? 'bg-panel-gold border-gold text-gold-bright shadow-gold font-semibold'
+                      : 'bg-obsidian/40 border-lapis hover:border-gold/40 text-pharaoh-muted hover:text-pharaoh'
                   }`}
                 >
-                  <span className="mono text-[11px] tracking-wide font-medium">{dayNameInFrench[day]}</span>
+                  <span className="font-mono text-[11px] tracking-wide font-medium">{dayNameInFrench[day]}</span>
                   {isToday && (
-                    <span className="mono text-[8px] uppercase tracking-tighter text-cyan-400 mt-0.5">
+                    <span className="font-mono text-[8px] uppercase tracking-tighter text-gold mt-0.5">
                       • Aujourd’hui •
                     </span>
                   )}
@@ -274,33 +275,35 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         </div>
 
         {/* Active Stage Banner for Cinema & Bangre Neo Lab — legacy profile only */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 ${domains.length > 0 ? 'hidden' : ''}`}>
-          <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/40 border-l-4 border-l-amber-500 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300">
+        <div className={`relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 ${domains.length > 0 ? 'hidden' : ''}`}>
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-gold/20 to-transparent border border-gold/40 border-l-4 border-l-gold flex items-center gap-3 hover-lift transition-all">
+            <div className="p-2 rounded-xl bg-gold/20 border border-gold/40 text-gold-bright">
               <Film className="w-4 h-4" />
             </div>
             <div>
-              <span className="mono text-[9px] tracking-wide font-medium text-amber-400 font-semibold">Étape Cinéma Active</span>
-              <h4 className="serif text-xs font-light italic text-white">{personalization.cinemaProject.title}</h4>
-              <p className="mono text-[10px] text-amber-200/70">{personalization.cinemaProject.currentStage}</p>
+              <span className="font-mono text-[9px] tracking-wide font-medium text-gold font-semibold">Étape Cinéma Active</span>
+              <h4 className="font-display text-xs font-light text-white tracking-wide">{personalization.cinemaProject.title}</h4>
+              <p className="font-mono text-[10px] text-gold/70">{personalization.cinemaProject.currentStage}</p>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-violet-950/20 border border-violet-500/40 border-l-4 border-l-violet-500 flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-violet-500/20 border border-violet-500/40 text-violet-300">
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-amethyst/20 to-transparent border border-amethyst/40 border-l-4 border-l-amethyst flex items-center gap-3 hover-lift transition-all">
+            <div className="p-2 rounded-xl bg-amethyst/20 border border-amethyst/40 text-amethyst">
               <Code className="w-4 h-4" />
             </div>
             <div>
-              <span className="mono text-[9px] tracking-wide font-medium text-violet-400 font-semibold">Focus Bangre Neo Lab</span>
-              <h4 className="serif text-xs font-light italic text-white">{personalization.bangreLab.projectName}</h4>
-              <p className="mono text-[10px] text-violet-200/70">{personalization.bangreLab.currentStage}</p>
+              <span className="font-mono text-[9px] tracking-wide font-medium text-amethyst font-semibold">Focus Bangre Neo Lab</span>
+              <h4 className="font-display text-xs font-light text-white tracking-wide">{personalization.bangreLab.projectName}</h4>
+              <p className="font-mono text-[10px] text-amethyst/70">{personalization.bangreLab.currentStage}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Routine Quick Habit Check Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Routine Quick Habit Check Bar — hidden on a blank (fresh) schedule:
+          these quick toggles only make sense once the user has blocks. */}
+      {blocks.length > 0 && (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
         {[
           { 
             id: 'b2', 
@@ -321,10 +324,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             <button
               key={habit.id}
               onClick={() => block && onToggleComplete(block.id)}
-              className={`flex items-center justify-between p-4 rounded-xl border transition-all text-left group ${
+              className={`flex items-center justify-between p-4 rounded-xl border transition-all text-left group hover-lift ${
                 isDone
-                  ? 'bg-emerald-950/30 border-emerald-500/60 text-white'
-                  : 'bg-card border-soft hover:border-emerald-500/40 text-slate-300'
+                  ? 'bg-emerald/20 border-emerald/60 text-white'
+                  : 'bg-panel border-lapis hover:border-emerald/40 text-pharaoh-muted'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -333,26 +336,27 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 </div>
                 <div>
                   <h4 className="text-xs font-semibold tracking-tight text-white uppercase">{habit.name}</h4>
-                  <p className="mono text-[10px] opacity-60 mt-0.5">{habit.sub}</p>
+                  <p className="font-mono text-[10px] opacity-60 mt-0.5">{habit.sub}</p>
                 </div>
               </div>
 
               <div>
                 {isDone ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald" />
                 ) : (
-                  <Circle className="w-5 h-5 text-slate-600 group-hover:text-slate-400" />
+                  <Circle className="w-5 h-5 text-pharaoh-subtle group-hover:text-pharaoh-muted" />
                 )}
               </div>
             </button>
           );
         })}
       </div>
+      )}
 
       {/* Filter and Controls Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2 border-b border-soft pb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2 border-b border-lapis pb-4">
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
-          <span className="mono text-[10px] tracking-wide font-medium opacity-60 flex items-center gap-1 mr-1 shrink-0">
+          <span className="font-mono text-[10px] tracking-wide font-medium opacity-60 flex items-center gap-1 mr-1 shrink-0">
             <Filter className="w-3.5 h-3.5" /> Filtrer :
           </span>
           {(domains.length > 0
@@ -377,10 +381,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               <button
                 key={catItem.id}
                 onClick={() => setFilterCategory(catItem.id)}
-                className={`px-3 py-1 rounded-xl mono text-[11px] uppercase transition-all whitespace-nowrap border ${
+                className={`btn-press px-3 py-1 rounded-xl font-mono text-[11px] uppercase transition-all whitespace-nowrap border ${
                   isSelected
                     ? catStyle.activeFilterBg
-                    : 'bg-cyan-950/40 text-slate-400 hover:text-slate-200 border-soft'
+                    : 'bg-panel text-pharaoh-muted hover:text-pharaoh border-lapis'
                 }`}
               >
                 {catItem.label}
@@ -391,7 +395,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
         <button
           onClick={openAddModal}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs transition-all self-end sm:self-auto"
+          className="btn-press flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs transition-all self-end sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nouvelle Quête</span>
@@ -416,11 +420,11 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
           return (
             <div
               key={block.id}
-              className={`relative overflow-hidden rounded-xl border transition-all duration-200 p-3 md:p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+              className={`relative overflow-hidden rounded-xl border transition-all duration-200 p-3 md:p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover-lift anim-in ${
                 isActiveNow
-                  ? `${style.cardBg} border-cyan ${style.borderLeft} shadow-lg shadow-black/40`
+                  ? `${style.cardBg} border-gold ${style.borderLeft} shadow-glow-gold`
                   : block.isCompleted
-                  ? 'bg-card/30 border-soft opacity-60'
+                  ? 'bg-obsidian-elevated/30 border-lapis opacity-60'
                   : `${style.cardBg} ${style.borderLeft}`
               }`}
             >
@@ -435,40 +439,40 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 {/* Details */}
                 <div>
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className={`mono text-xs font-semibold px-2 py-0.5 rounded-xl border ${style.badgeBg}`}>
+                    <span className={`font-mono text-xs font-semibold px-2 py-0.5 rounded-xl border ${style.badgeBg}`}>
                       {block.startTime} - {block.endTime}
                     </span>
-                    <span className="mono text-[10px] opacity-60">
+                    <span className="font-mono text-[10px] opacity-60">
                       ({formatMinutes(block.durationMinutes)})
                     </span>
-                    <span className={`mono text-[10px] tracking-wide font-medium px-2 py-0.5 rounded-xl border ${style.accentTagBg}`}>
+                    <span className={`font-mono text-[10px] tracking-wide font-medium px-2 py-0.5 rounded-xl border ${style.accentTagBg}`}>
                       {style.label}
                     </span>
                     {isActiveNow && (
-                      <span className="mono text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-xl bg-cyan-400 text-black">
+                      <span className="font-mono text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded-xl bg-gold text-obsidian">
                         En cours
                       </span>
                     )}
                   </div>
 
-                  <h3 className={`text-sm md:text-base font-semibold ${block.isCompleted ? 'text-slate-500 line-through' : 'text-white'}`}>
+                  <h3 className={`text-sm md:text-base font-semibold ${block.isCompleted ? 'text-pharaoh-subtle line-through' : 'text-white'}`}>
                     {block.title}
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-pharaoh-muted mt-0.5 leading-relaxed">
                     {block.description}
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 self-end md:self-auto pt-2 md:pt-0 border-t md:border-t-0 border-soft w-full md:w-auto justify-end">
+              <div className="flex items-center gap-2 self-end md:self-auto pt-2 md:pt-0 border-t md:border-t-0 border-lapis w-full md:w-auto justify-end">
                 {/* Mark Complete */}
                 <button
                   onClick={() => onToggleComplete(block.id)}
                   className={`btn-press p-1.5 rounded-xl transition-all ${
                     block.isCompleted
-                      ? 'text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20'
-                      : 'text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10'
+                      ? 'text-emerald bg-emerald/10 hover:bg-emerald/20'
+                      : 'text-pharaoh-subtle hover:text-emerald hover:bg-emerald/10'
                   }`}
                   title={block.isCompleted ? 'Marquer comme non terminé' : 'Marquer comme terminé'}
                   aria-label={block.isCompleted ? 'Marquer comme non terminé' : 'Marquer comme terminé'}
@@ -479,17 +483,17 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 {/* Start Focus Timer for this category */}
                 <button
                   onClick={() => onStartFocusSession(block.category)}
-                  className="px-3 py-1.5 rounded-xl bg-cyan-950/40 hover:bg-[#222630] text-slate-200 border border-soft mono text-xs flex items-center gap-1.5 transition-all"
+                  className="btn-press px-3 py-1.5 rounded-xl bg-panel hover:bg-panel-gold text-pharaoh border border-lapis hover:border-gold font-mono text-xs flex items-center gap-1.5 transition-all"
                   title="Lancer le minuteur Pomodoro"
                 >
-                  <Clock className="w-3.5 h-3.5 accent-cyan" />
+                  <Clock className="w-3.5 h-3.5 text-gold" />
                   <span>Entrer en Donjon</span>
                 </button>
 
                 {/* Edit */}
                 <button
                   onClick={() => openEditModal(block)}
-                  className="p-1.5 rounded-xl text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
+                  className="btn-press p-1.5 rounded-xl text-pharaoh-subtle hover:text-sapphire hover:bg-sapphire/10 transition-all"
                   title="Modifier ce bloc"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -499,7 +503,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 {block.id.startsWith('custom-') && (
                   <button
                     onClick={() => onDeleteBlock(block.id)}
-                    className="p-1.5 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                    className="btn-press p-1.5 rounded-xl text-pharaoh-subtle hover:text-blood hover:bg-blood/10 transition-all"
                     title="Supprimer ce bloc"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -511,57 +515,72 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
         })}
       </div>
 
+      {/* Empty schedule / filter state */}
+      {filteredBlocks.length === 0 && (
+        <div className="bg-panel border border-lapis-border rounded-xl p-10 text-center space-y-3 hover-lift">
+          <Calendar className="w-10 h-10 mx-auto text-pharaoh-subtle" />
+          <h3 className="font-display text-lg font-medium text-pharaoh tracking-wide">
+            {blocks.length === 0 ? 'Aucune quête planifiée' : 'Aucune quête ne correspond au filtre'}
+          </h3>
+          <p className="text-xs text-pharaoh-muted max-w-md mx-auto leading-relaxed">
+            {blocks.length === 0
+              ? 'Construisez votre premier emploi du temps : ajoutez une quête avec le bouton « Nouvelle Quête », ou laissez l’éveil du Système définir vos domaines.'
+              : 'Ajustez votre filtre pour retrouver vos blocs.'}
+          </p>
+        </div>
+      )}
+
       {/* Add Custom Block Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#051428] border border-cyan rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="serif text-2xl font-light italic text-white tracking-tight flex items-center gap-2 border-b border-soft pb-3">
-              <Plus className="w-5 h-5 accent-cyan" />
+          <div className="bg-panel border border-gold rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 className="font-display text-xl font-light text-white tracking-wide flex items-center gap-2 border-b border-lapis pb-3">
+              <Plus className="w-5 h-5 text-gold" />
               Nouvelle Quête Personnalisé
             </h3>
 
             <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Titre du Bloc</label>
+                <label className="block font-mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Titre du Bloc</label>
                 <input
                   type="text"
                   required
                   placeholder="ex. Révisions Mathématiques Calcul Intégral"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Heure de Début</label>
+                  <label className="block font-mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Heure de Début</label>
                   <input
                     type="time"
                     required
                     value={newStartTime}
                     onChange={(e) => setNewStartTime(e.target.value)}
-                    className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                    className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                   />
                 </div>
                 <div>
-                  <label className="block mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Heure de Fin</label>
+                  <label className="block font-mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Heure de Fin</label>
                   <input
                     type="time"
                     required
                     value={newEndTime}
                     onChange={(e) => setNewEndTime(e.target.value)}
-                    className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                    className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Catégorie</label>
+                <label className="block font-mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Catégorie</label>
                 <select
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value as Category)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 >
                   {domains.length > 0
                     ? domains.map((d) => (
@@ -582,27 +601,27 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               </div>
 
               <div>
-                <label className="block mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Description / Objectif</label>
+                <label className="block font-mono text-[10px] tracking-wide font-medium opacity-70 mb-1">Description / Objectif</label>
                 <textarea
                   rows={2}
                   placeholder="Détails ou résultat spécifique visé pour cette session..."
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-soft">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-lapis">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl bg-cyan-950/40 hover:bg-[#222630] text-slate-300 mono text-xs"
+                  className="btn-press px-4 py-2 rounded-xl bg-panel hover:bg-panel-hover text-pharaoh-muted font-mono text-xs"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs font-semibold"
+                  className="btn-press px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs font-semibold"
                 >
                   Enregistrer le Bloc
                 </button>

@@ -17,13 +17,18 @@ import {
   Circle, 
   Trash2, 
   X, 
-  GraduationCap as BookOpen,
   Bell,
   BellOff,
   Clock,
   AlertTriangle,
-  Volume2
-} from 'lucide-react';
+  Volume2,
+  CheckCircle as CheckIcon,
+  AlertTriangle as AlertIcon,
+  Globe,
+  Hourglass,
+  ArrowRight,
+} from './ui/PharaohIcons';
+import { requestPermission, subscribeToPush, getSubscriptionStatus, sendPushViaServer, urlBase64ToUint8Array } from '../lib/pushNotifications';
 
 interface PersonalizationModalProps {
   isOpen: boolean;
@@ -61,6 +66,20 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
   );
   const [testNotificationFeedback, setTestNotificationFeedback] = useState<string | null>(null);
 
+  // ── Push Subscription Status ─────────────────────────────────────────────
+  const [pushStatus, setPushStatus] = useState<'checking' | 'subscribed' | 'unsubscribed' | 'error' | null>(
+    null
+  );
+  const [pushSubscribedToggles, setPushSubscribedToggles] = useState<Record<string, boolean>>({
+    notifyScheduleStart: personalization.notifyScheduleStart ?? true,
+    notifyFocusComplete: personalization.notifyFocusComplete ?? true,
+    notifyStreakWarning: personalization.notifyStreakWarning ?? true,
+    notifyDailyBonus: personalization.notifyDailyBonus ?? true,
+    notifyLevelUp: personalization.notifyLevelUp ?? true,
+    notifyRitualNudge: personalization.notifyRitualNudge ?? true,
+  });
+  const [pushSubscribeReady, setPushSubscribeReady] = useState(false);
+
   // Cinema Project Local State
   const [cinemaTitle, setCinemaTitle] = useState(personalization.cinemaProject.title);
   const [cinemaGenre, setCinemaGenre] = useState(personalization.cinemaProject.genre);
@@ -95,6 +114,17 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
       dailyQuote: dailyQuote.trim() || undefined,
       notificationsEnabled,
       notificationLeadMinutes,
+      notifyScheduleStart: pushSubscribedToggles.notifyScheduleStart,
+      notifyFocusComplete: pushSubscribedToggles.notifyFocusComplete,
+      notifyStreakWarning: pushSubscribedToggles.notifyStreakWarning,
+      notifyDailyBonus: pushSubscribedToggles.notifyDailyBonus,
+      notifyLevelUp: pushSubscribedToggles.notifyLevelUp,
+      notifyRitualNudge: pushSubscribedToggles.notifyRitualNudge,
+      notifyStreakRescue: pushSubscribedToggles.notifyStreakRescue ?? false,
+      questReminderHour: personalization.questReminderHour ?? 19,
+      morningBriefingEnabled: pushSubscribedToggles.notifyMorningBriefing ?? false,
+      dailyBonusReminderHour: personalization.dailyBonusReminderHour ?? 8,
+      ritualNudgeHour: personalization.ritualNudgeHour ?? 7,
       workoutFocusByDay: workoutFocus,
       cinemaProject: {
         title: cinemaTitle,
@@ -261,18 +291,18 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="bg-[#051428] border border-cyan rounded-xl max-w-4xl w-full p-6 md:p-8 shadow-2xl space-y-6 my-8 text-xs">
+      <div className="bg-panel border border-gold rounded-xl max-w-4xl w-full p-6 md:p-8 shadow-2xl space-y-6 my-8 text-xs">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-soft pb-4">
+        <div className="flex items-center justify-between border-b border-lapis pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-soft text-cyan-400">
-              <Sliders className="w-5 h-5 accent-cyan" />
+            <div className="p-2.5 rounded-xl bg-panel-gold border border-gold/40 text-gold-bright">
+              <Sliders className="w-5 h-5 text-gold" />
             </div>
             <div>
-              <h2 className="serif text-2xl md:text-3xl font-light italic text-white">
+              <h2 className="font-display text-xl md:text-2xl font-light text-white tracking-wide text-gradient-gold">
                 Personnalisation du Programme & Feuille de Route
               </h2>
-              <p className="text-slate-400 mt-0.5">
+              <p className="text-pharaoh-muted mt-0.5">
                 Personnalisez votre nom, le projet Cinéma actif, le module Bangre Neo Lab et le programme académique.
               </p>
             </div>
@@ -280,14 +310,14 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-cyan-950/40 hover:bg-[#222630] text-slate-400 hover:text-white"
+            className="btn-press p-2 rounded-xl bg-panel hover:bg-panel-hover text-pharaoh-muted hover:text-gold-bright border border-lapis"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto border-b border-soft pb-3 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto border-b border-lapis pb-3 no-scrollbar">
           {[
             { id: 'profile', label: 'Identité & Vision', icon: User },
             { id: 'cinema', label: 'Projet Cinéma & Scénario', icon: Film },
@@ -300,10 +330,10 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl mono text-xs tracking-wide font-medium transition-all whitespace-nowrap ${
+                className={`btn-press flex items-center gap-2 px-3.5 py-2 rounded-xl font-mono text-xs tracking-wide font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-card text-cyan-400 border border-cyan font-medium'
-                    : 'bg-cyan-950/40 text-slate-400 hover:text-slate-200 border border-soft'
+                    ? 'bg-panel-gold text-gold-bright border border-gold/50 shadow-gold font-medium'
+                    : 'bg-panel text-pharaoh-muted hover:text-pharaoh hover:bg-panel-hover border border-lapis'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -316,67 +346,67 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
         {/* Tab 1: Profile & Identity */}
         {activeTab === 'profile' && (
           <div className="space-y-4">
-            <div className="bg-cyan-950/40 p-4 rounded-xl border border-soft space-y-3">
+            <div className="bg-lapis/40 p-4 rounded-xl border border-lapis space-y-3">
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Votre Nom Complet</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Votre Nom Complet</label>
                 <input
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="w-full bg-black/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan text-xs"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
 
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Slogan de Vision Personnelle</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Slogan de Vision Personnelle</label>
                 <input
                   type="text"
                   value={userTagline}
                   onChange={(e) => setUserTagline(e.target.value)}
-                  className="w-full bg-black/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan text-xs"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
 
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Titre de Chasseur (affiché à côté de votre niveau)</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Titre de Chasseur (affiché à côté de votre niveau)</label>
                 <input
                   type="text"
                   placeholder="ex. L'Ombre d'Osiris, Le Bâtisseur Éternel…"
                   value={hunterTitle}
                   onChange={(e) => setHunterTitle(e.target.value)}
-                  className="w-full bg-black/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan text-xs"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
 
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Devise Personnelle (mot du Système chaque matin)</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Devise Personnelle (mot du Système chaque matin)</label>
                 <input
                   type="text"
                   placeholder="ex. La discipline est mon trône."
                   value={dailyQuote}
                   onChange={(e) => setDailyQuote(e.target.value)}
-                  className="w-full bg-black/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan text-xs"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
             </div>
 
             {/* Session Notification Settings Panel */}
-            <div className="bg-cyan-950/40 p-4 md:p-5 rounded-xl border border-cyan/40 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-soft pb-3">
+            <div className="bg-lapis/40 p-4 md:p-5 rounded-xl border border-gold/40 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-lapis pb-3">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl border ${notificationsEnabled ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' : 'bg-black/40 border-soft text-slate-500'}`}>
+                  <div className={`p-2 rounded-xl border ${notificationsEnabled ? 'bg-gold/20 border-gold/50 text-gold' : 'bg-obsidian/40 border-lapis text-pharaoh-subtle'}`}>
                     {notificationsEnabled ? <Bell className="w-5 h-5 animate-pulse" /> : <BellOff className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h3 className="serif text-base font-light italic text-white flex items-center gap-2">
+                    <h3 className="font-display text-base font-light text-white tracking-wide flex items-center gap-2">
                       Alertes de Début de Session Quotidienne
                       {notificationsEnabled && (
-                        <span className="mono text-[9px] tracking-wide font-medium px-2 py-0.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-medium">
+                        <span className="font-mono text-[9px] tracking-wide font-medium px-2 py-0.5 rounded-xl bg-gold/20 border border-gold/40 text-gold-bright font-medium">
                           Actif
                         </span>
                       )}
                     </h3>
-                    <p className="text-slate-400 text-[11px] mt-0.5">
+                    <p className="text-pharaoh-muted text-[11px] mt-0.5">
                       Recevez des notifications de bureau avant le début de vos sessions d'étude ou de travail.
                     </p>
                   </div>
@@ -387,11 +417,11 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="button"
                   onClick={handleToggleNotificationSwitch}
                   className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    notificationsEnabled ? 'bg-cyan-400' : 'bg-slate-700'
+                    notificationsEnabled ? 'bg-gold' : 'bg-lapis-light'
                   }`}
                 >
                   <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-slate-900 shadow ring-0 transition duration-200 ease-in-out ${
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-obsidian shadow ring-0 transition duration-200 ease-in-out ${
                       notificationsEnabled ? 'translate-x-5' : 'translate-x-0'
                     }`}
                   />
@@ -402,14 +432,14 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                 <div className="space-y-3 pt-1">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                     <div>
-                      <label className="block mono text-[10px] uppercase opacity-70 mb-1 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                      <label className="block font-mono text-[10px] uppercase opacity-70 mb-1 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-gold" />
                         Délai d'Alerte
                       </label>
                       <select
                         value={notificationLeadMinutes}
                         onChange={(e) => setNotificationLeadMinutes(Number(e.target.value))}
-                        className="w-full bg-black/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan text-xs mono"
+                        className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs font-mono"
                       >
                         <option value={2}>2 minutes avant la session</option>
                         <option value={5}>5 minutes avant la session (Recommandé)</option>
@@ -422,7 +452,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                       <button
                         type="button"
                         onClick={handleTriggerTestNotification}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-card hover:bg-card-hover border border-cyan text-cyan-400 mono text-xs tracking-wide font-medium transition-all flex items-center justify-center gap-2"
+                        className="btn-press w-full sm:w-auto px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold border border-gold/50 text-gold-bright font-mono text-xs tracking-wide font-medium transition-all flex items-center justify-center gap-2"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                         Envoyer une Notification Test
@@ -432,8 +462,8 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
 
                   {/* Browser Permission Status Message */}
                   {permissionStatus === 'denied' && (
-                    <div className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-300 text-[11px] flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                    <div className="p-2.5 rounded-xl bg-blood/20 border border-blood/40 text-red-300 text-[11px] flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-blood flex-shrink-0" />
                       <span>
                         Les notifications sont actuellement bloquées dans vos paramètres de navigateur. Veuillez les autoriser.
                       </span>
@@ -441,8 +471,8 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   )}
 
                   {permissionStatus === 'granted' && (
-                    <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 text-[11px] flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <div className="p-2.5 rounded-xl bg-emerald/20 border border-emerald/40 text-emerald text-[11px] flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald flex-shrink-0" />
                       <span>
                         Les notifications du navigateur sont autorisées. Les alertes se déclencheront automatiquement.
                       </span>
@@ -450,7 +480,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   )}
 
                   {testNotificationFeedback && (
-                    <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/40 text-amber-200 text-[11px] mono">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-r from-gold/20 to-transparent border border-gold/40 text-gold-bright text-[11px] font-mono">
                       {testNotificationFeedback}
                     </div>
                   )}
@@ -465,71 +495,71 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Titre du Film / Scénario</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Titre du Film / Scénario</label>
                 <input
                   type="text"
                   value={cinemaTitle}
                   onChange={(e) => setCinemaTitle(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Genre & Style</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Genre & Style</label>
                 <input
                   type="text"
                   value={cinemaGenre}
                   onChange={(e) => setCinemaGenre(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block mono text-[10px] uppercase opacity-70 mb-1">Étape Active de Production</label>
+              <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Étape Active de Production</label>
               <input
                 type="text"
                 value={cinemaStage}
                 onChange={(e) => setCinemaStage(e.target.value)}
                 placeholder="ex : Étape 2 : Rédaction Scène 4 & Storyboard"
-                className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
             <div>
-              <label className="block mono text-[10px] uppercase opacity-70 mb-1">Synopsis & Vision Créative</label>
+              <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Synopsis & Vision Créative</label>
               <textarea
                 rows={2}
                 value={cinemaSynopsis}
                 onChange={(e) => setCinemaSynopsis(e.target.value)}
-                className="w-full bg-cyan-950/40 border border-soft rounded-xl p-3 text-white focus:outline-none focus:border-cyan"
+                className="w-full bg-obsidian/40 border border-lapis rounded-xl p-3 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
             {/* Milestones List */}
-            <div className="bg-cyan-950/40 border border-soft rounded-xl p-4 space-y-3">
-              <h4 className="serif text-base font-light italic text-white">Jalons Cinéma & Feuille de Route de Production</h4>
+            <div className="bg-lapis/40 border border-lapis rounded-xl p-4 space-y-3">
+              <h4 className="font-display text-base font-light text-white tracking-wide">Jalons Cinéma & Feuille de Route de Production</h4>
               
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {cinemaMilestones.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between p-2 rounded-xl bg-black/40 border border-soft">
+                  <div key={m.id} className="flex items-center justify-between p-2 rounded-xl bg-obsidian/40 border border-lapis">
                     <div className="flex items-center gap-2.5">
                       <button onClick={() => handleToggleCinemaMilestone(m.id)}>
                         {m.isCompleted ? (
-                          <CheckCircle2 className="w-4 h-4 accent-cyan" />
+                          <CheckCircle2 className="w-4 h-4 text-gold" />
                         ) : (
-                          <Circle className="w-4 h-4 text-slate-500" />
+                          <Circle className="w-4 h-4 text-pharaoh-subtle" />
                         )}
                       </button>
                       <span className={`text-xs ${m.isCompleted ? 'line-through opacity-50' : 'text-white'}`}>
                         {m.title}
                       </span>
-                      <span className="mono text-[9px] uppercase px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-slate-400">
+                      <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-pharaoh-muted">
                         {m.stageName}
                       </span>
                     </div>
 
-                    <button onClick={() => handleDeleteCinemaMilestone(m.id)} className="text-slate-500 hover:text-rose-400">
+                    <button onClick={() => handleDeleteCinemaMilestone(m.id)} className="text-pharaoh-subtle hover:text-blood">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -537,25 +567,25 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
               </div>
 
               {/* Add New Milestone */}
-              <div className="flex items-center gap-2 pt-2 border-t border-soft">
+              <div className="flex items-center gap-2 pt-2 border-t border-lapis">
                 <input
                   type="text"
                   placeholder="Titre du nouveau jalon..."
                   value={newCinemaMsTitle}
                   onChange={(e) => setNewCinemaMsTitle(e.target.value)}
-                  className="flex-1 bg-black/40 border border-soft rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="flex-1 bg-obsidian/40 border border-lapis rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Étape (ex : Tournage)"
                   value={newCinemaMsStage}
                   onChange={(e) => setNewCinemaMsStage(e.target.value)}
-                  className="w-32 bg-black/40 border border-soft rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                  className="w-32 bg-obsidian/40 border border-lapis rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleAddCinemaMilestone}
-                  className="px-3 py-1.5 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs"
+                  className="btn-press px-3 py-1.5 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs"
                 >
                   Ajouter
                 </button>
@@ -569,71 +599,71 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Nom du Projet Bangre Neo</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Nom du Projet Bangre Neo</label>
                 <input
                   type="text"
                   value={bangreProject}
                   onChange={(e) => setBangreProject(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
 
               <div>
-                <label className="block mono text-[10px] uppercase opacity-70 mb-1">Module d'Ingénierie Prioritaire</label>
+                <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Module d'Ingénierie Prioritaire</label>
                 <input
                   type="text"
                   value={bangreModule}
                   onChange={(e) => setBangreModule(e.target.value)}
-                  className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block mono text-[10px] uppercase opacity-70 mb-1">Étape Active d'Ingénierie</label>
+              <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Étape Active d'Ingénierie</label>
               <input
                 type="text"
                 value={bangreStage}
                 onChange={(e) => setBangreStage(e.target.value)}
                 placeholder="ex : Étape 3 : Synchro Hors-Ligne & Middleware LocalStorage"
-                className="w-full bg-cyan-950/40 border border-soft rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan"
+                className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
             <div>
-              <label className="block mono text-[10px] uppercase opacity-70 mb-1">Objectif d'Architecture & Spécifications</label>
+              <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Objectif d'Architecture & Spécifications</label>
               <textarea
                 rows={2}
                 value={bangreGoal}
                 onChange={(e) => setBangreGoal(e.target.value)}
-                className="w-full bg-cyan-950/40 border border-soft rounded-xl p-3 text-white focus:outline-none focus:border-cyan"
+                className="w-full bg-obsidian/40 border border-lapis rounded-xl p-3 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
             {/* Milestones List */}
-            <div className="bg-cyan-950/40 border border-soft rounded-xl p-4 space-y-3">
-              <h4 className="serif text-base font-light italic text-white">Jalons d'Ingénierie Bangre Neo Lab</h4>
+            <div className="bg-lapis/40 border border-lapis rounded-xl p-4 space-y-3">
+              <h4 className="font-display text-base font-light text-white tracking-wide">Jalons d'Ingénierie Bangre Neo Lab</h4>
               
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {bangreMilestones.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between p-2 rounded-xl bg-black/40 border border-soft">
+                  <div key={m.id} className="flex items-center justify-between p-2 rounded-xl bg-obsidian/40 border border-lapis">
                     <div className="flex items-center gap-2.5">
                       <button onClick={() => handleToggleBangreMilestone(m.id)}>
                         {m.isCompleted ? (
-                          <CheckCircle2 className="w-4 h-4 accent-cyan" />
+                          <CheckCircle2 className="w-4 h-4 text-gold" />
                         ) : (
-                          <Circle className="w-4 h-4 text-slate-500" />
+                          <Circle className="w-4 h-4 text-pharaoh-subtle" />
                         )}
                       </button>
                       <span className={`text-xs ${m.isCompleted ? 'line-through opacity-50' : 'text-white'}`}>
                         {m.title}
                       </span>
-                      <span className="mono text-[9px] uppercase px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-slate-400">
+                      <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded-xl bg-white/5 border border-white/10 text-pharaoh-muted">
                         {m.stageName}
                       </span>
                     </div>
 
-                    <button onClick={() => handleDeleteBangreMilestone(m.id)} className="text-slate-500 hover:text-rose-400">
+                    <button onClick={() => handleDeleteBangreMilestone(m.id)} className="text-pharaoh-subtle hover:text-blood">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -641,25 +671,25 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
               </div>
 
               {/* Add New Milestone */}
-              <div className="flex items-center gap-2 pt-2 border-t border-soft">
+              <div className="flex items-center gap-2 pt-2 border-t border-lapis">
                 <input
                   type="text"
                   placeholder="Titre du nouveau jalon..."
                   value={newBangreMsTitle}
                   onChange={(e) => setNewBangreMsTitle(e.target.value)}
-                  className="flex-1 bg-black/40 border border-soft rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="flex-1 bg-obsidian/40 border border-lapis rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Étape (ex : Moteur Principal)"
                   value={newBangreMsStage}
                   onChange={(e) => setNewBangreMsStage(e.target.value)}
-                  className="w-32 bg-black/40 border border-soft rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                  className="w-32 bg-obsidian/40 border border-lapis rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleAddBangreMilestone}
-                  className="px-3 py-1.5 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs"
+                  className="btn-press px-3 py-1.5 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs"
                 >
                   Ajouter
                 </button>
@@ -671,11 +701,11 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
         {/* Tab 4: Syllabus & Academic Lessons */}
         {activeTab === 'syllabus' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-soft pb-2">
-              <h4 className="serif text-lg font-light italic text-white">
+            <div className="flex items-center justify-between border-b border-lapis pb-2">
+              <h4 className="font-display text-lg font-light text-white tracking-wide">
                 Programme Académique & Suivi des Chapitres
               </h4>
-              <span className="mono text-[10px] text-cyan-400 uppercase bg-cyan-950/40 px-2.5 py-1 rounded-xl border border-cyan">
+              <span className="font-mono text-[10px] text-gold uppercase bg-gold/10 px-2.5 py-1 rounded-xl border border-gold/40">
                 {lessons.length} Cours Actifs Enregistrés
               </span>
             </div>
@@ -683,22 +713,22 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
             {/* Lessons List */}
             <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
               {lessons.map((les) => (
-                <div key={les.id} className="p-3 rounded-xl bg-cyan-950/40 border border-soft flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div key={les.id} className="p-3 rounded-xl bg-lapis/40 border border-lapis flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className={`mono text-[9px] uppercase px-2 py-0.5 rounded-xl border ${
-                        les.subject === 'svt' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800' :
-                        les.subject === 'math' ? 'bg-blue-950/40 text-blue-400 border-blue-800' :
-                        les.subject === 'pc' ? 'bg-purple-950/40 text-purple-400 border-purple-800' :
-                        'bg-amber-950/40 text-amber-400 border-amber-800'
+                      <span className={`font-mono text-[9px] uppercase px-2 py-0.5 rounded-xl border ${
+                        les.subject === 'svt' ? 'bg-emerald/20 text-emerald border-emerald/60' :
+                        les.subject === 'math' ? 'bg-sapphire/20 text-sapphire border-sapphire/60' :
+                        les.subject === 'pc' ? 'bg-amethyst/20 text-amethyst border-amethyst/60' :
+                        'bg-gold/20 text-gold border-gold/60'
                       }`}>
                         {les.subject.toUpperCase()}
                       </span>
-                      <h5 className="serif text-sm font-light italic text-white">{les.title}</h5>
+                      <h5 className="font-display text-sm font-light text-white tracking-wide">{les.title}</h5>
                     </div>
-                    <p className="mono text-[10px] opacity-60">{les.chapter}</p>
+                    <p className="font-mono text-[10px] opacity-60">{les.chapter}</p>
                     {les.targetExamDate && (
-                      <span className="mono text-[9px] opacity-50 block mt-0.5">Cible Examen : {les.targetExamDate}</span>
+                      <span className="font-mono text-[9px] opacity-50 block mt-0.5">Cible Examen : {les.targetExamDate}</span>
                     )}
                   </div>
 
@@ -707,7 +737,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                     <select
                       value={les.status}
                       onChange={(e) => handleUpdateLessonStatus(les.id, e.target.value as LessonStatus)}
-                      className="bg-black/40 border border-soft rounded-xl px-2 py-1 text-xs text-white focus:outline-none mono"
+                      className="bg-obsidian/40 border border-lapis rounded-xl px-2 py-1 text-xs text-white focus:outline-none font-mono"
                     >
                       <option value="not_started">Non commencé</option>
                       <option value="in_progress">En cours</option>
@@ -716,7 +746,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
 
                     <button
                       onClick={() => handleDeleteLesson(les.id)}
-                      className="p-1 rounded-xl text-slate-500 hover:text-rose-400 transition-all"
+                      className="btn-press p-1 rounded-xl text-pharaoh-subtle hover:text-blood transition-all"
                       title="Supprimer le cours"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -727,13 +757,13 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
             </div>
 
             {/* Add New Lesson Form */}
-            <div className="bg-cyan-950/40 border border-soft rounded-xl p-4 space-y-3">
-              <h5 className="mono text-[10px] tracking-wide font-medium text-cyan-400">Ajouter un Cours Académique</h5>
+            <div className="bg-lapis/40 border border-lapis rounded-xl p-4 space-y-3">
+              <h5 className="font-mono text-[10px] tracking-wide font-medium text-gold">Ajouter un Cours Académique</h5>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <select
                   value={newLesSubject}
                   onChange={(e) => setNewLesSubject(e.target.value as SchoolSubject)}
-                  className="bg-black/40 border border-soft rounded-xl px-3 py-2 text-xs text-white focus:outline-none mono"
+                  className="bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-xs text-white focus:outline-none font-mono"
                 >
                   <option value="svt">SVT (Biologie)</option>
                   <option value="math">Mathématiques</option>
@@ -746,7 +776,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   placeholder="Titre du cours (ex: Dérivées & Intégrales)"
                   value={newLesTitle}
                   onChange={(e) => setNewLesTitle(e.target.value)}
-                  className="bg-black/40 border border-soft rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                  className="bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
                 />
 
                 <input
@@ -754,7 +784,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   placeholder="Chapitre ou Thème"
                   value={newLesChapter}
                   onChange={(e) => setNewLesChapter(e.target.value)}
-                  className="bg-black/40 border border-soft rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                  className="bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
                 />
               </div>
 
@@ -763,13 +793,13 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="date"
                   value={newLesExamDate}
                   onChange={(e) => setNewLesExamDate(e.target.value)}
-                  className="bg-black/40 border border-soft rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none mono"
+                  className="bg-obsidian/40 border border-lapis rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none font-mono"
                 />
 
                 <button
                   type="button"
                   onClick={handleAddLesson}
-                  className="px-4 py-2 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs uppercase"
+                  className="btn-press px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs uppercase"
                 >
                   Ajouter le Cours au Programme
                 </button>
@@ -781,21 +811,21 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
         {/* Tab 5: Workout Focus By Day */}
         {activeTab === 'fitness' && (
           <div className="space-y-4">
-            <h4 className="serif text-base font-light italic text-white">
+            <h4 className="font-display text-base font-light text-white tracking-wide">
               Entraînement Matinal & Élocution Personnalisés par Jour de la Semaine
             </h4>
 
             <div className="space-y-3">
               {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                <div key={day} className="flex items-center gap-3 bg-cyan-950/40 p-3 rounded-xl border border-soft">
-                  <span className="mono text-xs font-semibold text-cyan-400 w-28 uppercase">
+                <div key={day} className="flex items-center gap-3 bg-lapis/40 p-3 rounded-xl border border-lapis">
+                  <span className="font-mono text-xs font-semibold text-gold w-28 uppercase">
                     {dayTranslations[day] || day}
                   </span>
                   <input
                     type="text"
                     value={workoutFocus[day] || ''}
                     onChange={(e) => setWorkoutFocus({ ...workoutFocus, [day]: e.target.value })}
-                    className="flex-1 bg-black/40 border border-soft rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan"
+                    className="flex-1 bg-obsidian/40 border border-lapis rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-gold"
                   />
                 </div>
               ))}
@@ -804,16 +834,16 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
         )}
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-soft">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-lapis">
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-cyan-950/40 hover:bg-[#222630] text-slate-300 mono text-xs uppercase"
+            className="btn-press px-5 py-2 rounded-xl bg-panel hover:bg-panel-hover text-pharaoh-muted font-mono text-xs uppercase"
           >
             Annuler
           </button>
           <button
             onClick={handleSaveAll}
-            className="px-6 py-2 rounded-xl bg-card hover:bg-card-hover text-cyan-400 border border-cyan mono text-xs uppercase font-bold tracking-wider"
+            className="btn-press px-6 py-2 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs uppercase font-bold tracking-wider"
           >
             Enregistrer Toutes les Modifications
           </button>
