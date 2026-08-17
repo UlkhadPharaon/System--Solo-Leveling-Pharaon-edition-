@@ -1,6 +1,6 @@
-const CACHE_NAME = 'pharaoh-system-v5';
-const APP_SHELL = ['/', '/index.html', '/manifest.json', '/icon.jpg'];
-const DEFAULT_ICON = '/icon.jpg';
+const CACHE_NAME = 'pharaoh-system-v7';
+const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo-complet.png'];
+const DEFAULT_ICON = '/icon-192.png';
 
 // Install Event - Caching the app shell + tous les bundles hashés référencés
 // par index.html (JS/CSS générés par Vite) pour un offline complet dès
