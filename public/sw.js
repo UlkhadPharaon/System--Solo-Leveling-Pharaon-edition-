@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pharaoh-system-v4';
+const CACHE_NAME = 'pharaoh-system-v5';
 const APP_SHELL = ['/', '/index.html', '/manifest.json', '/icon.jpg'];
 const DEFAULT_ICON = '/icon.jpg';
 
@@ -49,27 +49,51 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event - Cache-first, fallback réseau, fallback navigation
+// Fetch Event — strategy per request kind.
+//   • Navigations & same-origin dev/source files: NETWORK-FIRST so shipped UI
+//     fixes actually reach installed devices; the cache only serves as the
+//     offline fallback. (Everything used to be cache-first with a frozen
+//     cache name, which pinned phones to an old broken build forever.)
+//   • Hashed Vite bundles (/assets/…): cache-first — content-hashed names
+//     make a cache hit always the right immutable file.
+//   • Google Fonts CDNs: cache-first with network fallback.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+  const url = new URL(event.request.url);
+  const sameOrigin = url.origin === self.location.origin;
+  const isHashedAsset = sameOrigin && url.pathname.startsWith('/assets/');
+  const isFontCdn = url.hostname.includes('fonts.g');
 
-      return fetch(event.request).then((networkResponse) => {
-        // On cache les réponses 200 (basic = même origine, opaque = CDN fonts)
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-        }
-        return networkResponse;
-      }).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-      });
-    })
+  const putInCache = (response) => {
+    if (response && response.status === 200) {
+      const clone = response.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+    }
+    return response;
+  };
+  const offlineFallback = () =>
+    event.request.mode === 'navigate'
+      ? caches.match('/index.html')
+      : undefined;
+
+  if (isHashedAsset || isFontCdn) {
+    event.respondWith(
+      caches.match(event.request).then((cached) =>
+        cached ||
+        fetch(event.request).then(putInCache).catch(() => offlineFallback())
+      )
+    );
+    return;
+  }
+
+  // Network-first for HTML pages and dev-server source modules.
+  event.respondWith(
+    fetch(event.request)
+      .then(putInCache)
+      .catch(() =>
+        caches.match(event.request).then((cached) => cached || offlineFallback())
+      )
   );
 });
 

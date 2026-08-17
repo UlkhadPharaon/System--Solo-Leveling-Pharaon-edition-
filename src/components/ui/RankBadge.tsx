@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Star, Sparkles, Crown, Skull, Dragon, Wolf, Medal, Shield, Target, Zap, Flame, type PharaohIcon } from './PharaohIcons';
 import type { HunterRank } from '../../types';
+import { RANK_BADGE_IMAGE, SPECIAL_BADGE_IMAGE } from '../../lib/uiAssets';
 
 // Superset of the profile-side HunterRank: saved profiles may carry the French
 // 'Pharaon' spelling, while the XP ladder below uses 'Pharaoh'. Both must render.
@@ -20,7 +21,9 @@ export interface RankInfo {
   xpThreshold: number;
 }
 
-/** Rank definitions matching Solo Leveling progression */
+/** Rank definitions matching Solo Leveling progression.
+ *  badgeImage uses bundled imports — absolute /UI element…/ paths 404'd
+ *  because that folder sits outside Vite's publicDir. */
 export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
   E: {
     rank: 'E',
@@ -28,7 +31,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#6B7280',
     glowColor: 'rgba(107, 114, 128, 0.4)',
     icon: Medal,
-    badgeImage: '/UI element and references/badge rang E.png',
+    badgeImage: RANK_BADGE_IMAGE.E,
     description: 'Awakening... The System has noticed you.',
     xpThreshold: 0,
   },
@@ -38,7 +41,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#9CA3AF',
     glowColor: 'rgba(156, 163, 175, 0.4)',
     icon: Shield,
-    badgeImage: '/UI element and references/badge rand D.png',
+    badgeImage: RANK_BADGE_IMAGE.D,
     description: 'First steps into the dungeon.',
     xpThreshold: 500,
   },
@@ -48,7 +51,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#3B82F6',
     glowColor: 'rgba(59, 130, 246, 0.4)',
     icon: Target,
-    badgeImage: '/UI element and references/badge ranc C.png',
+    badgeImage: RANK_BADGE_IMAGE.C,
     description: 'Gaining recognition. Quests grow harder.',
     xpThreshold: 2000,
   },
@@ -58,7 +61,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#8B5CF6',
     glowColor: 'rgba(139, 92, 246, 0.4)',
     icon: Zap,
-    badgeImage: '/UI element and references/badge rang B.png',
+    badgeImage: RANK_BADGE_IMAGE.B,
     description: 'Elite territory. Shadows stir.',
     xpThreshold: 5000,
   },
@@ -68,7 +71,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#F59E0B',
     glowColor: 'rgba(245, 158, 11, 0.5)',
     icon: Flame,
-    badgeImage: '/UI element and references/badge rang A.png',
+    badgeImage: RANK_BADGE_IMAGE.A,
     description: 'National-level threat. Guilds court you.',
     xpThreshold: 12000,
   },
@@ -78,7 +81,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#D4A81E',
     glowColor: 'rgba(212, 168, 30, 0.6)',
     icon: Star,
-    badgeImage: '/UI element and references/badge rang S.png',
+    badgeImage: RANK_BADGE_IMAGE.S,
     description: 'Walking calamity. Nations tremble.',
     xpThreshold: 25000,
   },
@@ -88,7 +91,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#F0C42D',
     glowColor: 'rgba(240, 196, 45, 0.7)',
     icon: Crown,
-    badgeImage: '/UI element and references/badge rang Pharaon.png',
+    badgeImage: RANK_BADGE_IMAGE.Pharaon,
     description: 'Ruler of the System. The throne is yours.',
     xpThreshold: 50000,
   },
@@ -100,7 +103,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#F0C42D',
     glowColor: 'rgba(240, 196, 45, 0.7)',
     icon: Crown,
-    badgeImage: '/UI element and references/badge rang Pharaon.png',
+    badgeImage: RANK_BADGE_IMAGE.Pharaon,
     description: 'Ruler of the System. The throne is yours.',
     xpThreshold: 50000,
   },
@@ -110,7 +113,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#1F2937',
     glowColor: 'rgba(31, 41, 55, 0.6)',
     icon: Skull,
-    badgeImage: '/UI element and references/special soldier assasin.png',
+    badgeImage: SPECIAL_BADGE_IMAGE.ShadowMonarch,
     description: 'Arise. Your army awaits.',
     xpThreshold: 100000,
   },
@@ -120,7 +123,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#C0392B',
     glowColor: 'rgba(192, 57, 43, 0.6)',
     icon: Dragon,
-    badgeImage: '/UI element and references/special monture dragon.png',
+    badgeImage: SPECIAL_BADGE_IMAGE.DragonKnight,
     description: 'Mount the skies. Fire follows.',
     xpThreshold: 200000,
   },
@@ -130,7 +133,7 @@ export const RANK_DEFINITIONS: Record<Rank, RankInfo> = {
     color: '#4B5563',
     glowColor: 'rgba(75, 85, 99, 0.5)',
     icon: Wolf,
-    badgeImage: '/UI element and references/special soldier Wolf.png',
+    badgeImage: SPECIAL_BADGE_IMAGE.WolfPack,
     description: 'The pack hunts as one.',
     xpThreshold: 300000,
   },

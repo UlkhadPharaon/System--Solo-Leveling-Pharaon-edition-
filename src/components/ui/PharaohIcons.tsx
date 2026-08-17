@@ -47,10 +47,10 @@ export const Crown = createIcon((
 
 export const Sword = createIcon((
   <>
-    <path d="M12 2v20" />
-    <path d="M3 12h18" />
-    <path d="M18 6l-4 4-4-4" />
-    <path d="M6 18l4-4 4 4" />
+    <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
+    <path d="M13 19l6-6" />
+    <path d="M16 16l4 4" />
+    <path d="M19 21l2-2" />
   </>
 ));
 

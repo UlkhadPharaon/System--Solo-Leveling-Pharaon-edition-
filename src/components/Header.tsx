@@ -4,7 +4,7 @@ import {
   Crown, Sword, Shield, Orb, Portal,
   Dumbbell, Film, GraduationCap, Code, BookOpen, Briefcase, Wallet, Users, Flame,
   Target, Trophy, FileText, Calendar, Clock, Zap, Sparkles, Plus, Settings, Trash,
-  ArrowLeft, ChevronDown, Eye, EyeOff, Star, Skull, Dragon, Wolf,
+  ArrowLeft, ChevronDown, Eye, EyeOff, Star, Skull, Dragon, Wolf, Grid,
   type PharaohIcon
 } from './ui/PharaohIcons';
 import { RankBadgeInline, getRankFromXP, RANK_DEFINITIONS } from './ui/RankBadge';
@@ -35,7 +35,7 @@ const LiveClock: React.FC = () => {
   }, []);
 
   return (
-    <span className="font-mono tabular-nums">
+    <span className="font-mono tabular-nums truncate min-w-0">
       {currentTime.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })} • {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
     </span>
   );
@@ -78,7 +78,7 @@ const FocusSessionPill: React.FC<{ onClick: () => void }> = ({ onClick }) => {
     >
       <Clock size={14} className={running ? 'anim-glow' : ''} />
       <span>{mm}:{ss}</span>
-      {!running && <span className="text-[9px] uppercase text-pharaoh-subtle">pause</span>}
+      {!running && <span className="text-[10px] uppercase text-pharaoh-subtle">pause</span>}
     </motion.button>
   );
 };
@@ -98,8 +98,10 @@ export const Header: React.FC<HeaderProps> = ({
   totalXP = 0,
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMoreNav, setShowMoreNav] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const moreNavRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = () => setIsScrolled(window.scrollY > 20);
@@ -120,6 +122,18 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [showUserMenu]);
 
+  // Same outside-tap dismissal for the mobile "Plus" nav sheet.
+  useEffect(() => {
+    if (!showMoreNav) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (moreNavRef.current && !moreNavRef.current.contains(e.target as Node)) {
+        setShowMoreNav(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [showMoreNav]);
+
   const rank = playerProfile ? getRankFromXP(totalXP) : 'E';
   const rankInfo = RANK_DEFINITIONS[rank];
 
@@ -133,6 +147,11 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'notepad', label: 'Notes', icon: FileText, domainColor: '#C94277' },
     { id: 'budget', label: 'Trésorerie', icon: Wallet, domainColor: '#1E8A49' },
   ];
+
+  // Mobile bottom bar: 4 primary destinations, the rest behind "Plus".
+  const primaryNavItems = navItems.slice(0, 4);
+  const moreNavItems = navItems.slice(4);
+  const activeTabInMore = moreNavItems.some((item) => item.id === activeTab);
 
   const actionButtons = [
     { icon: Clock, label: 'Focus', onClick: openFocusTimerQuick, variant: 'ghost' as const },
@@ -179,16 +198,16 @@ export const Header: React.FC<HeaderProps> = ({
               <h1 className="font-display text-lg md:text-xl font-light tracking-widest text-gradient-gold truncate">
                 SOLO LEVELING
               </h1>
-              <div className="flex items-center gap-2 text-[10px] md:text-xs text-pharaoh-subtle font-mono">
+              <div className="flex items-center gap-2 text-[10px] md:text-xs text-pharaoh-subtle font-mono min-w-0">
                 <motion.span
-                  className="w-1.5 h-1.5 rounded-full"
+                  className="w-1.5 h-1.5 rounded-full shrink-0"
                   style={{ background: isOffline ? 'var(--color-blood)' : 'var(--color-emerald)' }}
                   animate={{ opacity: isOffline ? [1, 0.4, 1] : 1 }}
                   transition={{ duration: isOffline ? 1.5 : 0 }}
                 />
                 <LiveClock />
                 {isOffline && (
-                  <span className="px-1.5 py-0.5 rounded-full bg-blood/10 border border-blood/40 text-blood font-mono text-[9px]">
+                  <span className="px-1.5 py-0.5 rounded-full bg-blood/10 border border-blood/40 text-blood font-mono text-[9px] shrink-0">
                     HORS-LIGNE
                   </span>
                 )}
@@ -413,50 +432,109 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </nav>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-obsidian/95 backdrop-blur-xl border-t border-lapis-border/50 px-2 py-2 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] flex items-center justify-between overflow-x-auto no-scrollbar gap-1 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-bottom">
-        {navItems.map((item, i) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <motion.button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              aria-label={item.label}
-              aria-current={isActive ? 'page' : undefined}
-              className={`btn-press flex flex-col items-center justify-center min-w-[72px] min-h-[56px] px-2.5 py-2 rounded-xl transition-all ${
-                isActive ? 'text-gold-bright' : 'text-pharaoh-subtle hover:text-pharaoh'
-              }`}
-              style={{
-                color: isActive ? item.domainColor : undefined,
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.03 * i }}
+      {/* Mobile Bottom Navigation — 4 primary destinations + a "Plus" sheet.
+          Previously all 8 items were fixed side by side (8 × min-w-72px ≈ 576px
+          on a ~390px screen), squeezing icons and labels into unreadable chips. */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-obsidian/95 backdrop-blur-xl border-t border-lapis-border/50 px-1.5 py-1.5 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-bottom"
+        ref={moreNavRef}
+      >
+        <AnimatePresence>
+          {showMoreNav && moreNavItems.length > 0 && (
+            <motion.div
+              className="absolute bottom-full left-2 right-2 mb-3 rounded-2xl bg-panel border border-lapis-border shadow-card-hover overflow-hidden"
+              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.97 }}
+              transition={{ duration: 0.15 }}
             >
-              <div className={`relative p-2.5 rounded-lg mb-1 ${isActive ? 'bg-panel-gold shadow-gold' : 'bg-panel hover:bg-panel-hover'}`}>
-                <Icon
-                  size={22}
-                  className={`transition-all ${isActive ? 'anim-float' : ''}`}
-                  style={{ color: isActive ? item.domainColor : undefined }}
-                />
-                {isActive && (
-                  <motion.span
-                    className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
-                    style={{ background: item.domainColor }}
-                    animate={{ scale: [1, 1.4, 1] }}
-                    transition={{ duration: 1.2, repeat: Infinity }}
-                  />
-                )}
+              <div className="grid grid-cols-2 gap-1 p-2">
+                {moreNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActiveTab(item.id); setShowMoreNav(false); }}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`btn-press flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
+                        isActive ? 'bg-panel-gold text-gold-bright' : 'text-pharaoh-muted hover:bg-panel-hover'
+                      }`}
+                    >
+                      <span
+                        className="p-2 rounded-lg bg-panel shrink-0"
+                        style={{ color: item.domainColor }}
+                      >
+                        <Icon size={18} />
+                      </span>
+                      <span className="text-xs font-medium truncate">{item.label}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <span className={`text-[9px] font-medium tracking-wide ${isActive ? 'opacity-100 text-gold' : 'opacity-70'}`}>
-                {item.label}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-stretch gap-1">
+          {primaryNavItems.map((item, i) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <motion.button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+                className={`btn-press flex flex-col items-center justify-center flex-1 min-w-0 min-h-[52px] px-1 py-1.5 rounded-xl transition-all ${
+                  isActive ? 'text-gold-bright' : 'text-pharaoh-subtle hover:text-pharaoh'
+                }`}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.03 * i }}
+              >
+                <div className={`relative p-2 rounded-lg mb-1 ${isActive ? 'bg-panel-gold shadow-gold' : ''}`}>
+                  <Icon
+                    size={20}
+                    style={{ color: isActive ? item.domainColor : undefined }}
+                  />
+                  {isActive && (
+                    <motion.span
+                      className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+                      style={{ background: item.domainColor }}
+                      animate={{ scale: [1, 1.4, 1] }}
+                      transition={{ duration: 1.2, repeat: Infinity }}
+                    />
+                  )}
+                </div>
+                <span className={`text-[10px] font-medium tracking-wide truncate w-full text-center ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                  {item.label}
+                </span>
+              </motion.button>
+            );
+          })}
+
+          {moreNavItems.length > 0 && (
+            <motion.button
+              onClick={() => setShowMoreNav(!showMoreNav)}
+              aria-label="Plus de sections"
+              aria-expanded={showMoreNav}
+              aria-current={activeTabInMore ? 'page' : undefined}
+              className={`btn-press flex flex-col items-center justify-center flex-1 min-w-0 min-h-[52px] px-1 py-1.5 rounded-xl transition-all ${
+                showMoreNav || activeTabInMore ? 'text-gold-bright' : 'text-pharaoh-subtle hover:text-pharaoh'
+              }`}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className={`relative p-2 rounded-lg mb-1 ${showMoreNav || activeTabInMore ? 'bg-panel-gold shadow-gold' : ''}`}>
+                <Grid size={20} />
+              </div>
+              <span className={`text-[10px] font-medium tracking-wide ${showMoreNav || activeTabInMore ? 'opacity-100' : 'opacity-70'}`}>
+                Plus
               </span>
             </motion.button>
-          );
-        })}
+          )}
+        </div>
       </nav>
     </>
   );

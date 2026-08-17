@@ -144,7 +144,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
 
   return (
     <motion.div
-      className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-6 md:p-8 shadow-card-hover"
+      className="relative overflow-hidden rounded-3xl bg-panel border border-lapis-border p-4 md:p-8 shadow-card-hover"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -156,27 +156,27 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
       {/* Scanline effect */}
       <div className="deco-scanline" />
 
-      <div className="relative z-10 space-y-6">
+      <div className="relative z-10 space-y-4 md:space-y-6">
         {/* Header Info */}
         <motion.div
-          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-lapis-border/50 pb-4"
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 border-b border-lapis-border/50 pb-3 md:pb-4"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <div>
-            <span className="text-[10px] text-gold font-display tracking-widest uppercase bg-panel-gold px-3 py-1 rounded-full">
+          <div className="min-w-0">
+            <span className="inline-block text-[11px] text-gold font-display tracking-widest uppercase bg-panel-gold px-3 py-1 rounded-full">
               CHRONIQUE ROYALE — CHAPITRE {activeChapter.chapter}
             </span>
-            <h3 className="font-display text-xl md:text-2xl font-bold text-gradient-gold tracking-wide mt-2">
+            <h3 className="font-display text-lg md:text-2xl font-bold text-gradient-gold tracking-wide mt-2 truncate">
               {activeChapter.title}
             </h3>
           </div>
 
           {/* Chapter progress */}
-          <div className="w-full md:w-56 space-y-1">
+          <div className="w-full md:w-56 space-y-1 shrink-0">
             <div className="flex justify-between text-[10px] font-mono text-pharaoh-subtle">
               <span>DÉCRETS ACCOMPLIS</span>
-              <span>{progressCount} / {activeChapter.objectives.length}</span>
+              <span className="tabular-nums">{progressCount} / {activeChapter.objectives.length}</span>
             </div>
             <div className="w-full h-2 bg-obsidian rounded-full overflow-hidden">
               <motion.div
@@ -198,7 +198,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
 
         {/* Narrative Scroll / Lore Panel */}
         <motion.div
-          className="relative bg-obsidian/50 border border-lapis-border p-5 md:p-6 rounded-2xl italic font-display text-pharaoh-muted text-sm leading-relaxed"
+          className="relative bg-obsidian/50 border border-lapis-border p-4 md:p-6 rounded-2xl italic font-display text-pharaoh-muted text-sm leading-relaxed"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -216,8 +216,8 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h4 className="font-display text-[10px] uppercase tracking-widest text-gold-bright">DÉCRETS DE L'EMPIRE :</h4>
-          <div className="space-y-3">
+          <h4 className="font-display text-[11px] uppercase tracking-widest text-gold-bright">DÉCRETS DE L'EMPIRE :</h4>
+          <div className="space-y-2.5">
             {activeChapter.objectives.map((obj, idx) => {
               const completed = obj.check(player);
               const Icon = completed ? CheckCircle2 : Flame;
@@ -225,7 +225,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
               return (
                 <motion.div
                   key={obj.id}
-                  className={`relative overflow-hidden rounded-xl p-4 flex items-center justify-between gap-4 transition-all ${
+                  className={`relative overflow-hidden rounded-xl p-3 md:p-4 flex items-center justify-between gap-3 transition-all ${
                     completed
                       ? 'bg-emerald/10 border-emerald/30 text-emerald'
                       : 'bg-panel border-lapis-border text-pharaoh'
@@ -239,15 +239,15 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
                     <div className="deco-corner deco-corner--tl" style={{ background: `radial-gradient(circle, ${completed ? '#1E8A49' : 'var(--color-gold)'} 0%, transparent 70%)` }} />
                   </div>
 
-                  <div className="relative z-10 flex items-center gap-3">
-                    <span className="text-xs font-mono font-bold text-pharaoh-subtle w-8 text-right">0{idx + 1}.</span>
-                    <span className="font-display text-sm leading-relaxed flex-1">{obj.text}</span>
+                  <div className="relative z-10 flex items-center gap-3 min-w-0">
+                    <span className="text-xs font-mono font-bold text-pharaoh-subtle w-7 shrink-0 text-right">0{idx + 1}.</span>
+                    <span className="font-display text-sm leading-relaxed flex-1 min-w-0">{obj.text}</span>
                   </div>
 
-                  <div className="relative z-10 flex items-center gap-2">
+                  <div className="relative z-10 flex items-center gap-2 shrink-0">
                     {completed ? (
                       <motion.span
-                        className="px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-emerald/20 text-emerald border border-emerald/40 flex items-center gap-1"
+                        className="px-2.5 md:px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-emerald/20 text-emerald border border-emerald/40 flex items-center gap-1"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.1 * idx, type: 'spring', stiffness: 260, damping: 20 }}
@@ -257,7 +257,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
                       </motion.span>
                     ) : (
                       <motion.span
-                        className="px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-blood/20 text-blood border border-blood/40"
+                        className="px-2.5 md:px-3 py-1.5 rounded-full font-mono text-[10px] font-medium bg-blood/20 text-blood border border-blood/40"
                         initial={{ scale: 1 }}
                         animate={{ scale: [1, 1.02, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
@@ -275,7 +275,7 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
 
         {/* Chapter Rewards Footer */}
         <motion.div
-          className="pt-6 border-t border-lapis-border/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+          className="pt-4 md:pt-6 border-t border-lapis-border/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -303,10 +303,10 @@ export const NarrativeQuestsView: React.FC<NarrativeQuestsViewProps> = ({ player
           <motion.button
             onClick={handleClaimChapterReward}
             disabled={!isComplete}
-            className={`btn-press px-8 py-3.5 rounded-xl font-display text-xs tracking-widest uppercase transition-all ${
+            className={`btn-press w-full md:w-auto px-5 md:px-8 py-3 md:py-3.5 rounded-xl font-display text-xs tracking-widest uppercase transition-all ${
               isComplete
-                ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold flex items-center gap-2'
-                : 'bg-panel text-pharaoh-subtle border-lapis-border cursor-not-allowed opacity-60'
+                ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold flex items-center justify-center gap-2'
+                : 'bg-panel text-pharaoh-subtle border-lapis-border cursor-not-allowed opacity-60 flex items-center justify-center gap-2'
             }`}
             whileHover={{ scale: isComplete ? 1.02 : 1 }}
             whileTap={{ scale: isComplete ? 0.98 : 1 }}

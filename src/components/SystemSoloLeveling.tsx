@@ -187,7 +187,7 @@ const PortalCountdown: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
   }, [expiresAt]);
   
   return (
-    <span className="text-blood bg-blood/10 border border-blood/40 px-2 py-0.5 rounded font-mono text-[9px] flex items-center gap-1 animate-pulse">
+    <span className="text-blood bg-blood/10 border border-blood/40 px-2 py-0.5 rounded font-mono text-[10px] flex items-center gap-1 animate-pulse whitespace-nowrap">
       <Clock className="w-3 h-3" /> RESTANT : {timeLeft}
     </span>
   );
@@ -638,36 +638,38 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   ];
 
   return (
-    <div className="bg-obsidian min-h-screen text-pharaoh pb-20">
-      {/* HEADER SECTION */}
-      <div className="bg-sl-primary border-b border-sl-gold/30 p-4 md:p-6 sticky top-0 z-40 backdrop-blur-md bg-sl-primary/95">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-2xl bg-sl-lapis border-2 border-sl-gold flex items-center justify-center font-display text-sl-gold font-bold text-2xl shadow-gold animate-pulse">
+    <div className="bg-obsidian min-h-screen text-pharaoh pb-2 md:pb-4">
+      {/* HEADER SECTION — in-flow (not sticky): the global app Header already
+          occupies top-0, a second sticky bar here overlapped it and blended
+          text on scroll while eating half the mobile viewport. */}
+      <div className="bg-sl-primary border-b border-sl-gold/30 p-3 sm:p-4 md:p-6">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+          <div className="flex items-center gap-3 md:gap-4 min-w-0">
+            <div className="relative shrink-0">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-sl-lapis border-2 border-sl-gold flex items-center justify-center font-display text-sl-gold font-bold text-xl md:text-2xl shadow-gold">
                 {safePlayer.level}
               </div>
-              <div className="absolute -bottom-2 -right-2 bg-sl-gold text-sl-primary text-[8px] font-display font-bold px-1.5 py-0.5 rounded border border-sl-primary shadow-lg">
+              <div className="absolute -bottom-2 -right-2 bg-sl-gold text-sl-primary text-[9px] font-display font-bold px-1.5 py-0.5 rounded border border-sl-primary shadow-lg">
                 NIVEAU
               </div>
             </div>
-            
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-xl md:text-2xl font-bold text-pharaoh font-display tracking-widest">{safePlayer.title}</h1>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1 min-w-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-pharaoh font-display tracking-widest truncate">{safePlayer.title}</h1>
                 <RankBadge rank={safePlayer.rank} size={32} active />
               </div>
-              <p className="text-xs text-sl-gold-light/60 font-display italic tracking-wide">
+              <p className="text-xs text-sl-gold-light/60 font-display italic tracking-wide truncate">
                 Classe : <span className="text-sl-gold font-display not-italic">{safePlayer.hunterClass}</span>
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 md:min-w-[420px] w-full md:w-auto min-w-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 md:min-w-[420px] w-full md:w-auto min-w-0">
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] font-mono">
+              <div className="flex justify-between text-[10px] font-mono tabular-nums">
                 <span className="text-blood font-display">SANTÉ (HP)</span>
-                <span>{safePlayer.hp || 100} / {safePlayer.maxHp || 100}</span>
+                <span className="truncate">{safePlayer.hp || 100} / {safePlayer.maxHp || 100}</span>
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/30">
                 <div
@@ -678,9 +680,9 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] font-mono">
+              <div className="flex justify-between text-[10px] font-mono tabular-nums">
                 <span className="text-gold-bright font-display">ÉNERGIE (MP)</span>
-                <span>{safePlayer.mp || 50} / {safePlayer.maxMp || 50}</span>
+                <span className="truncate">{safePlayer.mp || 50} / {safePlayer.maxMp || 50}</span>
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sl-gold/30">
                 <div
@@ -691,11 +693,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] font-mono">
+              <div className="flex justify-between text-[10px] font-mono tabular-nums">
                 <span className="text-sapphire font-display flex items-center gap-1">
                   <Sparkles className="w-2.5 h-2.5" /> EXP (XP)
                 </span>
-                <span className="text-sapphire">{safePlayer.xp || 0} / {safePlayer.xpToNextLevel || 100}</span>
+                <span className="text-sapphire truncate">{safePlayer.xp || 0} / {safePlayer.xpToNextLevel || 100}</span>
               </div>
               <div className="w-full h-2 bg-sl-primary/60 rounded-full overflow-hidden border border-sapphire/30">
                 <div
@@ -708,7 +710,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="max-w-5xl mx-auto mt-6 pt-4 border-t border-sl-gold/10 flex items-center gap-4 overflow-x-auto no-scrollbar pb-1">
+        <div className="max-w-5xl mx-auto mt-3 md:mt-6 pt-3 md:pt-4 border-t border-sl-gold/10 flex items-center gap-2 md:gap-4 overflow-x-auto no-scrollbar pb-1">
           {[
             { id: 'statut', icon: Activity, label: 'Statut' },
             { id: 'quetes', icon: CheckCircle2, label: 'Missions' },
@@ -723,13 +725,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SystemTab)}
-              className={`btn-press px-4 py-2 text-xs whitespace-nowrap flex items-center gap-2 transition-all font-display rounded-lg border ${
+              className={`btn-press px-3 md:px-4 py-2 text-[11px] md:text-xs whitespace-nowrap flex items-center gap-1.5 md:gap-2 transition-all font-display rounded-lg border ${
                 activeTab === tab.id
-                  ? 'bg-sl-gold text-sl-primary border-sl-gold shadow-gold-sm font-bold scale-105'
+                  ? 'bg-sl-gold text-sl-primary border-sl-gold shadow-gold-sm font-bold'
                   : 'text-sl-gold-light/60 hover:text-sl-gold border-sl-gold/10 hover:border-sl-gold/30'
               }`}
             >
-              <tab.icon className="w-4 h-4" /> {tab.label}
+              <tab.icon className="w-4 h-4 shrink-0" /> {tab.label}
             </button>
           ))}
         </div>
@@ -754,12 +756,12 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               className="grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
               <div className="lg:col-span-2 space-y-6">
-                <div className="flex items-center justify-between border-b border-sl-gold/20 pb-3">
-                  <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
-                    <Activity className="w-6 h-6 text-sl-gold" /> CAPACITÉS DIVINES
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-sl-gold/20 pb-3">
+                  <h2 className="text-base md:text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
+                    <Activity className="w-5 h-5 md:w-6 md:h-6 text-sl-gold shrink-0" /> CAPACITÉS DIVINES
                   </h2>
                   <div className="bg-sl-gold/10 px-3 py-1.5 rounded-xl border border-sl-gold/40 text-sl-gold text-xs font-display flex items-center gap-2 shadow-gold-sm">
-                    Points Disponibles : <strong className="text-pharaoh text-sm">{safePlayer.attributePoints || 0}</strong>
+                    Points Disponibles : <strong className="text-pharaoh text-sm tabular-nums">{safePlayer.attributePoints || 0}</strong>
                   </div>
                 </div>
 
@@ -852,13 +854,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               key="quetes"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-8"
+              className="space-y-5 md:space-y-8"
             >
               {/* Story Narrative Campaign Quests */}
               <NarrativeQuestsView player={safePlayer} onUpdatePlayer={onUpdatePlayer} />
 
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4 pt-4">
-                <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
+                <h2 className="text-base md:text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
                   <CheckCircle2 className="w-6 h-6 text-sl-gold" /> MISSIONS QUOTIDIENNES DU SYSTÈME
                 </h2>
               </div>
@@ -1035,20 +1037,20 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                       </div>
                       
                       {!quest.isCompleted && (
-                        <div className="flex items-center gap-1.5 pt-1.5">
-                          <span className="text-[9px] text-pharaoh-subtle font-display">AJOUTER :</span>
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
+                          <span className="text-[10px] text-pharaoh-subtle font-display">AJOUTER :</span>
                           {questStepOptions(quest.unit).map(step => (
                             <button 
                               key={step}
                               onClick={() => handleUpdateQuestProgress(quest.id, step)}
-                              className="px-2 py-0.5 bg-sl-gold/5 border border-sl-gold/20 text-sl-gold hover:bg-sl-gold hover:text-sl-primary text-[9px] font-mono rounded transition-all btn-press"
+                              className="px-2.5 py-1 bg-sl-gold/5 border border-sl-gold/20 text-sl-gold hover:bg-sl-gold hover:text-sl-primary text-[10px] font-mono rounded transition-all btn-press"
                             >
                               +{step}
                             </button>
                           ))}
                           <button 
                             onClick={() => handleCompleteQuestInstantly(quest.id)}
-                            className="ml-auto px-2 py-0.5 bg-emerald/20 border border-emerald/40 text-emerald hover:bg-emerald hover:text-inverse text-[9px] font-display rounded transition-all"
+                            className="ml-auto px-2.5 py-1 bg-emerald/20 border border-emerald/40 text-emerald hover:bg-emerald hover:text-inverse text-[10px] font-display rounded transition-all btn-press"
                           >
                             Remplir Direct
                           </button>
@@ -1120,12 +1122,12 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
 
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
-                <h2 className="text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
+                <h2 className="text-base md:text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
                   <Skull className="w-6 h-6 text-blood" /> TOMBEAUX & PORTES ÉTABLIS
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {dungeons.map(dungeon => (
                   <div key={dungeon.id} className="bg-sl-primary border border-sl-gold/20 rounded-3xl overflow-hidden shadow-gold-sm group hover:border-sl-gold/60 transition-all flex flex-col justify-between">
                     <div>
@@ -1161,7 +1163,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             <p className="text-xs text-pharaoh font-medium leading-relaxed">
                               {dungeon.lifeImprovementGoal}
                             </p>
-                            <p className="text-[9px] text-pharaoh-muted italic">
+                            <p className="text-[10px] text-pharaoh-muted italic leading-relaxed">
                               Objectif : {dungeon.description}
                             </p>
                           </div>
@@ -1272,7 +1274,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               className="grid grid-cols-1 lg:grid-cols-2 gap-8"
             >
               <div className="space-y-6">
-                 <h2 className="text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
+                 <h2 className="text-base md:text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
                     <ShoppingCart className="w-6 h-6 text-sl-gold" /> BOUTIQUE DU SYSTÈME
                  </h2>
                  <div className="space-y-4">
@@ -1299,7 +1301,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
 
               <div className="space-y-6">
-                 <h2 className="text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
+                 <h2 className="text-base md:text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
                     <Gift className="w-6 h-6 text-sl-gold" /> VOTRE INVENTAIRE
                  </h2>
                  <div className="space-y-3">
@@ -1342,7 +1344,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               animate={{ opacity: 1 }}
               className="space-y-6"
             >
-              <h2 className="text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
+              <h2 className="text-base md:text-xl font-bold text-pharaoh font-display border-b border-sl-gold/20 pb-3 flex items-center gap-2">
                  <History className="w-6 h-6 text-sl-gold" /> CHRONIQUES DU SYSTÈME
               </h2>
               <div className="space-y-2">
