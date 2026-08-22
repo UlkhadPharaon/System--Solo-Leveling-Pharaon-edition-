@@ -1,50 +1,73 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { ActiveTab } from '../types';
 import {
   Crown, Calendar, Clock, Target, Trophy, Wallet, Sword,
-  Sparkles, Zap, ChevronRight,
+  Sparkles, Zap, ChevronRight, Dumbbell, FileText, type PharaohIcon,
 } from './ui/PharaohIcons';
 
 interface SystemIntroOverlayProps {
   onDismiss: () => void;
+  /** Optional: jump straight to a module's tab when its row is tapped. */
+  onNavigate?: (tab: ActiveTab) => void;
 }
 
-const TOUR_ITEMS = [
+const TOUR_ITEMS: { icon: PharaohIcon; label: string; desc: string; color: string; tab: ActiveTab }[] = [
   {
     icon: Crown,
     label: 'SYSTÈME',
-    desc: 'Votre profil de Chasseur : XP, rang, attributs, quêtes quotidiennes et donjons.',
+    desc: 'Ton profil de Chasseur : niveau, XP, rang, attributs et quêtes quotidiennes.',
     color: '#D4A81E',
+    tab: 'system_solo',
   },
   {
     icon: Calendar,
     label: 'QUÊTES',
-    desc: 'Votre journée en blocs horaires — cochez une tâche pour gagner XP et Or.',
+    desc: 'Ta journée en blocs horaires. Coche une tâche terminée pour gagner XP et Or.',
     color: '#1D6FA5',
+    tab: 'dashboard',
+  },
+  {
+    icon: Dumbbell,
+    label: 'ENTRAÎNEMENT',
+    desc: 'Routines de musculation, records personnels et suivi de ta forme physique.',
+    color: '#C0392B',
+    tab: 'workout',
   },
   {
     icon: Clock,
     label: 'FOCUS',
-    desc: "Minuteur de concentration par domaine. Il continue même si vous changez d'onglet.",
+    desc: "Minuteur de concentration par domaine. Il continue même si tu changes d'onglet.",
     color: '#7B3FE4',
+    tab: 'focus_timer',
   },
   {
     icon: Target,
     label: 'BILAN',
-    desc: 'Vos objectifs hebdomadaires par domaine et votre série de discipline.',
+    desc: 'Tes objectifs hebdomadaires par domaine et ta série de jours disciplinés.',
     color: '#D4A81E',
+    tab: 'weekly_targets',
   },
   {
     icon: Trophy,
     label: 'HAUTS FAITS',
-    desc: 'Consignez vos victoires quotidiennes : chaque entrée rapporte +100 XP.',
+    desc: 'Note tes victoires du jour : chaque entrée rapporte +100 XP.',
     color: '#F0C42D',
+    tab: 'victory_journal',
+  },
+  {
+    icon: FileText,
+    label: 'NOTES',
+    desc: 'Carnet de notes et plan de projet organisé en phases.',
+    color: '#C94277',
+    tab: 'notepad',
   },
   {
     icon: Wallet,
     label: 'TRÉSORERIE',
     desc: "Enveloppes budgétaires, transactions et objectifs d'épargne.",
     color: '#1E8A49',
+    tab: 'budget',
   },
 ];
 
@@ -52,9 +75,16 @@ const TOUR_ITEMS = [
  * First-visit orientation (#5 UX audit). The `showSystemIntro` state existed in
  * App but was never rendered — new users landed on the System tab with zero
  * explanation of XP, ranks or where each module lives. This overlay is shown
- * once (guarded by `aura_system_initialized`), right after onboarding closes.
+ * right after onboarding closes (and once at boot for users who completed
+ * onboarding before this shipped). Rows are tappable: they navigate to the
+ * module in question, so it doubles as a hands-on tour.
  */
-export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismiss }) => {
+export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismiss, onNavigate }) => {
+  const go = (tab: ActiveTab) => {
+    onNavigate?.(tab);
+    onDismiss();
+  };
+
   return (
     <div
       className="fixed inset-0 z-[140] flex items-center justify-center bg-obsidian/95 backdrop-blur-md p-4 overflow-y-auto"
@@ -90,8 +120,8 @@ export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismis
               </h2>
             </div>
             <p className="text-sm text-pharaoh-muted leading-relaxed max-w-md mx-auto">
-              Vous êtes désormais un <strong className="text-gold">Chasseur</strong>. Chaque tâche
-              accomplie, chaque session de concentration et chaque victoire enregistrée vous fait
+              Tu es désormais un <strong className="text-gold">Chasseur</strong>. Chaque tâche
+              accomplie, chaque session de concentration et chaque victoire enregistrée te fait
               monter en puissance.
             </p>
           </div>
@@ -114,18 +144,19 @@ export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismis
             ))}
           </div>
 
-          {/* Tab tour */}
+          {/* Tab tour — tappable, navigates to each module */}
           <div className="space-y-2">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-pharaoh-subtle text-center">
-              Vos modules
+              Tes modules — touche une ligne pour l'ouvrir
             </p>
             {TOUR_ITEMS.map((item, i) => (
-              <motion.div
+              <motion.button
                 key={item.label}
-                className="flex items-center gap-3.5 p-3 rounded-xl bg-obsidian border border-lapis-border hover:border-gold/30 transition-colors"
+                onClick={() => go(item.tab)}
+                className="btn-press w-full flex items-center gap-3.5 p-3 rounded-xl bg-obsidian border border-lapis-border hover:border-gold/40 hover:bg-panel-hover transition-colors text-left group"
                 initial={{ opacity: 0, x: -14 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.25 + i * 0.06 }}
+                transition={{ delay: 0.25 + i * 0.05 }}
               >
                 <div
                   className="p-2 rounded-lg flex items-center justify-center shrink-0"
@@ -133,12 +164,26 @@ export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismis
                 >
                   <item.icon size={16} style={{ color: item.color }} />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="font-display text-sm tracking-wide text-pharaoh">{item.label}</p>
                   <p className="text-xs text-pharaoh-muted leading-snug">{item.desc}</p>
                 </div>
-              </motion.div>
+                <ChevronRight
+                  size={16}
+                  className="text-pharaoh-muted shrink-0 group-hover:text-gold group-hover:translate-x-0.5 transition-all"
+                />
+              </motion.button>
             ))}
+          </div>
+
+          {/* First-step tip */}
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-panel-gold/15 border border-gold/30">
+            <Sparkles size={16} color="var(--color-gold)" className="mt-0.5 shrink-0" />
+            <p className="text-xs text-pharaoh-muted leading-relaxed">
+              <strong className="text-gold">1ère étape conseillée :</strong> ouvre{' '}
+              <strong className="text-gold">QUÊTES</strong> et coche tes premières tâches — tes
+              premiers XP t'attendent.
+            </p>
           </div>
 
           {/* CTA */}

@@ -9,3 +9,11 @@ coverage/
 # Web Push subscription storage (contains device push endpoint — treat as a secret)
 # Root-anchored so it does NOT ignore src/data/ (tracked source files)
 /data/
+
+# Responsive audit artifacts (screenshots, raw logs, throwaway checkers)
+scripts/shots/
+scripts/audit-out*.txt
+scripts/check-ai.mjs
+scripts/check-final.mjs
+scripts/shot-check.mjs
+scripts/diag-*.mjs

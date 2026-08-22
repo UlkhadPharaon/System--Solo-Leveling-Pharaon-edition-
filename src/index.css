@@ -388,13 +388,27 @@ main, .overflow-x-auto, .overflow-y-auto {
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .safe-top { padding-top: env(safe-area-inset-top, 0px); }
 
-/* Comfortable minimum tap targets on touch devices */
+/* Comfortable minimum tap targets on touch devices.
+   NOTE: height-only — forcing min-width:40px on EVERY button made small
+   icon chips / filter pills wider than their flex row and caused text
+   overlap on phones (beta screenshots, 2026-08-22). Small controls opt out
+   via .tap-compact; big primary actions keep generous padding anyway. */
 @media (pointer: coarse) {
-  button, [role="button"], a, input[type="checkbox"] {
+  button:not(.tap-compact), [role="button"]:not(.tap-compact), a, input[type="checkbox"] {
     min-height: 40px;
-    min-width: 40px;
   }
 }
+
+/* Horizontal scroll rails (day pickers, chip rows, tab strips).
+   `overflow-scrolling: touch` is not a Tailwind class — momentum scrolling
+   comes from index.css. Hide the scrollbar but KEEP the rail scrollable and
+   add right padding so the last chip never hugs the edge. */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* --- Tactile press feedback --- */
 .btn-press {

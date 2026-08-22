@@ -654,10 +654,12 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               </div>
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1 min-w-0">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-pharaoh font-display tracking-widest truncate">{safePlayer.title}</h1>
-                <RankBadge rank={safePlayer.rank} size={32} active />
+                <h1 className="text-base sm:text-lg md:text-2xl font-bold text-pharaoh font-display tracking-widest truncate">{safePlayer.title}</h1>
+                {/* shrink-0 + fixed size: the SVG badge previously collapsed
+                    with the title and visually collided with it on phones. */}
+                <RankBadge rank={safePlayer.rank} size={28} active className="shrink-0" />
               </div>
               <p className="text-xs text-sl-gold-light/60 font-display italic tracking-wide truncate">
                 Classe : <span className="text-sl-gold font-display not-italic">{safePlayer.hunterClass}</span>
@@ -665,7 +667,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 md:min-w-[420px] w-full md:w-auto min-w-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 w-full md:w-auto min-w-0">
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] font-mono tabular-nums">
                 <span className="text-blood font-display">SANTÉ (HP)</span>
@@ -709,8 +711,13 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="max-w-5xl mx-auto mt-3 md:mt-6 pt-3 md:pt-4 border-t border-sl-gold/10 flex items-center gap-2 md:gap-4 overflow-x-auto no-scrollbar pb-1">
+        {/* Navigation Tabs — one-line snap-scroll rail on mobile (labels can
+            never overlap; `flex-wrap` stacked 9 tabs into 2-3 tall rows and
+            pushed content below the fold), wraps normally from md up. */}
+        <nav
+          aria-label="Sections du Système"
+          className="max-w-5xl mx-auto mt-3 md:mt-6 pt-3 md:pt-4 border-t border-sl-gold/10 flex lg:flex-wrap items-stretch gap-2 md:gap-3 pb-1 overflow-x-auto no-scrollbar -mx-1 px-1"
+        >
           {[
             { id: 'statut', icon: Activity, label: 'Statut' },
             { id: 'quetes', icon: CheckCircle2, label: 'Missions' },
@@ -725,7 +732,8 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SystemTab)}
-              className={`btn-press px-3 md:px-4 py-2 text-[11px] md:text-xs whitespace-nowrap flex items-center gap-1.5 md:gap-2 transition-all font-display rounded-lg border ${
+              aria-pressed={activeTab === tab.id}
+              className={`btn-press tap-compact shrink-0 snap-start px-3 md:px-4 py-2 text-[11px] md:text-xs flex items-center gap-1.5 md:gap-2 transition-all font-display rounded-lg border ${
                 activeTab === tab.id
                   ? 'bg-sl-gold text-sl-primary border-sl-gold shadow-gold-sm font-bold'
                   : 'text-sl-gold-light/60 hover:text-sl-gold border-sl-gold/10 hover:border-sl-gold/30'
@@ -734,7 +742,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               <tab.icon className="w-4 h-4 shrink-0" /> {tab.label}
             </button>
           ))}
-        </div>
+        </nav>
       </div>
 
       <div className="max-w-5xl mx-auto p-4 md:p-6">
@@ -1226,15 +1234,15 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               animate={{ opacity: 1 }}
               className="space-y-6"
             >
-              <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4">
-                <div>
-                  <h2 className="text-lg font-bold text-pharaoh flex items-center gap-2 font-display">
-                    <Crown className="w-5 h-5 text-sl-gold" /> ARMÉE DIVINE DU PHARAON
+              <div className="flex items-start justify-between gap-3 border-b border-sl-gold/20 pb-4">
+                <div className="min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold text-pharaoh flex items-center gap-2 font-display leading-tight">
+                    <Crown className="w-5 h-5 text-sl-gold shrink-0" /> ARMÉE DIVINE DU PHARAON
                   </h2>
                   <p className="text-xs text-sl-gold-light/60 mt-1 italic font-display">Vos serviteurs éternels attendent vos ordres.</p>
                 </div>
-                <div className="font-display text-xs text-sl-gold-light bg-sl-lapis/80 border border-sl-gold/40 px-3 py-1.5 rounded-xl shadow-gold-sm">
-                  Guerriers Éveillés : <strong className="text-sl-gold font-mono">{(safePlayer.shadows || []).length}</strong>
+                <div className="shrink-0 font-display text-[10px] sm:text-xs text-sl-gold-light bg-sl-lapis/80 border border-sl-gold/40 px-2.5 py-1.5 rounded-xl shadow-gold-sm whitespace-nowrap">
+                  Guerriers : <strong className="text-sl-gold font-mono">{(safePlayer.shadows || []).length}</strong>
                 </div>
               </div>
 

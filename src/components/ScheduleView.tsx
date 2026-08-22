@@ -247,7 +247,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          {/* 7-day selector: grid on mobile so every day gets an equal cell
+              (a scroll rail squeezed 7 pills and clipped "Aujourd'hui"),
+              roomy scroll rail from sm up. */}
+          <div className="grid grid-cols-4 sm:flex sm:items-center gap-2 pb-2">
             {daysList.map((day) => {
               const isSelected = selectedDay === day;
               const isToday = todayName === day;
@@ -256,16 +259,19 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 <button
                   key={day}
                   onClick={() => onSelectDay(day)}
-                  className={`btn-press p-2.5 rounded-xl text-center border transition-all flex flex-col items-center justify-center ${
+                  aria-pressed={isSelected}
+                  className={`btn-press min-h-[44px] px-2 py-2 rounded-xl text-center border transition-all flex flex-col items-center justify-center ${
                     isSelected
                       ? 'bg-panel-gold border-gold text-gold-bright shadow-gold font-semibold'
                       : 'bg-obsidian/40 border-lapis hover:border-gold/40 text-pharaoh-muted hover:text-pharaoh'
                   }`}
                 >
-                  <span className="font-mono text-[11px] tracking-wide font-medium">{dayNameInFrench[day]}</span>
+                  <span className="font-mono text-[11px] tracking-wide font-medium truncate max-w-full">
+                    {dayNameInFrench[day]}
+                  </span>
                   {isToday && (
-                    <span className="font-mono text-[9px] uppercase tracking-tighter text-gold mt-0.5">
-                      • Aujourd’hui •
+                    <span className="font-mono text-[8px] uppercase tracking-wide text-gold mt-0.5 whitespace-nowrap">
+                      • Aujourd’hui
                     </span>
                   )}
                 </button>
@@ -331,7 +337,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className={`px-4 py-2 rounded-xl border whitespace-nowrap min-w-[60px] flex-shrink-0 ${style.iconBg}`}>
+                <div className={`px-4 py-2 rounded-xl border whitespace-nowrap ${style.iconBg}`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
@@ -355,18 +361,20 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
       {/* Filter and Controls Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2 border-b border-lapis pb-4">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
+        {/* Chips wrap instead of a squeezed scroll rail — overlap-proof at
+            every width (beta screenshot: labels printed over each other). */}
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <span className="font-mono text-[10px] tracking-wide font-medium opacity-60 flex items-center gap-1 mr-1 shrink-0">
             <Filter className="w-3.5 h-3.5" /> Filtrer :
           </span>
           {(domains.length > 0
             ? [
-                { id: 'all', label: 'Tout l’Emploi du Temps', cat: 'personal' as Category },
+                { id: 'all', label: 'Tout', cat: 'personal' as Category },
                 ...domains.map((d) => ({ id: `dom:${d.id}`, label: d.label, cat: `dom:${d.id}` as Category })),
                 { id: 'must_do_work', label: 'Travail Incontournable', cat: 'must_do_work' as Category },
               ]
             : [
-                { id: 'all', label: 'Tout l’Emploi du Temps', cat: 'personal' as Category },
+                { id: 'all', label: 'Tout', cat: 'personal' as Category },
                 { id: 'routine', label: 'Routine & Santé', cat: 'morning_routine' as Category },
                 { id: 'bangre_neo', label: 'Bangre Neo Lab', cat: 'bangre_neo' as Category },
                 { id: 'cinema', label: 'Cinéma & Films', cat: 'cinema' as Category },
@@ -381,7 +389,8 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               <button
                 key={catItem.id}
                 onClick={() => setFilterCategory(catItem.id)}
-                className={`btn-press px-3 py-1 rounded-xl font-mono text-[11px] uppercase transition-all whitespace-nowrap border ${
+                aria-pressed={isSelected}
+                className={`btn-press tap-compact px-3 py-1.5 rounded-xl font-mono text-[11px] uppercase transition-all whitespace-nowrap border ${
                   isSelected
                     ? catStyle.activeFilterBg
                     : 'bg-panel text-pharaoh-muted hover:text-pharaoh border-lapis'
@@ -395,10 +404,10 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
         <button
           onClick={openAddModal}
-          className="btn-press flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs transition-all self-end sm:self-auto"
+          className="btn-press flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-panel-gold hover:shadow-gold text-gold-bright border border-gold/50 font-mono text-xs transition-all self-end sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>Nouvelle Quête</span>
+          <span className="whitespace-nowrap">Nouvelle Quête</span>
         </button>
       </div>
 

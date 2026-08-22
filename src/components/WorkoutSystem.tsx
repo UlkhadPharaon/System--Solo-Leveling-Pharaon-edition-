@@ -463,7 +463,7 @@ export const WorkoutSystem: React.FC<WorkoutSystemProps> = ({
         </div>
 
         {/* Sub-navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 border-t border-lapis-border/60 pt-4 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 mt-6 border-t border-lapis-border/60 pt-4 overflow-x-auto no-scrollbar max-w-full">
           <button
             onClick={() => setActiveTab('ulkhad')}
             className={`btn-press flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all whitespace-nowrap flex-shrink-0 ${

@@ -207,7 +207,7 @@ export const ProjectTimelineView: React.FC<ProjectTimelineViewProps> = ({
     <div className="space-y-6 anim-in">
       {/* Category Tabs & Filter Selector */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-panel border border-lapis-border p-4 rounded-xl">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {legacyMode ? (
             <>
               <button

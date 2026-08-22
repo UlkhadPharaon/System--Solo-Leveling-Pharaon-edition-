@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   User, Target, Zap, Check, Plus, Trash, Sparkles, ArrowLeft, Wand,
-  Crown, Dumbbell, Film, GraduationCap, Briefcase, BookOpen,
+  Crown, Dumbbell, Film, GraduationCap, Briefcase, BookOpen, Calendar,
   Shield, Sword, Star, Flame, Eye, X, ChevronRight,  type PharaohIcon,
 } from './ui/PharaohIcons';
 import {
@@ -83,6 +83,16 @@ const TRACKING_COLOR_MAP: Record<TrackingType, string> = {
   budget_bucket: '#1E8A49',
   habit_checklist: '#D4A81E',
 };
+
+/** One-tap domain suggestions for the Domaines step (no typing required). */
+const DOMAIN_SUGGESTIONS: { label: string; tracking_type: TrackingType }[] = [
+  { label: 'Musculation', tracking_type: 'workout_log' },
+  { label: 'Études / Révisions', tracking_type: 'study_subjects' },
+  { label: 'Projet personnel', tracking_type: 'project_phases' },
+  { label: 'Finances', tracking_type: 'budget_bucket' },
+  { label: 'Concentration', tracking_type: 'focus_sessions' },
+  { label: 'Habitudes du matin', tracking_type: 'habit_checklist' },
+];
 
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComplete, onCompleteV2 }) => {
   const useV2 = ONBOARDING_V2_ENABLED && !!onCompleteV2;
@@ -235,6 +245,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
     setActiveDraft(0);
   };
 
+  // One-tap domain presets: fill the active draft if it is still empty,
+  // otherwise append a new draft — no typing required for quick setups.
+  const applySuggestion = (s: { label: string; tracking_type: TrackingType }) => {
+    if (domainCount >= 5) return;
+    if (active.label.trim()) {
+      setDrafts((prev) => [...prev, { ...newDraft(), label: s.label, tracking_type: s.tracking_type }]);
+      setActiveDraft(domainCount);
+    } else {
+      updateDraft({ label: s.label, tracking_type: s.tracking_type });
+    }
+  };
+
   const finish = () => {
     if (!onCompleteV2) return;
     const now = Date.now();
@@ -274,7 +296,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
     });
   };
 
-  const stepLabels = ['Vision', 'Domaines', 'Calibrage', 'Confirmation'];
+  const stepLabels = ['Bienvenue', 'Vision', 'Domaines', 'Calibrage', 'Confirmation'];
 
   return (
     <motion.div
@@ -321,9 +343,93 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
           Éveil du Système — {stepLabels[step - 1]}
         </motion.p>
 
-        {/* Bloc 1 — Vision */}
+        {/* Bloc 1 — Bienvenue : ce qu'est le Système, en langage simple.
+            The old flow opened directly on configuration (Vision) with zero
+            explanation of what the app IS — beta testers reported being lost. */}
         <AnimatePresence mode="wait">
           {step === 1 && (
+            <motion.div
+              key="welcome"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <motion.div
+                className="flex items-center gap-3"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="p-3 rounded-xl bg-panel-gold">
+                  <Crown size={24} color="var(--color-gold)" />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl font-light text-gradient-gold">Bienvenue, Chasseur.</h2>
+                  <p className="text-pharaoh-subtle text-sm">Tes objectifs de vie, transformés en jeu.</p>
+                </div>
+              </motion.div>
+
+              <motion.p
+                className="text-sm text-pharaoh-muted leading-relaxed"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                Le Système est un coach de développement personnel gamifié : tu définis
+                tes objectifs (<strong className="text-gold">2 minutes</strong>), il les transforme en{' '}
+                <strong className="text-gold">quêtes quotidiennes</strong>, et chaque vraie action
+                accomplie te fait gagner de l'<strong className="text-gold">XP</strong> et monter
+                de niveau — comme dans Solo Leveling.
+              </motion.p>
+
+              <div className="space-y-2.5">
+                <p className="font-mono text-[10px] uppercase tracking-wider text-pharaoh-subtle">
+                  Comment ça marche — en 3 étapes
+                </p>
+                {[
+                  { icon: Target, color: '#06b6d4', title: '1. Choisis tes domaines de vie', desc: 'Musculation, études, finances, projets… tout ce que tu veux améliorer.' },
+                  { icon: Calendar, color: '#1D6FA5', title: '2. Reçois tes quêtes du jour', desc: 'Le Système te propose chaque jour des actions concrètes à cocher.' },
+                  { icon: Zap, color: '#D4A81E', title: '3. Gagne XP, or et monte de rang', desc: 'Chaque tâche accomplie te fait progresser : rang E → S → Shadow Monarch.' },
+                ].map((item, i) => (
+                  <motion.div
+                    key={item.title}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-obsidian border border-lapis-border"
+                    initial={{ opacity: 0, x: -14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.15 + i * 0.08 }}
+                  >
+                    <div className="p-2 rounded-lg flex-shrink-0" style={{ background: `${item.color}1a`, border: `1px solid ${item.color}44` }}>
+                      <item.icon size={18} style={{ color: item.color }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-pharaoh">{item.title}</p>
+                      <p className="text-xs text-pharaoh-muted leading-snug">{item.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.button
+                onClick={() => setStep(2)}
+                className="w-full btn-press py-3 px-4 rounded-xl font-medium bg-panel-gold text-gold-bright border-gold/50 hover:shadow-gold flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                C'est parti — Configurer <ChevronRight size={18} />
+              </motion.button>
+              <p className="text-center font-mono text-[9px] uppercase tracking-wide text-pharaoh-subtle">
+                Configuration rapide : ~2 minutes
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bloc 2 — Vision */}
+        <AnimatePresence mode="wait">
+          {step === 2 && (
             <motion.div
               key="vision"
               initial={{ opacity: 0, x: 20 }}
@@ -381,7 +487,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
 
               <motion.button
                 disabled={!visionValid || !userName.trim()}
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 className="w-full btn-press py-3 px-4 rounded-xl font-medium bg-panel-gold text-gold-bright border-gold/50 disabled:opacity-50 hover:shadow-gold flex items-center justify-center gap-2"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
@@ -395,9 +501,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
           )}
         </AnimatePresence>
 
-        {/* Bloc 2 — Domaines */}
+        {/* Bloc 3 — Domaines */}
         <AnimatePresence mode="wait">
-          {step === 2 && (
+          {step === 3 && (
             <motion.div
               key="domains"
               initial={{ opacity: 0, x: 20 }}
@@ -434,6 +540,34 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
               >
                 <Wand size={18} /> Partir du preset « Créateur multi-discipline » (Musculation · Cinéma · Tech · École)
               </motion.button>
+
+              {/* One-tap suggestions — the fastest path to a valid setup */}
+              <motion.div
+                className="space-y-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12 }}
+              >
+                <p className="font-mono text-[10px] uppercase tracking-wider text-pharaoh-subtle">
+                  Ou ajoute un domaine en un clic :
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {DOMAIN_SUGGESTIONS.map((s) => (
+                    <motion.button
+                      key={s.label}
+                      onClick={() => applySuggestion(s)}
+                      className="btn-press flex items-center gap-1.5 px-3 py-2 rounded-xl border border-dashed border-lapis-border text-xs text-pharaoh-muted hover:text-gold hover:border-gold/50 bg-obsidian/40"
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.97 }}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.02 * DOMAIN_SUGGESTIONS.indexOf(s) }}
+                    >
+                      <Plus size={13} /> {s.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
 
               {/* Domain tabs */}
               <motion.div
@@ -599,7 +733,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                 transition={{ delay: 0.2 }}
               >
                 <motion.button
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                   className="btn-press px-4 py-3 rounded-xl border border-lapis-border text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh flex items-center gap-1"
                   whileHover={{ x: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -608,7 +742,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                 </motion.button>
                 <motion.button
                   disabled={!draftsValid}
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(4)}
                   className="btn-press flex-1 py-3 px-4 rounded-xl font-medium bg-panel-gold text-gold-bright border-gold/50 disabled:opacity-50 hover:shadow-gold flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
@@ -621,9 +755,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
           )}
         </AnimatePresence>
 
-        {/* Bloc 3 — Calibrage */}
+        {/* Bloc 4 — Calibrage */}
         <AnimatePresence mode="wait">
-          {step === 3 && (
+          {step === 4 && (
             <motion.div
               key="calibration"
               initial={{ opacity: 0, x: 20 }}
@@ -719,7 +853,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
 
               <motion.div className="flex gap-2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
                 <motion.button
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(3)}
                   className="btn-press px-4 py-3 rounded-xl border border-lapis-border text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh flex items-center gap-1"
                   whileHover={{ x: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -727,7 +861,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                   <ArrowLeft size={18} /> Retour
                 </motion.button>
                 <motion.button
-                  onClick={() => setStep(4)}
+                  onClick={() => setStep(5)}
                   className="btn-press flex-1 py-3 px-4 rounded-xl font-medium bg-panel-gold text-gold-bright border-gold/50 hover:shadow-gold flex items-center justify-center gap-2"
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
@@ -739,9 +873,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
           )}
         </AnimatePresence>
 
-        {/* Bloc 4 — Confirmation */}
+        {/* Bloc 5 — Confirmation */}
         <AnimatePresence mode="wait">
-          {step === 4 && (
+          {step === 5 && (
             <motion.div
               key="confirmation"
               initial={{ opacity: 0, x: 20 }}
@@ -854,7 +988,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
 
               <motion.div className="flex gap-2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 <motion.button
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(4)}
                   className="btn-press px-4 py-3 rounded-xl border border-lapis-border text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh flex items-center gap-1"
                   whileHover={{ x: -2 }}
                   whileTap={{ scale: 0.98 }}

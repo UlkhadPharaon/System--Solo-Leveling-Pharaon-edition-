@@ -80,6 +80,7 @@ import {
 import { generateInitialQuests, buildTemplateQuests } from './lib/questGeneration';
 import { HabitChecklistCard } from './components/HabitChecklistCard';
 import { OnboardingModal, OnboardingV2Result, ONBOARDING_V2_ENABLED } from './components/OnboardingModal';
+import { SystemIntroOverlay } from './components/SystemIntroOverlay';
 
 /** Safe localStorage JSON loader — falls back to default when corrupt (#13). */
 function loadJson<T>(key: string, fallback: T): T {
@@ -121,19 +122,22 @@ export default function App() {
 
   // Navigation & Selected Day State
   const [activeTab, setActiveTab] = useState<ActiveTab>('system_solo');
-  const [showSystemIntro, setShowSystemIntro] = useState<boolean>(() => {
-    return !localStorage.getItem('aura_system_initialized');
-  });
+  // First-visit orientation (#5 UX audit): the tour overlay is shown right
+  // after onboarding closes (see handleCompleteOnboarding*), and once at boot
+  // for users who already completed onboarding but never saw it. It can be
+  // re-opened anytime via the header Help button.
+  const [showSystemIntro, setShowSystemIntro] = useState<boolean>(false);
 
   useEffect(() => {
-    if (showSystemIntro) {
-      const timer = setTimeout(() => {
-        setShowSystemIntro(false);
-        localStorage.setItem('aura_system_initialized', 'true');
-      }, 5000);
-      return () => clearTimeout(timer);
+    if (localStorage.getItem('aura_onboarding_completed') && !localStorage.getItem('aura_system_initialized')) {
+      setShowSystemIntro(true);
     }
-  }, [showSystemIntro]);
+  }, []);
+
+  const dismissSystemIntro = () => {
+    setShowSystemIntro(false);
+    localStorage.setItem('aura_system_initialized', 'true');
+  };
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>(
     ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].includes(todayWeekdayName)
       ? todayWeekdayName
@@ -176,6 +180,7 @@ export default function App() {
     setPersonalization((prev) => ({ ...prev, userName: data?.userName }));
     localStorage.setItem('aura_onboarding_completed', 'true');
     setIsOnboardingOpen(false);
+    setShowSystemIntro(true);
   };
 
   /**
@@ -315,6 +320,8 @@ export default function App() {
     localStorage.setItem('aura_onboarding_completed', 'true');
     localStorage.setItem('aura_onboarding_version', '2');
     setIsOnboardingOpen(false);
+    // 9. Show the module tour right away — new users must know where everything lives.
+    setShowSystemIntro(true);
   };
 
   // habit_checklist module: daily check toggle (XP via centralized rate table)
@@ -1060,12 +1067,15 @@ export default function App() {
         openFocusTimerQuick={() => setActiveTab('focus_timer')}
         openPersonalizationModal={() => setIsPersonalizationOpen(true)}
         openDataManagement={() => setIsDataManagementOpen(true)}
+        openHelp={() => setShowSystemIntro(true)}
         isOffline={isOffline}
         showWorkoutTab={domains.length === 0 || domainsForTracking(domains, 'workout_log').length > 0}
       />
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 pt-4 pb-24 md:py-8 w-full flex-1">
+      {/* Main Container — pb tracks the mobile bottom nav's visibility
+          (nav is hidden at lg): md tablets previously got only 32px bottom
+          padding and their last rows sat UNDER the fixed nav. */}
+      <main className="max-w-7xl mx-auto px-4 lg:px-8 pt-4 pb-24 lg:py-8 w-full flex-1">
         {/* No exit animation on tab switch: nested AnimatePresence (e.g. SystemSoloLeveling)
             could hang the exit and leave the old tab stuck on screen. */}
         <motion.div
@@ -1248,6 +1258,17 @@ export default function App() {
         onComplete={handleCompleteOnboarding}
         onCompleteV2={ONBOARDING_V2_ENABLED ? handleCompleteOnboardingV2 : undefined}
       />
+
+      {/* First-visit module tour — shown after onboarding, re-openable via the header Help button */}
+      {showSystemIntro && (
+        <SystemIntroOverlay
+          onDismiss={dismissSystemIntro}
+          onNavigate={(tab) => {
+            setActiveTab(tab);
+            dismissSystemIntro();
+          }}
+        />
+      )}
 
       {/* Celebration Confetti Toast Overlay */}
       <CelebrationBanner

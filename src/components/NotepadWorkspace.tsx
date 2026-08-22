@@ -231,7 +231,7 @@ export const NotepadWorkspace: React.FC<NotepadWorkspaceProps> = ({
             </div>
 
             {/* Category Filter Pills */}
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex flex-wrap items-center gap-1 pb-1">
               {[
                 { id: 'all', label: 'Toutes' },
                 ...noteCategoryOptions,

@@ -25,13 +25,14 @@ import badgeWolf from '../assets/ui/badge-special-wolf.png';
  */
 export const RANK_ORDER: HunterRank[] = ['E', 'D', 'C', 'B', 'A', 'S', 'Pharaon'];
 
-export const RANK_BADGE_IMAGE: Record<HunterRank, string> = {
+export const RANK_BADGE_IMAGE: Record<'E' | 'D' | 'C' | 'B' | 'A' | 'S' | 'Pharaoh' | 'Pharaon', string> = {
   E: badgeRankE,
   D: badgeRankD,
   C: badgeRankC,
   B: badgeRankB,
   A: badgeRankA,
   S: badgeRankS,
+  Pharaoh: badgeRankPharaon,
   Pharaon: badgeRankPharaon,
 };
 

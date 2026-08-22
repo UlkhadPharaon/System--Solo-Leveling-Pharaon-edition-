@@ -5,6 +5,7 @@ import {
   Dumbbell, Film, GraduationCap, Code, BookOpen, Briefcase, Wallet, Users, Flame,
   Target, Trophy, FileText, Calendar, Clock, Zap, Sparkles, Plus, Settings, Trash,
   ArrowLeft, ChevronDown, Eye, EyeOff, Star, Skull, Dragon, Wolf, Grid,
+  HelpCircle,
   type PharaohIcon
 } from './ui/PharaohIcons';
 import { RankBadgeInline, getRankFromXP, RANK_DEFINITIONS } from './ui/RankBadge';
@@ -21,25 +22,12 @@ interface HeaderProps {
   openFocusTimerQuick: () => void;
   openPersonalizationModal?: () => void;
   openDataManagement?: () => void;
+  /** Re-opens the "Comment ça marche ?" tour overlay at any time. */
+  openHelp?: () => void;
   isOffline?: boolean;
   showWorkoutTab?: boolean;
   totalXP?: number;
 }
-
-const LiveClock: React.FC = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <span className="font-mono tabular-nums truncate min-w-0">
-      {currentTime.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })} • {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-    </span>
-  );
-};
 
 /**
  * Live countdown pill for the running focus session (#1 UX audit). Visible on
@@ -93,6 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
   openFocusTimerQuick,
   openPersonalizationModal,
   openDataManagement,
+  openHelp,
   isOffline,
   showWorkoutTab = true,
   totalXP = 0,
@@ -100,6 +89,14 @@ export const Header: React.FC<HeaderProps> = ({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMoreNav, setShowMoreNav] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  // Ticking header clock (inlined — was the separate <LiveClock/> that could
+  // not shrink and overflowed narrow phones).
+  const [clockNow, setClockNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setClockNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const moreNavRef = useRef<HTMLDivElement>(null);
 
@@ -166,11 +163,14 @@ export const Header: React.FC<HeaderProps> = ({
       <header
         className={`sticky top-0 z-40 transition-all duration-300 ${
           isScrolled ? 'bg-obsidian/95 backdrop-blur-xl border-b border-lapis-border shadow-card' : 'bg-obsidian/80 backdrop-blur-lg'
-        } px-4 py-3`}
+        } px-3 py-3 sm:px-4`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        {/* This row previously could NOT shrink (flex-shrink-0 both sides +
+            ~430px of content) → the whole document scrolled sideways on every
+            phone. Brand now shrinks/truncates, secondary actions hide <sm. */}
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           {/* Brand / System Title */}
-          <div className="flex items-center gap-3 flex-shrink-0 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <motion.div
               className="relative flex-shrink-0"
               whileHover={{ scale: 1.05, rotate: 3 }}
@@ -194,8 +194,8 @@ export const Header: React.FC<HeaderProps> = ({
                 </motion.span>
               )}
             </motion.div>
-            <div className="min-w-0">
-              <h1 className="font-display text-lg md:text-xl font-light tracking-widest text-gradient-gold truncate">
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-base sm:text-lg md:text-xl font-light tracking-widest text-gradient-gold truncate">
                 SOLO LEVELING
               </h1>
               <div className="flex items-center gap-2 text-[10px] md:text-xs text-pharaoh-subtle font-mono min-w-0">
@@ -205,7 +205,14 @@ export const Header: React.FC<HeaderProps> = ({
                   animate={{ opacity: isOffline ? [1, 0.4, 1] : 1 }}
                   transition={{ duration: isOffline ? 1.5 : 0 }}
                 />
-                <LiveClock />
+                {/* Full date+clock only ≥sm — "sam. 22 août • 20:14:38"
+                    overflowed a 320px header and re-widened the row. */}
+                <span className="hidden sm:inline font-mono tabular-nums truncate min-w-0">
+                  {clockNow.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })} • {clockNow.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+                <span className="sm:hidden font-mono tabular-nums">
+                  {clockNow.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
                 {isOffline && (
                   <span className="px-1.5 py-0.5 rounded-full bg-blood/10 border border-blood/40 text-blood font-mono text-[9px] shrink-0">
                     HORS-LIGNE
@@ -245,10 +252,26 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Right: Action Buttons + User Menu */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Right: Action Buttons + User Menu — shrink-safe, never pushes
+              the layout wider than the viewport. */}
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-shrink">
             {/* Live focus-session countdown (#1) — always visible, taps back to the timer */}
             <FocusSessionPill onClick={openFocusTimerQuick} />
+
+            {/* Help / "Comment ça marche ?" — re-opens the first-visit tour */}
+            {openHelp && (
+              <motion.button
+                onClick={openHelp}
+                aria-label="Comment ça marche ?"
+                title="Comment ça marche ?"
+                className="btn-press p-2.5 min-h-[40px] min-w-[40px] rounded-xl bg-panel border border-lapis-border text-pharaoh-muted hover:bg-panel-hover hover:text-gold transition-all"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                <HelpCircle size={18} />
+              </motion.button>
+            )}
 
             {/* Action Buttons */}
             <div className="hidden sm:flex items-center gap-1.5">
@@ -281,7 +304,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   aria-label="Menu utilisateur"
                   aria-expanded={showUserMenu}
-                  className="btn-press flex items-center gap-2 px-3 py-2 rounded-xl bg-panel border-lapis-border hover:bg-panel-hover transition-all group"
+                  className="btn-press flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-xl bg-panel border-lapis-border hover:bg-panel-hover transition-all group min-w-0"
                   whileHover={{ scale: 1.02 }}
                 >
                   <div className="w-8 h-8 rounded-xl bg-panel-gold flex items-center justify-center shadow-gold relative">
@@ -335,6 +358,13 @@ export const Header: React.FC<HeaderProps> = ({
                         >
                           <Clock size={18} />
                           <span>Minuteur Focus</span>
+                        </button>
+                        <button
+                          onClick={() => { setShowUserMenu(false); openHelp?.(); }}
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh transition-all"
+                        >
+                          <HelpCircle size={18} />
+                          <span>Comment ça marche ?</span>
                         </button>
                         <div className="h-px bg-lapis-border my-2 sm:hidden" />
                         <button
