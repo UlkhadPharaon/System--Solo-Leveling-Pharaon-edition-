@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trophy, CheckCircle2, Sparkles, X, PartyPopper } from './ui/PharaohIcons';
+import { Trophy, CheckCircle2, Sparkles, X, PartyPopper, Share2 } from './ui/PharaohIcons';
 import { triggerVictoryConfetti, triggerAllTasksCompletedConfetti } from '../lib/confetti';
+import { shareVictoryCard } from '../lib/victoryCard';
 
 export interface CelebrationInfo {
   show: boolean;
@@ -13,9 +14,26 @@ export interface CelebrationInfo {
 interface CelebrationBannerProps {
   info: CelebrationInfo | null;
   onClose: () => void;
+  /** Player snapshot for the shareable victory card (F5). */
+  shareContext?: { level?: number; rank?: string; streak?: number };
 }
 
-export const CelebrationBanner: React.FC<CelebrationBannerProps> = ({ info, onClose }) => {
+export const CelebrationBanner: React.FC<CelebrationBannerProps> = ({ info, onClose, shareContext }) => {
+  const [shareState, setShareState] = useState<'idle' | 'working' | 'done'>('idle');
+
+  const handleShare = async () => {
+    if (!info) return;
+    setShareState('working');
+    const result = await shareVictoryCard({
+      kind: 'level',
+      title: info.title.replace(/[!🎉🏆]/g, '').trim().slice(0, 40),
+      subtitle: `Chasseur rang ${shareContext?.rank || 'E'}`,
+      statLabel: 'Série actuelle',
+      statValue: `${shareContext?.streak ?? 0} jours`,
+      rank: shareContext?.rank || 'E',
+    });
+    setShareState(result === 'failed' ? 'idle' : 'done');
+  };
   useEffect(() => {
     if (info?.show) {
       const timer = setTimeout(() => {
@@ -93,7 +111,7 @@ export const CelebrationBanner: React.FC<CelebrationBannerProps> = ({ info, onCl
                   {info.message}
                 </p>
 
-                <div className="flex items-center gap-3 mt-3 pt-2 border-t border-lapis">
+                <div className="flex items-center gap-3 mt-3 pt-2 border-t border-lapis flex-wrap">
                   <button
                     onClick={handleReTrigger}
                     className="font-mono text-[10px] tracking-wide font-medium text-gold hover:text-gold-bright flex items-center gap-1.5 transition-colors"
@@ -102,9 +120,16 @@ export const CelebrationBanner: React.FC<CelebrationBannerProps> = ({ info, onCl
                     Relancer le Confetti
                   </button>
                   <span className="text-pharaoh-subtle">•</span>
-                  <span className="font-mono text-[10px] text-pharaoh-muted">
-                    Fermeture automatique...
-                  </span>
+                  <button
+                    onClick={handleShare}
+                    disabled={shareState === 'working'}
+                    className={`btn-press font-mono text-[10px] tracking-wide font-medium flex items-center gap-1.5 transition-colors ${
+                      shareState === 'done' ? 'text-emerald' : 'text-gold-bright hover:text-gold'
+                    }`}
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    {shareState === 'working' ? 'Génération...' : shareState === 'done' ? 'Carte partagée ✓' : 'Partager la Victoire'}
+                  </button>
                 </div>
               </div>
             </div>

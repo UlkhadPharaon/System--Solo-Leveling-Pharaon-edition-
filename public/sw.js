@@ -1,5 +1,7 @@
-const CACHE_NAME = 'pharaoh-system-v7';
-const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo-complet.png'];
+const CACHE_NAME = 'pharaoh-system-v8';
+// logo.webp (192 KB) replaces logo-complet.png (1.4 MB) in the pre-cache:
+// the old shell made every fresh install download ~1.5 MB of logo alone.
+const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo.webp'];
 const DEFAULT_ICON = '/icon-192.png';
 
 // Install Event - Caching the app shell + tous les bundles hashés référencés
@@ -15,7 +17,7 @@ self.addEventListener('install', (event) => {
         const indexResp = await fetch('/index.html', { cache: 'no-store' });
         const html = await indexResp.text();
         // Extrait les URLs des assets (script src=, link href=)
-        const urls = [...html.matchAll(/(?:src|href)="([^"]+\.(?:js|css|woff2|png|jpg|svg))"/g)]
+        const urls = [...html.matchAll(/(?:src|href)="([^"]+\.(?:js|css|woff2|png|jpg|webp|svg))"/g)]
           .map((m) => m[1])
           .filter((u) => !u.startsWith('http') || u.includes('fonts.g'));
         if (urls.length) await cache.addAll(urls).catch(() => {});
@@ -55,7 +57,9 @@ self.addEventListener('activate', (event) => {
 //     offline fallback. (Everything used to be cache-first with a frozen
 //     cache name, which pinned phones to an old broken build forever.)
 //   • Hashed Vite bundles (/assets/…): cache-first — content-hashed names
-//     make a cache hit always the right immutable file.
+//     make a cache hit always the right immutable file. Lazy-loaded tab
+//     chunks (React.lazy) are cached on first visit of their tab; after the
+//     user has opened every tab once, the whole app works offline.
 //   • Google Fonts CDNs: cache-first with network fallback.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;

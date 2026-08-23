@@ -87,13 +87,13 @@ export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismis
 
   return (
     <div
-      className="fixed inset-0 z-[140] flex items-center justify-center bg-obsidian/95 backdrop-blur-md p-4 overflow-y-auto"
+      className="fixed inset-0 z-[140] flex items-start sm:items-center justify-center bg-obsidian/95 backdrop-blur-md p-3 sm:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-label="Introduction au Système"
     >
       <motion.div
-        className="relative max-w-2xl w-full my-8 bg-panel border border-gold/40 rounded-3xl shadow-gold-lg overflow-hidden"
+        className="relative max-w-2xl w-full my-3 sm:my-8 bg-panel border border-gold/40 rounded-3xl shadow-gold-lg overflow-x-hidden"
         initial={{ opacity: 0, scale: 0.94, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -127,7 +127,7 @@ export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismis
           </div>
 
           {/* XP explainer strip */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               { icon: Zap, label: 'Tâche cochée', value: '+XP & Or' },
               { icon: Sparkles, label: 'Session Focus', value: '+XP & Or' },
@@ -153,7 +153,7 @@ export const SystemIntroOverlay: React.FC<SystemIntroOverlayProps> = ({ onDismis
               <motion.button
                 key={item.label}
                 onClick={() => go(item.tab)}
-                className="btn-press w-full flex items-center gap-3.5 p-3 rounded-xl bg-obsidian border border-lapis-border hover:border-gold/40 hover:bg-panel-hover transition-colors text-left group"
+                className="btn-press w-full flex items-center gap-2.5 sm:gap-3.5 p-2.5 sm:p-3 rounded-xl bg-obsidian border border-lapis-border hover:border-gold/40 hover:bg-panel-hover transition-colors text-left group min-w-0"
                 initial={{ opacity: 0, x: -14 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.25 + i * 0.05 }}

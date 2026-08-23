@@ -32,12 +32,27 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
     });
   }, []);
 
+  const [exportDone, setExportDone] = useState(false);
+
   const exportData = () => {
-    const data: Record<string, any> = {};
-    STORAGE_KEYS.forEach(key => {
-      const saved = localStorage.getItem(key);
-      if (saved) data[key] = JSON.parse(saved);
-    });
+    // Capture EVERY aura_* key dynamically — a hardcoded list silently drops
+    // any key added later (it already missed aura_daily_quest_reset).
+    const data: Record<string, any> = {
+      _meta: {
+        app: 'pharaoh-system',
+        schemaVersion: 1,
+        exportedAt: new Date().toISOString(),
+      },
+    };
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('aura_')) continue;
+      try {
+        data[key] = JSON.parse(localStorage.getItem(key) as string);
+      } catch {
+        data[key] = localStorage.getItem(key); // raw string fallback
+      }
+    }
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -46,27 +61,50 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
     a.download = `aura_data_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    setExportDone(true);
+    setTimeout(() => setExportDone(false), 4000);
   };
+
+  const [confirmImport, setConfirmImport] = useState<{ content: Record<string, any>; keys: number } | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    setImportError(null);
 
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const content = JSON.parse(e.target?.result as string);
-        Object.keys(content).forEach(key => {
-          if (STORAGE_KEYS.includes(key)) {
-            localStorage.setItem(key, JSON.stringify(content[key]));
-          }
-        });
-        window.location.reload();
+        // Validate shape before touching localStorage.
+        if (!content || typeof content !== 'object' || content._meta?.app !== 'pharaoh-system') {
+          setImportError("Fichier invalide : ce n'est pas une sauvegarde du Système.");
+          return;
+        }
+        const keys = Object.keys(content).filter((k) => k.startsWith('aura_'));
+        if (keys.length === 0) {
+          setImportError('Sauvegarde vide : aucune donnée aura_* trouvée.');
+          return;
+        }
+        // Stage for confirmation — importing OVERWRITES all current data.
+        setConfirmImport({ content, keys: keys.length });
       } catch (err) {
-        alert('Erreur lors de l\'importation : format JSON invalide.');
+        setImportError('Erreur lors de la lecture : format JSON invalide.');
       }
     };
     reader.readAsText(file);
+    // Reset the input so selecting the same file again still fires onChange.
+    event.target.value = '';
+  };
+
+  const applyImport = (content: Record<string, any>) => {
+    Object.keys(content).forEach((key) => {
+      if (key.startsWith('aura_')) {
+        localStorage.setItem(key, typeof content[key] === 'string' ? content[key] : JSON.stringify(content[key]));
+      }
+    });
+    window.location.reload();
   };
 
   const [confirmReset, setConfirmReset] = useState(false);
@@ -93,6 +131,15 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
         <p className="text-pharaoh-muted text-sm">
           Exportez vos données pour les sauvegarder, importez une sauvegarde, ou réinitialisez complètement l'application pour repartir à zéro.
         </p>
+
+        {exportDone && (
+          <p className="text-emerald text-[11px] font-mono flex items-center gap-1.5" role="status">
+            ✓ Sauvegarde téléchargée.
+          </p>
+        )}
+        {importError && (
+          <p className="text-blood text-[11px] font-mono" role="alert">{importError}</p>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <button
@@ -172,7 +219,22 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
           onCancel={() => setConfirmReset(false)}
         />
 
-        <input type="file" ref={fileInputRef} onChange={importData} accept=".json" className="hidden" />
+        {/* Import overwrite guard — importing replaces ALL current data,
+            so it gets the same confirmation treatment as a full reset. */}
+        <ConfirmDialog
+          isOpen={!!confirmImport}
+          title="Importer cette sauvegarde ?"
+          message={`Vos données actuelles seront remplacées par celles du fichier (${confirmImport?.keys ?? 0} sections sauvegardées). Cette action est irréversible.`}
+          confirmLabel="Remplacer mes données"
+          cancelLabel="Annuler"
+          onConfirm={() => {
+            if (confirmImport) applyImport(confirmImport.content);
+            setConfirmImport(null);
+          }}
+          onCancel={() => setConfirmImport(null)}
+        />
+
+        <input type="file" ref={fileInputRef} onChange={importData} accept=".json,application/json" className="hidden" />
       </div>
     </div>
   );

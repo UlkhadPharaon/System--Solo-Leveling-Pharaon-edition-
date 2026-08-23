@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Category, SchoolSubject, Domain } from '../types';
 import { styleForDomain, DOMAIN_CATEGORY_STYLES } from '../lib/domains';
-import { audioSynth } from '../lib/audioSynthesizer';
 import {
   useActiveFocusSession,
   activeFocusRemainingMs,
@@ -12,6 +11,8 @@ import {
   clearActiveFocusSession,
 } from '../lib/activeFocusSession';
 import { FocusMusicPlayer } from './FocusMusicPlayer';
+import { globalAudio, AMBIENCE_TRACKS, type AmbientId } from '../lib/globalAudio';
+import { useSyncExternalStore } from 'react';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import {
   Clock, Play, Pause, RotateCcw, Volume2, VolumeX,
@@ -64,8 +65,9 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   const [sessionNotes, setSessionNotes] = useState<string>('');
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
 
-  const [activeSound, setActiveSound] = useState<'none' | 'rain' | 'focus_noise' | 'waves' | 'binaural'>('none');
-  const [musicPlaying, setMusicPlaying] = useState(false);
+  const audioState = useSyncExternalStore(globalAudio.subscribe, globalAudio.getSnapshot, globalAudio.getSnapshot);
+  const activeSound: AmbientId | 'none' = audioState.mode.kind === 'ambient' ? audioState.mode.id : 'none';
+  const musicPlaying = audioState.mode.kind === 'song' && audioState.playing;
 
   // #1 UX audit: the running session lives in a module-level store (timestamp
   // based) — it survives tab switches and reloads. This component only renders
@@ -108,11 +110,9 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSession]);
 
-  // Stop ambient loops on unmount — the audioSynth is a module singleton and
-  // would otherwise keep playing with no UI left to control it.
-  useEffect(() => {
-    return () => audioSynth.stopSound();
-  }, []);
+  // NOTE (M1): audio intentionally KEEPS playing when this component
+  // unmounts — globalAudio + the floating MiniPlayer handle playback and
+  // controls from anywhere in the app.
 
   const displayCategory = activeSession ? activeSession.category : selectedCategory;
   const displaySubject = activeSession?.schoolSubject ?? selectedSchoolSubject;
@@ -150,8 +150,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
   const confirmReset = () => {
     clearActiveFocusSession();
-    audioSynth.stopSound();
-    setActiveSound('none');
+    globalAudio.stop();
     setShowResetConfirm(false);
   };
 
@@ -164,26 +163,11 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
     if (activeSession) updateActiveFocusNotes(value);
   };
 
-  const handleToggleSound = (soundType: 'rain' | 'focus_noise' | 'waves' | 'binaural') => {
+  const handleToggleSound = (soundType: AmbientId) => {
     if (activeSound === soundType) {
-      audioSynth.stopSound();
-      setActiveSound('none');
+      globalAudio.stop();
     } else {
-      if (musicPlaying) setMusicPlaying(false);
-      audioSynth.playSound(soundType);
-      setActiveSound(soundType);
-    }
-  };
-
-  const handleMusicPlaybackChange = (playing: boolean) => {
-    if (playing) {
-      if (activeSound !== 'none') {
-        audioSynth.stopSound();
-        setActiveSound('none');
-      }
-      setMusicPlaying(true);
-    } else {
-      setMusicPlaying(false);
+      globalAudio.playAmbient(soundType);
     }
   };
 
@@ -469,18 +453,13 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {[
-              { id: 'rain', label: 'Pluie Douce', icon: Sparkles, color: '#1D6FA5' },
-              { id: 'focus_noise', label: 'Bruit Brun', icon: Zap, color: '#7B3FE4' },
-              { id: 'waves', label: 'Vagues d\'Océan', icon: Shield, color: '#1E8A49' },
-              { id: 'binaural', label: 'Ondes Alpha (432Hz)', icon: Crown, color: '#D4A81E' },
-            ].map((sound) => {
-              const isAct = activeSound === sound.id;
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            {AMBIENCE_TRACKS.map((track) => {
+              const isAct = activeSound === track.id;
               return (
                 <motion.button
-                  key={sound.id}
-                  onClick={() => handleToggleSound(sound.id as any)}
+                  key={track.id}
+                  onClick={() => handleToggleSound(track.id)}
                   className={`btn-press relative px-3 py-2.5 rounded-xl font-mono text-[11px] border transition-all flex flex-col items-start gap-1 ${
                     isAct
                       ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
@@ -488,12 +467,15 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   }`}
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.98 }}
+                  title={`Boucle réelle ${track.durationSec}s — continue même si vous changez de section`}
                 >
                   <div className="flex items-center gap-1.5">
-                    <sound.icon size={14} style={{ color: isAct ? 'var(--color-gold)' : sound.color }} />
-                    <span>{sound.label}</span>
+                    <Volume2 size={14} color={isAct ? 'var(--color-gold)' : 'var(--color-sapphire)'} />
+                    <span>{track.label}</span>
                   </div>
-                  {isAct ? <Volume2 size={14} color="var(--color-gold)" className="anim-glow" /> : <VolumeX size={14} className="opacity-40" />}
+                  <span className="text-[9px] opacity-60">
+                    {isAct && audioState.playing ? 'en lecture • ∞ boucle' : `boucle ${Math.round(track.durationSec / 60)} min`}
+                  </span>
                 </motion.button>
               );
             })}
@@ -506,7 +488,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <FocusMusicPlayer onPlaybackChange={handleMusicPlaybackChange} sessionRunning={isRunning} />
+          <FocusMusicPlayer />
         </motion.div>
 
         {/* Session Reflection Notes Input */}

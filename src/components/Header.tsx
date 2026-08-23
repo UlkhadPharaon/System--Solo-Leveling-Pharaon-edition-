@@ -177,7 +177,7 @@ export const Header: React.FC<HeaderProps> = ({
               transition={{ duration: 0.2 }}
             >
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-panel-gold flex items-center justify-center shadow-gold relative overflow-hidden">
-                <img src="/logo.png" alt="Logo Pharaoh" className="w-full h-full object-cover anim-float" />
+                <img src="/logo.webp" alt="Logo Pharaoh" className="w-full h-full object-cover anim-float" width={40} height={40} />
                 <div className="absolute inset-0 bg-gradient-to-tr from-gold/20 to-transparent" />
               </div>
               {/* Rank indicator dot */}

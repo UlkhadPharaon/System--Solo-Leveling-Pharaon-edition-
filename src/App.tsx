@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
 import { 
   RoutineBlock, 
@@ -50,22 +50,33 @@ import {
 } from './data/defaultData';
 import { INITIAL_PROJECT_PHASES } from './data/initialPhases';
 import { Header } from './components/Header';
-import { ScheduleView } from './components/ScheduleView';
-import { ProgressDashboard } from './components/ProgressDashboard';
-import { VictoryJournal } from './components/VictoryJournal';
-import { FocusTimer } from './components/FocusTimer';
-import { NotepadWorkspace } from './components/NotepadWorkspace';
-import { BudgetTracker } from './components/BudgetTracker';
+// Default tab stays eager (first paint); everything else is code-split so
+// phones don't download recharts/lottie/budget code they may never open.
+const ScheduleView = lazy(() => import('./components/ScheduleView').then(m => ({ default: m.ScheduleView })));
+const ProgressDashboard = lazy(() => import('./components/ProgressDashboard').then(m => ({ default: m.ProgressDashboard })));
+const VictoryJournal = lazy(() => import('./components/VictoryJournal').then(m => ({ default: m.VictoryJournal })));
+const FocusTimer = lazy(() => import('./components/FocusTimer').then(m => ({ default: m.FocusTimer })));
+const NotepadWorkspace = lazy(() => import('./components/NotepadWorkspace').then(m => ({ default: m.NotepadWorkspace })));
+const BudgetTracker = lazy(() => import('./components/BudgetTracker').then(m => ({ default: m.BudgetTracker })));
+const WorkoutSystem = lazy(() => import('./components/WorkoutSystem').then(m => ({ default: m.WorkoutSystem })));
+const PersonalizationModal = lazy(() => import('./components/PersonalizationModal').then(m => ({ default: m.PersonalizationModal })));
+import { WeeklyReportCard } from './components/WeeklyReportCard';
+// Landing tab + lightweight modals stay in the main bundle.
 import { SystemSoloLeveling } from './components/SystemSoloLeveling';
-import { WorkoutSystem } from './components/WorkoutSystem';
 import { AIAssistantModal } from './components/AIAssistantModal';
-import { PersonalizationModal } from './components/PersonalizationModal';
 import { DataManagementModal } from './components/DataManagementModal';
+import { MiniPlayer } from './components/MiniPlayer';
+import { FloatingRewardLayer } from './components/FloatingReward';
+import { TabSkeleton } from './components/TabSkeleton';
 import { CelebrationBanner, CelebrationInfo } from './components/CelebrationBanner';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { DailyRitual } from './components/DailyRitual';
 import { triggerVictoryConfetti, triggerAllTasksCompletedConfetti } from './lib/confetti';
 import { calculateLevelProgression, getRankAndClassForLevel, blockReward, focusSessionReward, workoutReward, XP_RATES } from './lib/utils';
+import { haptic } from './lib/haptics';
+import { buildWeeklyReport } from './lib/weeklyReport';
+import { registerComboHit } from './lib/comboEngine';
+import { fireReward } from './components/FloatingReward';
 import { DailyBonusModal } from './components/DailyBonusModal';
 import { registerTodayActivity, shouldShowDailyPopup, DailyStreakState } from './lib/dailyEngine';
 import { cloudSync } from './lib/supabaseSync';
@@ -121,7 +132,16 @@ export default function App() {
   const todayWeekdayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek;
 
   // Navigation & Selected Day State
-  const [activeTab, setActiveTab] = useState<ActiveTab>('system_solo');
+  // PWA shortcuts (manifest.json) deep-link via ?tab=<id> — honor it on boot.
+  const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
+    try {
+      const fromUrl = new URLSearchParams(window.location.search).get('tab');
+      const valid: ActiveTab[] = ['system_solo', 'dashboard', 'workout', 'focus_timer', 'weekly_targets', 'victory_journal', 'notepad', 'budget'];
+      return (valid as string[]).includes(fromUrl || '') ? (fromUrl as ActiveTab) : 'system_solo';
+    } catch {
+      return 'system_solo';
+    }
+  });
   // First-visit orientation (#5 UX audit): the tour overlay is shown right
   // after onboarding closes (see handleCompleteOnboarding*), and once at boot
   // for users who already completed onboarding but never saw it. It can be
@@ -507,6 +527,20 @@ export default function App() {
     return loadJson('aura_body_metrics', INITIAL_BODY_METRICS);
   });
 
+  // F4 — Weekly report ("Palier de la Semaine"): pure aggregation of the
+  // same state the app already renders; recomputed only when inputs change.
+  const weeklyReport = useMemo(
+    () =>
+      buildWeeklyReport(
+        categoryTargets,
+        focusSessions,
+        dailyStreak,
+        Object.values(daySchedules).flat().filter((b: any) => b.isCompleted).length,
+        Object.values(daySchedules).flat().length,
+      ),
+    [categoryTargets, focusSessions, dailyStreak, daySchedules],
+  );
+
   // Save to LocalStorage
   useEffect(() => {
     localStorage.setItem('aura_personalization', JSON.stringify(personalization));
@@ -624,6 +658,7 @@ export default function App() {
           if (celebrationGuardRef.current === `levelup-${progression.level}`) return;
           celebrationGuardRef.current = `levelup-${progression.level}`;
           triggerVictoryConfetti();
+          haptic('levelup');
           setCelebrationInfo({
             show: true,
             title: `VOUS AVEZ MONTE EN NIVEAU ! 🎉 (NIVEAU ${progression.level})`,
@@ -778,12 +813,19 @@ export default function App() {
   // Routine Checkbox Toggle Handler
   // All rewards & side effects are computed from current state BEFORE the
   // updater — never inside it — so StrictMode cannot double-grant (#2).
-  const handleToggleBlockComplete = (id: string) => {
+  const handleToggleBlockComplete = (id: string, evt?: React.MouseEvent) => {
     const currentBlocks = daySchedules[selectedDay] || [];
     const target = currentBlocks.find((b) => b.id === id);
     if (!target) return;
 
     const newStatus = !target.isCompleted;
+    if (newStatus && evt) {
+      // M3 — immediate dopamine: floating burst + combo + haptic tick.
+      const reward = blockReward(target.durationMinutes);
+      const combo = registerComboHit();
+      fireReward([`+${reward.xp} XP`, `+${reward.gold} Or`], evt, combo.count);
+      haptic('tap');
+    }
     const hoursDelta = (target.durationMinutes / 60) * (newStatus ? 1 : -1);
     const wasAllCompletedBefore = currentBlocks.length > 0 && currentBlocks.every((b) => b.isCompleted);
     const willBeAllCompleted =
@@ -1085,6 +1127,7 @@ export default function App() {
           transition={{ duration: 0.25, ease: 'easeOut' }}
           className="w-full h-full relative"
         >
+          <Suspense fallback={<TabSkeleton tab={activeTab} />}>
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
                 <DailyRitual onInvokeBlessing={handleInvokeRitualBlessing} />
@@ -1140,6 +1183,8 @@ export default function App() {
             )}
 
             {activeTab === 'weekly_targets' && (
+              <div className="space-y-6">
+              <WeeklyReportCard report={weeklyReport} />
               <ProgressDashboard
                 categoryTargets={categoryTargets}
                 subjectGoals={subjectGoals}
@@ -1154,6 +1199,7 @@ export default function App() {
                 onToggleDayStreak={handleToggleDayStreak}
                 domains={domains}
               />
+              </div>
             )}
 
             {activeTab === 'focus_timer' && (
@@ -1199,8 +1245,15 @@ export default function App() {
                 onDeleteSavingsGoal={handleDeleteSavingsGoal}
               />
             )}
+          </Suspense>
         </motion.div>
       </main>
+
+      {/* M1 - Global focus-audio mini player: survives tab switches because
+          the audio element lives in lib/globalAudio, not in any view. */}
+      <MiniPlayer />
+      {/* M3 — floating +XP/×combo reward bursts (pointer-events-none). */}
+      <FloatingRewardLayer />
 
       {/* Footer */}
       <footer className="border-t border-lapis-border/50 bg-obsidian/60 py-6 px-4 lg:px-8 text-center text-xs text-pharaoh-muted">
@@ -1274,6 +1327,7 @@ export default function App() {
       <CelebrationBanner
         info={celebrationInfo}
         onClose={() => setCelebrationInfo(null)}
+        shareContext={{ level: playerProfile.level, rank: playerProfile.rank, streak: dailyStreak.currentStreak }}
       />
 
       {/* Daily Connection Bonus — engagement loop */}

@@ -31,7 +31,7 @@ interface ScheduleViewProps {
   onSelectDay: (day: DayOfWeek) => void;
   personalization: UserPersonalization;
   domains?: Domain[];
-  onToggleComplete: (id: string) => void;
+  onToggleComplete: (id: string, evt?: React.MouseEvent) => void;
   onAddBlock: (block: RoutineBlock) => void;
   onEditBlock: (block: RoutineBlock) => void;
   onDeleteBlock: (id: string) => void;
@@ -477,7 +477,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
               <div className="flex items-center gap-2 self-end md:self-auto pt-2 md:pt-0 border-t md:border-t-0 border-lapis w-full md:w-auto justify-end">
                 {/* Mark Complete */}
                 <button
-                  onClick={() => onToggleComplete(block.id)}
+                  onClick={(e) => onToggleComplete(block.id, e)}
                   className={`btn-press p-1.5 rounded-xl transition-all ${
                     block.isCompleted
                       ? 'text-emerald bg-emerald/10 hover:bg-emerald/20'

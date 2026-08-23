@@ -501,3 +501,36 @@ progress, [role="progressbar"] > div, .progress-smooth {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================
+   BUDGET-GPU RELIEF (entry-level Androids)
+   backdrop-filter is the #1 jank source here: every blurred panel forces
+   the compositor to re-render the pixels behind it each frame. On phones
+   we keep ONE blur level and drop the rest; infinite decorative loops are
+   paused while the tab is hidden via .anim-paused (see main.tsx).
+   ============================================ */
+@media (pointer: coarse) {
+  .bg-panel,
+  .bg-panel-hover,
+  .bg-glass,
+  header.sticky,
+  nav.sticky {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    /* Opaque stand-in so text stays readable without the blur. */
+    background-color: rgba(6, 14, 26, 0.96);
+  }
+  .bg-glass-strong {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: rgba(8, 17, 30, 0.97);
+  }
+}
+
+/* Pause purely decorative infinite loops when the document is hidden.
+   main.tsx toggles this class on <html> from visibilitychange. */
+html.anim-paused *,
+html.anim-paused *::before,
+html.anim-paused *::after {
+  animation-play-state: paused !important;
+}

@@ -51,6 +51,9 @@ import { DungeonTimer } from './DungeonTimer';
 import { WorldLeaderboardView } from './WorldLeaderboardView';
 import { useCountdown, formatRemaining } from './PenaltyQuestCard';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
+import { haptic } from '../lib/haptics';
+import { registerComboHit, comboGoldBonus } from '../lib/comboEngine';
+import { fireReward } from './FloatingReward';
 import { INITIAL_PLAYER_PROFILE } from '../data/defaultData';
 import { RankBadge } from './ui/RankBadge';
 
@@ -398,6 +401,17 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
       return;
     }
 
+    // Pierre de Protection: hard cap of 2 in inventory.
+    if (item.id === 'item-streak-stone') {
+      const owned = (player?.inventory || [])
+        .filter((i) => i.id === item.id)
+        .reduce((sum, i) => sum + (i.quantity || 1), 0);
+      if (owned >= 2) {
+        showSystemMessage('Limite atteinte :  Pierres de Protection maximum en réserve.');
+        return;
+      }
+    }
+
     onUpdatePlayer((prev) => {
       const existing = (prev?.inventory || []).find((i) => i.name === item.name);
       let updatedInv = [...(prev?.inventory || [])];
@@ -596,7 +610,11 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
     }
   };
 
-  const handleClaimQuestReward = (questId: string) => {
+  const handleClaimQuestReward = (questId: string, evt?: React.MouseEvent) => {
+    const combo = registerComboHit();
+    const bonusGold = comboGoldBonus(50);
+    fireReward([`+${100} XP`, `+${50 + bonusGold} Or`], evt, combo.count);
+
     onUpdatePlayer(prev => {
       const quest = (prev?.dailyQuests || []).find(q => q.id === questId);
       if (!quest || quest.isCompleted) return prev;
@@ -616,7 +634,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
         attributePoints: (prev?.attributePoints || 0) + progression.attributePointsGained,
         rank: rankInfo.rank,
         hunterClass: rankInfo.hunterClass,
-        gold: (prev?.gold || 0) + quest.goldReward,
+        gold: (prev?.gold || 0) + quest.goldReward + (bonusGold || 0),
         dailyQuests: updatedQuests,
         logs: [
           {
@@ -635,6 +653,9 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
     { id: 'p1', name: 'Potion de Soin Mineure', type: 'potion', rarity: 'E', description: 'Restaure 30 HP.', hpRestore: 30, goldValue: 50, iconName: 'Heart' },
     { id: 'p2', name: 'Potion de Mana Mineure', type: 'potion', rarity: 'E', description: 'Restaure 20 MP.', mpRestore: 20, goldValue: 50, iconName: 'Zap' },
     { id: 'p3', name: 'Élixir de Vie du Nil', type: 'potion', rarity: 'B', description: 'Restaure 100 HP.', hpRestore: 100, goldValue: 200, iconName: 'Heart' },
+    // F3 — defensive gold sink: auto-consumed by the daily engine when a
+    // day is missed; keeps the streak alive. Limited to 2 in inventory.
+    { id: 'item-streak-stone', name: 'Pierre de Protection du Streak', type: 'key', rarity: 'A', description: 'Si vous manquez un jour, cette pierre est consommée et votre série survit. (Max 2)', goldValue: 300, iconName: 'Shield' },
   ];
 
   return (
@@ -1050,7 +1071,12 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                           {questStepOptions(quest.unit).map(step => (
                             <button 
                               key={step}
-                              onClick={() => handleUpdateQuestProgress(quest.id, step)}
+                              onClick={(e) => {
+                                haptic('tap');
+                                const combo = registerComboHit();
+                                fireReward([`+${step} ${quest.unit}`], e, combo.count);
+                                handleUpdateQuestProgress(quest.id, step);
+                              }}
                               className="px-2.5 py-1 bg-sl-gold/5 border border-sl-gold/20 text-sl-gold hover:bg-sl-gold hover:text-sl-primary text-[10px] font-mono rounded transition-all btn-press"
                             >
                               +{step}
@@ -1077,7 +1103,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                        </div>
                        {!quest.isCompleted && quest.currentCount >= quest.targetCount && (
                          <button
-                           onClick={() => handleClaimQuestReward(quest.id)}
+                           onClick={(e) => { haptic('success'); handleClaimQuestReward(quest.id, e); }}
                            className="px-3 py-1 bg-sl-gold text-sl-primary rounded-lg font-display text-[10px] animate-pulse"
                          >
                            RÉCLAMER
@@ -1298,7 +1324,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             </div>
                          </div>
                          <button 
-                           onClick={() => handleBuyShopItem(item)}
+                           onClick={() => { haptic('tap'); handleBuyShopItem(item); }}
                            className="px-4 py-2 bg-sl-gold/10 hover:bg-sl-gold text-sl-gold hover:text-sl-primary border border-sl-gold rounded-xl font-display text-xs transition-all flex items-center gap-2"
                          >
                             <Coins className="w-4 h-4" /> {item.goldValue}

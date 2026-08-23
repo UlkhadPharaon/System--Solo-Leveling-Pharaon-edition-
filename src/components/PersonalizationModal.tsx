@@ -290,8 +290,8 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-      <div className="bg-panel border border-gold rounded-xl max-w-4xl w-full p-6 md:p-8 shadow-2xl space-y-6 my-8 text-xs">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-panel border border-gold rounded-xl max-w-4xl w-full max-h-[96dvh] p-4 sm:p-6 md:p-8 shadow-2xl space-y-6 my-0 sm:my-8 text-xs overflow-x-hidden">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-lapis pb-4">
           <div className="flex items-center gap-3">
@@ -317,7 +317,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto border-b border-lapis pb-3 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto border-b border-lapis pb-3 no-scrollbar -mx-1 px-1">
           {[
             { id: 'profile', label: 'Identité & Vision', icon: User },
             { id: 'cinema', label: 'Projet Cinéma & Scénario', icon: Film },
@@ -353,7 +353,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
 
@@ -363,7 +363,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="text"
                   value={userTagline}
                   onChange={(e) => setUserTagline(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
 
@@ -374,7 +374,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   placeholder="ex. L'Ombre d'Osiris, Le Bâtisseur Éternel…"
                   value={hunterTitle}
                   onChange={(e) => setHunterTitle(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
 
@@ -385,7 +385,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   placeholder="ex. La discipline est mon trône."
                   value={dailyQuote}
                   onChange={(e) => setDailyQuote(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
                 />
               </div>
             </div>
@@ -439,7 +439,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                       <select
                         value={notificationLeadMinutes}
                         onChange={(e) => setNotificationLeadMinutes(Number(e.target.value))}
-                        className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs font-mono"
+                        className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs font-mono"
                       >
                         <option value={2}>2 minutes avant la session</option>
                         <option value={5}>5 minutes avant la session (Recommandé)</option>
@@ -500,7 +500,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="text"
                   value={cinemaTitle}
                   onChange={(e) => setCinemaTitle(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
 
@@ -510,7 +510,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="text"
                   value={cinemaGenre}
                   onChange={(e) => setCinemaGenre(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
             </div>
@@ -522,7 +522,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                 value={cinemaStage}
                 onChange={(e) => setCinemaStage(e.target.value)}
                 placeholder="ex : Étape 2 : Rédaction Scène 4 & Storyboard"
-                className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
@@ -532,7 +532,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                 rows={2}
                 value={cinemaSynopsis}
                 onChange={(e) => setCinemaSynopsis(e.target.value)}
-                className="w-full bg-obsidian/40 border border-lapis rounded-xl p-3 text-white focus:outline-none focus:border-gold"
+                className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl p-3 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
@@ -604,7 +604,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="text"
                   value={bangreProject}
                   onChange={(e) => setBangreProject(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
 
@@ -614,7 +614,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                   type="text"
                   value={bangreModule}
                   onChange={(e) => setBangreModule(e.target.value)}
-                  className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
                 />
               </div>
             </div>
@@ -626,7 +626,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                 value={bangreStage}
                 onChange={(e) => setBangreStage(e.target.value)}
                 placeholder="ex : Étape 3 : Synchro Hors-Ligne & Middleware LocalStorage"
-                className="w-full bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
+                className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold"
               />
             </div>
 
@@ -636,7 +636,7 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                 rows={2}
                 value={bangreGoal}
                 onChange={(e) => setBangreGoal(e.target.value)}
-                className="w-full bg-obsidian/40 border border-lapis rounded-xl p-3 text-white focus:outline-none focus:border-gold"
+                className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl p-3 text-white focus:outline-none focus:border-gold"
               />
             </div>
 

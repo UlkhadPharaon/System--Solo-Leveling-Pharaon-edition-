@@ -11,6 +11,29 @@
   "theme_color": "#D4AF37",
   "lang": "fr",
   "categories": ["productivity", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Quêtes du jour",
+      "short_name": "Quêtes",
+      "description": "Ouvre directement le panneau des quêtes quotidiennes.",
+      "url": "/?tab=dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Minuteur Focus",
+      "short_name": "Focus",
+      "description": "Lance une session de concentration (donjon).",
+      "url": "/?tab=focus_timer",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Notes & Phases",
+      "short_name": "Notes",
+      "description": "Carnet de notes et plan de projet.",
+      "url": "/?tab=notepad",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",

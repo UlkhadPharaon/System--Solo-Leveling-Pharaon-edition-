@@ -116,7 +116,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
   if (!useV2) {
     return (
       <motion.div
-        className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-obsidian/95 backdrop-blur-sm"
+        className="fixed inset-0 z-[200] flex items-center justify-center p-3 bg-obsidian/95 backdrop-blur-sm overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -140,7 +140,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 placeholder="Entrez votre nom..."
-                className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
               />
               <button
                 disabled={!userName}
@@ -164,7 +164,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                 value={mainGoal}
                 onChange={(e) => setMainGoal(e.target.value)}
                 placeholder="Ex: Devenir développeur, Musculation..."
-                className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
               />
               <button
                 disabled={!mainGoal}
@@ -300,13 +300,13 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
 
   return (
     <motion.div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-obsidian/95 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-[200] flex items-start sm:items-center justify-center p-2 sm:p-4 bg-obsidian/95 backdrop-blur-sm overflow-y-auto"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="bg-panel border border-lapis-border rounded-3xl p-6 md:p-8 w-full max-w-xl shadow-card-hover space-y-5 my-8"
+        className="bg-panel border border-lapis-border rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-xl min-w-0 shadow-card-hover space-y-5 my-3 sm:my-8 overflow-x-hidden"
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -460,7 +460,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   placeholder="Votre nom…"
-                  className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                  className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
                 />
               </motion.div>
 
@@ -473,7 +473,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                   onChange={(e) => setVision(e.target.value)}
                   rows={4}
                   placeholder="Ex: Je veux transformer ma discipline, produire mon premier film et devenir plus fort physiquement…"
-                  className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50 resize-none"
+                  className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50 resize-none"
                 />
                 <div className="flex items-center justify-between text-[10px] font-mono">
                   <span className={visionValid ? 'text-emerald-400' : 'text-pharaoh-subtle'}>
@@ -646,7 +646,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                           value={active.label}
                           onChange={(e) => updateDraft({ label: e.target.value })}
                           placeholder="Ex: Piano, Ma startup, Révisions internat…"
-                          className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                          className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
                         />
                       </div>
 
@@ -689,7 +689,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                           value={active.currentStatus}
                           onChange={(e) => updateDraft({ currentStatus: e.target.value })}
                           placeholder="Ex: Débutant total / 2x par semaine irrégulier…"
-                          className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                          className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
                         />
                       </div>
 
@@ -702,7 +702,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                           onChange={(e) => updateDraft({ goalText: e.target.value })}
                           rows={2}
                           placeholder="Dans tes mots — conservé tel quel par le Système."
-                          className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50 resize-none"
+                          className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50 resize-none"
                         />
                       </div>
 
@@ -847,7 +847,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                   value={physicalConstraint}
                   onChange={(e) => setPhysicalConstraint(e.target.value)}
                   placeholder="Ex: genou sensible, dos à ménager…"
-                  className="w-full bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                  className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-3 text-pharaoh focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
                 />
               </motion.div>
 
@@ -967,12 +967,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
                               type="text"
                               value={d.label}
                               onChange={(e) => setDrafts((prev) => prev.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
-                              className="w-full bg-obsidian border border-lapis-border rounded-xl p-2 text-pharaoh text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                              className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-2 text-pharaoh text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
                             />
                             <select
                               value={d.tracking_type}
                               onChange={(e) => setDrafts((prev) => prev.map((x, j) => (j === i ? { ...x, tracking_type: e.target.value as TrackingType } : x)))}
-                              className="w-full bg-obsidian border border-lapis-border rounded-xl p-2 text-pharaoh text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
+                              className="w-full min-w-0 bg-obsidian border border-lapis-border rounded-xl p-2 text-pharaoh text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/50"
                             >
                               {TRACKING_TYPE_CHOICES.map((c) => (
                                 <option key={c.value} value={c.value}>{c.label}</option>

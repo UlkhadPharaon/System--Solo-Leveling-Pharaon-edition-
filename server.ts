@@ -241,6 +241,51 @@ if (typeof setInterval !== 'undefined') {
   }, 60 * 1000);
 }
 
+
+// ── Weekly Report Push (F4) ──────────────────────────────────────────────────
+// Every Sunday 20:00 local, nudge the hunter to review their "Palier de la
+// Semaine". Self-rescheduling: after firing (or at boot if the slot passed),
+// the next Sunday slot is queued. Week-key guard prevents double-fires.
+const WEEKLY_PUSH_TAG = 'weekly-report';
+let nextWeeklyFireAt = 0;
+let lastWeeklyFiredKey = '';
+
+function computeNextSundaySlot(from = new Date()): number {
+  const d = new Date(from);
+  d.setHours(20, 0, 0, 0);
+  const daysUntilSunday = (7 - d.getDay()) % 7; // 0 = today is Sunday
+  d.setDate(d.getDate() + daysUntilSunday);
+  if (d.getTime() <= from.getTime()) d.setDate(d.getDate() + 7);
+  return d.getTime();
+}
+
+if (typeof setInterval !== 'undefined') {
+  // Initialize at boot: if this Sunday's 20:00 already passed without a fire,
+  // target next week.
+  nextWeeklyFireAt = computeNextSundaySlot();
+  setInterval(() => {
+    const now = new Date();
+    const weekKey = `${now.getFullYear()}-W${Math.ceil(
+      ((now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / 86400000 +
+        new Date(now.getFullYear(), 0, 1).getDay() + 1) / 7
+    )}`;
+    if (Date.now() >= nextWeeklyFireAt && lastWeeklyFiredKey !== weekKey) {
+      lastWeeklyFiredKey = weekKey;
+      nextWeeklyFireAt = computeNextSundaySlot(now);
+      const sub = loadSubscription();
+      if (!sub) return; // no device subscribed yet — skip silently
+      sendPush(sub, {
+        title: 'Palier de la Semaine',
+        body: 'Ta semaine est terminée, Chasseur. Ouvre ton Palier pour voir XP, heures par domaine et série.',
+        tag: `${WEEKLY_PUSH_TAG}-${weekKey}`,
+        url: '/?tab=weekly_targets',
+        icon: '/icon-192.png',
+        data: {},
+      }).catch(() => {});
+    }
+  }, 60 * 1000);
+}
+
 function validateQuests(raw: any, validDomainIds: Set<string>): QuestSpec[] {
   const quests: QuestSpec[] = [];
   const list = Array.isArray(raw?.quests) ? raw.quests : [];
@@ -536,11 +581,51 @@ async function startServer() {
     });
   });
 
+
+  // ── AI endpoint protection ────────────────────────────────────────────────
+  // The mentor calls paid LLM APIs with server-side keys. Without a limiter,
+  // anyone with the deployed URL can script the endpoint and drain the quota.
+  // Simple in-memory sliding window per IP (single-instance deployments; for
+  // multi-instance, back this with Redis/Cloud Memorystore).
+  const AI_RATE_LIMIT = { maxRequests: 20, windowMs: 60 * 60 * 1000 }; // 20 req/hour/IP
+  const MAX_PROMPT_CHARS = 2000;
+  const aiRateBuckets = new Map<string, number[]>();
+
+  const aiRateCheck = (ip: string): { allowed: boolean; retryAfterSec: number } => {
+    const now = Date.now();
+    const hits = (aiRateBuckets.get(ip) || []).filter((t) => now - t < AI_RATE_LIMIT.windowMs);
+    if (hits.length >= AI_RATE_LIMIT.maxRequests) {
+      const retryAfterSec = Math.ceil((AI_RATE_LIMIT.windowMs - (now - hits[0])) / 1000);
+      aiRateBuckets.set(ip, hits);
+      return { allowed: false, retryAfterSec };
+    }
+    hits.push(now);
+    aiRateBuckets.set(ip, hits);
+    // Opportunistic GC so the map cannot grow unbounded.
+    if (aiRateBuckets.size > 5000) {
+      for (const [k, v] of aiRateBuckets) {
+        if (v.every((t) => now - t >= AI_RATE_LIMIT.windowMs)) aiRateBuckets.delete(k);
+      }
+    }
+    return { allowed: true, retryAfterSec: 0 };
+  };
+
   // AI Mentor chat endpoint — provider-agnostic.
   // Priority: Gemini (the deploy target auto-injects GEMINI_API_KEY), then the
   // configured OpenAI-compatible provider (NVIDIA NIM / OpenRouter) so the
   // mentor also works when only LLM_PROVIDER keys are set.
   app.post('/api/ai-coach', async (req, res) => {
+    // Rate limit FIRST — reject abusers before touching the LLM keys.
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+      || req.socket.remoteAddress || 'unknown';
+    const rl = aiRateCheck(clientIp);
+    if (!rl.allowed) {
+      res.set('Retry-After', String(rl.retryAfterSec));
+      return res.status(429).json({
+        error: `Quota du Mentor IA atteint (${AI_RATE_LIMIT.maxRequests} messages/heure). Réessayez dans ${Math.ceil(rl.retryAfterSec / 60)} min.`,
+      });
+    }
+
     try {
       const { prompt, context, history, agentMode } = req.body as {
         prompt?: string;
@@ -550,6 +635,12 @@ async function startServer() {
       };
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required' });
+      }
+      // Length caps — a 500 KB "prompt" would burn tokens and latency.
+      if (prompt.length > MAX_PROMPT_CHARS) {
+        return res.status(413).json({
+          error: `Message trop long (${prompt.length} caractères, max ${MAX_PROMPT_CHARS}).`,
+        });
       }
 
       // Domain-driven when the client provides its domains (onboarding v2);
@@ -616,7 +707,7 @@ RÈGLES STRICTES :
       const priorMessages: ChatMessage[] = (Array.isArray(history) ? history : [])
         .slice(-10)
         .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.text === 'string' && m.text.trim())
-        .map((m) => ({ role: m.role, content: m.text }));
+        .map((m) => ({ role: m.role, content: m.text.slice(0, MAX_PROMPT_CHARS) }));
 
       const geminiKey = process.env.GEMINI_API_KEY;
       const llmConfig = getLlmConfig();

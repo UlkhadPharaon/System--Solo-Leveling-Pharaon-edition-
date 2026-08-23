@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Music, Plus, Trash2, Play, Pause, SkipForward, Volume2, ListMusic } from './ui/PharaohIcons';
 import {
   StoredSong,
@@ -10,6 +11,7 @@ import {
   setPreferredSongId,
   formatSongDuration,
 } from '../lib/musicLibrary';
+import { globalAudio } from '../lib/globalAudio';
 
 interface MusicPlayerProps {
   /** Called when playback starts/stops (used to stop synth ambience). */
@@ -18,72 +20,30 @@ interface MusicPlayerProps {
   sessionRunning?: boolean;
 }
 
-export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange, sessionRunning }) => {
+export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange }) => {
   const [songs, setSongs] = useState<StoredSong[]>([]);
-  const [currentId, setCurrentId] = useState<string | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.7);
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Load library on mount
-  useEffect(() => {
-    listSongs().then((list) => {
-      setSongs(list);
-      const pref = getPreferredSongId();
-      if (pref && list.some((s) => s.id === pref)) setCurrentId(pref);
-    });
-  }, []);
+  // M1 — playback state lives in globalAudio (module scope): navigating away
+  // from the Focus tab no longer unmounts the <audio> element.
+  const audioState = useSyncExternalStore(globalAudio.subscribe, globalAudio.getSnapshot, globalAudio.getSnapshot);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
-    };
-  }, []);
+  useEffect(() => { listSongs().then(setSongs); }, []);
+  useEffect(() => { onPlaybackChange?.(audioState.playing); }, [audioState.playing]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const playSong = useCallback(
-    async (id: string) => {
-      if (currentId !== id || !audioRef.current) {
-        audioRef.current?.pause();
-        const blob = await getSongBlob(id);
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        audio.loop = true;
-        audio.volume = volume;
-        audioRef.current = audio;
-        setCurrentId(id);
-        setPreferredSongId(id);
-        // Free the object URL when this audio is replaced later
-        audio.addEventListener('play', () => onPlaybackChange?.(true));
-        audio.addEventListener('pause', () => onPlaybackChange?.(false));
-      }
-      try {
-        await audioRef.current?.play();
-        setPlaying(true);
-        onPlaybackChange?.(true);
-      } catch {
-        setPlaying(false);
-      }
-    },
-    [currentId, volume, onPlaybackChange]
-  );
+  const currentId = audioState.mode.kind === 'song' ? audioState.mode.songId : null;
+  const playing = audioState.playing;
 
-  const pause = useCallback(() => {
-    audioRef.current?.pause();
-    setPlaying(false);
-    onPlaybackChange?.(false);
-  }, [onPlaybackChange]);
+  const playSong = async (id: string) => {
+    const song = songs.find((s) => s.id === id);
+    if (!song) return;
+    await globalAudio.playSong(id, song.name, () => getSongBlob(id));
+    setPreferredSongId(id);
+  };
 
-  // Auto-stop when the focus session is no longer running
-  useEffect(() => {
-    if (sessionRunning === false && playing) pause();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionRunning]);
+  const pause = () => globalAudio.pause();
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || !files.length) return;
@@ -103,13 +63,9 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
   };
 
   const handleDelete = async (id: string) => {
-    if (id === currentId) {
-      pause();
-      audioRef.current = null;
-      setCurrentId(null);
-      setPreferredSongId(null);
-    }
+    if (id === currentId) globalAudio.stop();
     await deleteSong(id);
+    setPreferredSongId(null);
     setSongs((prev) => prev.filter((s) => s.id !== id));
   };
 
@@ -117,13 +73,7 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
     if (!songs.length) return;
     const idx = songs.findIndex((s) => s.id === currentId);
     const next = songs[(idx + 1) % songs.length];
-    audioRef.current = null; // force reload
     playSong(next.id);
-  };
-
-  const adjustVolume = (v: number) => {
-    setVolume(v);
-    if (audioRef.current) audioRef.current.volume = v;
   };
 
   const current = songs.find((s) => s.id === currentId);
@@ -163,10 +113,10 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
         </button>
         <div className="flex-1 min-w-0">
           <div className="font-mono text-xs text-pharaoh truncate">
-            {current ? (playing ? '▶ ' : '⏸ ') + current.name : 'Aucun morceau sélectionné'}
+            {audioState.currentSongName ? (playing ? '▶ ' : '⏸ ') + audioState.currentSongName : 'Aucun morceau sélectionné'}
           </div>
           <div className="font-mono text-[10px] text-pharaoh-subtle">
-            {current ? formatSongDuration(current.durationSec) : '—'} • boucle automatique
+            {current ? formatSongDuration(current.durationSec) : '—'} • boucle automatique • continue hors de l'onglet Focus
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -176,8 +126,8 @@ export const FocusMusicPlayer: React.FC<MusicPlayerProps> = ({ onPlaybackChange,
             min={0}
             max={1}
             step={0.05}
-            value={volume}
-            onChange={(e) => adjustVolume(Number(e.target.value))}
+            value={audioState.volume}
+            onChange={(e) => globalAudio.setVolume(Number(e.target.value))}
             className="w-24 accent-gold"
             title="Volume"
           />

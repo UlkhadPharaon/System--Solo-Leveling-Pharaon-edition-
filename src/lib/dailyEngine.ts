@@ -85,7 +85,8 @@ export function registerTodayActivity(): { state: DailyStreakState; bonusAvailab
   }
 
   let next: DailyStreakState;
-  if (state.lastActiveDate && getDaysBetween(state.lastActiveDate, today) === 1) {
+  const gapDays = state.lastActiveDate ? getDaysBetween(state.lastActiveDate, today) : 0;
+  if (state.lastActiveDate && gapDays === 1) {
     next = {
       ...state,
       lastActiveDate: today,
@@ -93,8 +94,18 @@ export function registerTodayActivity(): { state: DailyStreakState; bonusAvailab
       bestStreak: Math.max(state.bestStreak, state.currentStreak + 1),
       totalActiveDays: state.totalActiveDays + 1,
     };
+  } else if (gapDays > 1 && consumeStreakProtectionStone()) {
+    // Streak broken BUT the player holds a Pierre de Protection du Streak:
+    // consume one and bridge the gap as if they had trained yesterday.
+    next = {
+      ...state,
+      lastActiveDate: today,
+      currentStreak: state.currentStreak + 2, // yesterday + today
+      totalActiveDays: state.totalActiveDays + 1,
+    };
+    try { localStorage.setItem('aura_streak_protected_at', today); } catch {}
   } else {
-    // First ever day, or streak broken
+    // First ever day, or streak broken without protection
     next = {
       ...state,
       lastActiveDate: today,
@@ -106,6 +117,35 @@ export function registerTodayActivity(): { state: DailyStreakState; bonusAvailab
 
   saveStreakState(next);
   return { state: next, bonusAvailable: true };
+}
+
+/**
+ * F3 — Streak Protection Stone. Consumes one stone from the player's
+ * localStorage inventory. Returns false when none is held (caller then
+ * resets the streak normally).
+ */
+function consumeStreakProtectionStone(): boolean {
+  try {
+    const raw = localStorage.getItem('aura_player_profile');
+    if (!raw) return false;
+    const profile = JSON.parse(raw);
+    const inv: any[] = Array.isArray(profile?.inventory) ? profile.inventory : [];
+    const idx = inv.findIndex((i) => i?.id === 'item-streak-stone' || i?.name === 'Pierre de Protection du Streak');
+    if (idx === -1) return false;
+
+    const item = inv[idx];
+    const qty = Number(item.quantity ?? 1);
+    if (qty <= 1) {
+      profile.inventory = inv.filter((_, i) => i !== idx);
+    } else {
+      inv[idx] = { ...item, quantity: qty - 1 };
+      profile.inventory = inv;
+    }
+    localStorage.setItem('aura_player_profile', JSON.stringify(profile));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

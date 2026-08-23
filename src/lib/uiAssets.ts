@@ -8,16 +8,19 @@ import { HunterRank } from '../types';
  * folder is outside Vite's publicDir, so absolute /UI element…/ URLs 404.
  */
 
-import badgeRankE from '../assets/ui/badge-rank-E.png';
-import badgeRankD from '../assets/ui/badge-rank-D.png';
-import badgeRankC from '../assets/ui/badge-rank-C.png';
-import badgeRankB from '../assets/ui/badge-rank-B.png';
-import badgeRankA from '../assets/ui/badge-rank-A.png';
-import badgeRankS from '../assets/ui/badge-rank-S.png';
-import badgeRankPharaon from '../assets/ui/badge-rank-pharaon.png';
-import badgeShadowAssassin from '../assets/ui/badge-special-shadow-assassin.png';
-import badgeDragon from '../assets/ui/badge-special-dragon.png';
-import badgeWolf from '../assets/ui/badge-special-wolf.png';
+// WebP versions (~10-20x smaller than the original PNGs; visually
+// identical at badge display sizes). The .png originals stay in the repo
+// only as source masters — Vite bundles just these imports.
+import badgeRankE from '../assets/ui/badge-rank-E.webp';
+import badgeRankD from '../assets/ui/badge-rank-D.webp';
+import badgeRankC from '../assets/ui/badge-rank-C.webp';
+import badgeRankB from '../assets/ui/badge-rank-B.webp';
+import badgeRankA from '../assets/ui/badge-rank-A.webp';
+import badgeRankS from '../assets/ui/badge-rank-S.webp';
+import badgeRankPharaon from '../assets/ui/badge-rank-pharaon.webp';
+import badgeShadowAssassin from '../assets/ui/badge-special-shadow-assassin.webp';
+import badgeDragon from '../assets/ui/badge-special-dragon.webp';
+import badgeWolf from '../assets/ui/badge-special-wolf.webp';
 
 /**
  * Logical rank progression — NOT alphabetical file order.

@@ -47,19 +47,44 @@ export const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/ai-coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: textToSend,
-          context: contextData,
-          // Replay recent turns so the mentor keeps the conversation's thread
-          // (server-side providers are stateless).
-          history: messages.slice(-10).map((m) => ({ role: m.role, text: m.text })),
-        }),
-      });
+      // One automatic retry on transient network failures — mobile connections
+      // drop constantly, and a raw "Erreur réseau" for a 1s hiccup is bad UX.
+      let data: any = null;
+      let lastError: string | null = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await fetch('/api/ai-coach', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: textToSend,
+              context: contextData,
+              // Replay recent turns so the mentor keeps the conversation's thread
+              // (server-side providers are stateless).
+              history: messages.slice(-10).map((m) => ({ role: m.role, text: m.text })),
+            }),
+          });
+          data = await res.json();
+          lastError = null;
+          break;
+        } catch (netErr) {
+          lastError = netErr instanceof Error ? netErr.message : String(netErr);
+          if (attempt === 0) await new Promise((r) => setTimeout(r, 1200)); // brief backoff
+        }
+      }
 
-      const data = await res.json();
+      if (!data) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            text: 'Connexion instable — le Mentor n’a pas pu joindre le Système. Vérifiez votre réseau et renvoyez votre message.',
+          },
+        ]);
+        return;
+      }
+      void lastError;
+
       if (data.reply) {
         setMessages((prev) => [...prev, { role: 'assistant', text: data.reply }]);
       } else {

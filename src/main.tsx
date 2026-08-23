@@ -38,6 +38,14 @@ const swReadyPromise: Promise<ServiceWorkerRegistration | null> =
 
 export { swReadyPromise };
 
+// ── Budget-GPU relief (index.css .anim-paused) ──────────────────────────────
+// Pause decorative infinite animations while the tab is hidden: background
+// glow/float/pulse loops otherwise keep the compositor awake and drain
+// battery on phones sitting in a background tab.
+document.addEventListener('visibilitychange', () => {
+  document.documentElement.classList.toggle('anim-paused', document.visibilityState === 'hidden');
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
