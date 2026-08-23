@@ -204,7 +204,9 @@ const scheduledPushes = new Map<string, ScheduledPush>();
 function loadSubscription(): PushSubscriptionJSON | null {
   try {
     if (!existsSync(SUBSCRIPTION_FILE)) return null;
-    return JSON.parse(readFileSync(SUBSCRIPTION_FILE, 'utf-8')) as PushSubscriptionJSON;
+    const parsed = JSON.parse(readFileSync(SUBSCRIPTION_FILE, 'utf-8'));
+    // An emptied file ({}) must not count as a subscription.
+    return normalizeSubscription(parsed);
   } catch {
     return null;
   }

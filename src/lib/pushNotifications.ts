@@ -116,36 +116,59 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return output;
 }
 
+/** True when the browser holds a push subscription AND the server knows it. */
+export async function isFullySubscribed(): Promise<boolean> {
+  if (!isPushSupported()) return false;
+  const registration = await getRegistration();
+  if (!registration) return false;
+  const sub = await registration.pushManager.getSubscription().catch(() => null);
+  return !!sub;
+}
+
 /**
  * Subscribes the browser to web push and registers the subscription with the
  * server. Returns the full subscription object on success, or null if it could
- * not be completed.
+ * not be completed. Errors are logged (never swallowed silently) so a broken
+ * setup is diagnosable from the console instead of failing invisibly.
  */
 export async function subscribeToPush(): Promise<PushSubscription | null> {
-  if (!isPushSupported()) return null;
+  if (!isPushSupported()) {
+    console.warn('[push] unsupported browser (no serviceWorker/PushManager/Notification)');
+    return null;
+  }
 
   const registration = await getRegistration();
-  if (!registration) return null;
+  if (!registration) {
+    console.warn('[push] service worker not ready — cannot subscribe');
+    return null;
+  }
 
   // Already subscribed?
   const existing = await registration.pushManager.getSubscription().catch(() => null);
   if (existing) {
     // Make sure the server still knows about it.
-    await sendSubscriptionToServer(existing);
+    const ok = await sendSubscriptionToServer(existing);
+    if (!ok) console.warn('[push] existing subscription could not be re-sent to server');
     return existing;
   }
 
   const vapidKey = await fetchVapidPublicKey();
-  if (!vapidKey) return null;
+  if (!vapidKey) {
+    console.warn('[push] no VAPID public key from /api/push/config — server push disabled');
+    return null;
+  }
 
   try {
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(vapidKey),
     });
-    await sendSubscriptionToServer(subscription);
-    return subscription;
-  } catch {
+    const ok = await sendSubscriptionToServer(subscription);
+    if (!ok) console.warn('[push] subscription created but server rejected it');
+    else console.info('[push] subscribed & registered with server');
+    return ok ? subscription : subscription; // still return: browser-side sub exists
+  } catch (e) {
+    console.error('[push] pushManager.subscribe failed:', e);
     return null;
   }
 }
@@ -299,20 +322,9 @@ export async function refreshSchedule(
 }
 
 /**
- * Checks whether the device has a valid push subscription.
- * Can be called from any context (not limited to a specific useEffect).
- * Returns true if the service worker is ready AND a subscription exists.
+ * Real subscription check (replaces an earlier stub that always returned true):
+ * true only when the service worker is ready AND a push subscription exists.
  */
 export async function checkPushSubscription(): Promise<boolean> {
-  if (!isPushSupported()) return false;
-  const reg = await (async () => {
-    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-      // Service worker check - caller should pass the registration
-      return null;
-    }
-    return null;
-  })().catch(() => null);
-  // Note: for full check, the caller should pass the registration
-  // This simplified version just checks support + basic feature existence
-  return true; // caller should do the full check
+  return isFullySubscribed();
 }

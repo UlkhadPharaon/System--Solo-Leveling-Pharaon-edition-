@@ -758,7 +758,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
           occupies top-0, a second sticky bar here overlapped it and blended
           text on scroll while eating half the mobile viewport. */}
       <div className="bg-sl-primary border-b border-sl-gold/30 p-3 sm:p-4 md:p-6">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+        <div className="wide-container flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
           <div className="flex items-center gap-3 md:gap-4 min-w-0">
             <div className="relative shrink-0">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-sl-lapis border-2 border-sl-gold flex items-center justify-center font-display text-sl-gold font-bold text-xl md:text-2xl shadow-gold">
@@ -831,7 +831,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             pushed content below the fold), wraps normally from md up. */}
         <nav
           aria-label="Sections du Système"
-          className="max-w-5xl mx-auto mt-3 md:mt-6 pt-3 md:pt-4 border-t border-sl-gold/10 flex lg:flex-wrap items-stretch gap-2 md:gap-3 pb-1 overflow-x-auto no-scrollbar -mx-1 px-1"
+          className="wide-container mt-3 md:mt-6 pt-3 md:pt-4 border-t border-sl-gold/10 flex lg:flex-wrap items-stretch justify-center gap-2 md:gap-3 pb-1 overflow-x-auto no-scrollbar -mx-1 px-1"
         >
           {[
             { id: 'statut', icon: Activity, label: 'Statut' },
@@ -860,7 +860,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
         </nav>
       </div>
 
-      <div className="max-w-5xl mx-auto p-4 md:p-6">
+      <div className="wide-container p-4 md:p-6 lg:p-8">
         {shopSuccessMsg && (
           <div className="mb-6 p-4 bg-gradient-to-r from-sl-gold-dark/40 to-sl-lapis/80 border-2 border-sl-gold/80 text-pharaoh font-display font-bold text-center text-xs tracking-wider rounded-2xl shadow-gold flex items-center justify-center gap-3">
             <Sparkles className="w-5 h-5 text-sl-gold animate-bounce" />
@@ -888,7 +888,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {[
                     { key: 'force', label: 'FORCE', icon: Sword, desc: 'Augmente les dégâts physiques.' },
                     { key: 'vitalite', label: 'VITALITÉ', icon: Heart, desc: 'Augmente les points de vie max.' },
@@ -1130,7 +1130,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
                 {(safePlayer.dailyQuests || []).map((quest) => (
                   <div key={quest.id} className="bg-sl-primary border border-sl-gold/20 rounded-2xl p-5 flex flex-col gap-4 shadow-gold-sm">
                     <div className="flex justify-between items-start">
@@ -1266,7 +1266,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 md:gap-6">
                 {dungeons.map(dungeon => (
                   <div key={dungeon.id} className="bg-sl-primary border border-sl-gold/20 rounded-3xl overflow-hidden shadow-gold-sm group hover:border-sl-gold/60 transition-all flex flex-col justify-between">
                     <div>
@@ -1389,7 +1389,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                    <p className="text-pharaoh-subtle font-display italic">Aucune essence n'a encore été éveilleé.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
                   {(safePlayer.shadows || []).map(shadow => (
                     <div key={shadow.id} className="bg-sl-primary border border-sl-gold/20 rounded-2xl p-5 space-y-4 shadow-gold-sm hover:border-sl-gold/60 transition-all">
                       <div className="flex justify-between items-center">

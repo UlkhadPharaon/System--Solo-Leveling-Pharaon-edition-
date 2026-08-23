@@ -669,25 +669,32 @@ nav.sticky {
    ============================================ */
 
 /* Content column scales with the viewport instead of capping at 80rem:
-   1280–1535px → 84rem, ≥1536px (Full-HD+) → 96rem, ≥1920px → 104rem. */
+   1280–1535px → 84rem, ≥1536px (Full-HD+) → 96rem, ≥1920px → 104rem.
+   `.wide-container` is the shared implementation — used by header/main/footer
+   AND by SystemSoloLeveling, which previously capped itself at max-w-5xl
+   (64rem) and looked squeezed & misaligned next to every other page on PC. */
+.wide-container { margin-left: auto; margin-right: auto; width: 100%; }
 @media (min-width: 1280px) {
   header > div:first-child,
   main.max-w-7xl,
-  footer .max-w-7xl {
+  footer .max-w-7xl,
+  .wide-container {
     max-width: 84rem !important;
   }
 }
 @media (min-width: 1536px) {
   header > div:first-child,
   main.max-w-7xl,
-  footer .max-w-7xl {
+  footer .max-w-7xl,
+  .wide-container {
     max-width: 96rem !important;
   }
 }
 @media (min-width: 1920px) {
   header > div:first-child,
   main.max-w-7xl,
-  footer .max-w-7xl {
+  footer .max-w-7xl,
+  .wide-container {
     max-width: 104rem !important;
   }
 }

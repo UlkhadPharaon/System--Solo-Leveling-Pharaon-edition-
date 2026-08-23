@@ -119,7 +119,11 @@ async function fetchRates(): Promise<void> {
     snapshot = { ...snapshot, status: 'loading' };
     emit();
     try {
-      const res = await fetch(API_URL, { cache: 'no-store' });
+      // DISC-004: bounded fetch — a hung rates API must not stall the tab.
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(API_URL, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timer);
       if (!res.ok) throw new Error(`FX HTTP ${res.status}`);
       const json = (await res.json()) as { result?: string; rates?: Record<string, number>; time_last_update_utc?: string };
       if (json.result !== 'success' || !json.rates?.USD || !json.rates.EUR) throw new Error('FX payload invalide');

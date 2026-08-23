@@ -28,7 +28,7 @@ import {
   HabitCheck
 } from './types';
 // Push notification helpers
-import { sendPushViaServer, showLocalNotification } from './lib/pushNotifications';
+import { sendPushViaServer, showLocalNotification, subscribeToPush } from './lib/pushNotifications';
 import { 
   INITIAL_DAY_SCHEDULES,
   INITIAL_PERSONALIZATION,
@@ -636,6 +636,28 @@ export default function App() {
     window.addEventListener('aura:cloud-restored', onRestored);
     return () => window.removeEventListener('aura:cloud-restored', onRestored);
   }, []);
+
+  // N1-fix — Push self-healing at boot. The user may have granted permission
+  // earlier (toggle in Personnaliser) but the subscription never reached the
+  // server (server restart wiped it, SW updated, subscribe raced the SW
+  // registration…). Once the service worker is ready AND permission is
+  // granted, (re-)subscribe and register with /api/push/subscribe. Idempotent:
+  // an existing subscription is simply re-sent to the server.
+  useEffect(() => {
+    if (!personalization.notificationsEnabled) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    let cancelled = false;
+    const ensureSubscription = async () => {
+      try {
+        await navigator.serviceWorker.ready;
+        if (!cancelled) await subscribeToPush();
+      } catch (e) {
+        console.warn('[push] boot re-subscribe failed:', e);
+      }
+    };
+    void ensureSubscription();
+    return () => { cancelled = true; };
+  }, [personalization.notificationsEnabled]);
 
   useEffect(() => {
     cloudSync.schedulePush();

@@ -454,7 +454,7 @@ export const Header: React.FC<HeaderProps> = ({
             return (
               <motion.button
                 key={item.id}
-                onClick={() => { playSfx('ui-tick', 0.5); setActiveTab(item.id); }}
+                onClick={() => setActiveTab(item.id)}
                 aria-current={isActive ? 'page' : undefined}
                 className={`btn-press relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap group ${
                   isActive
@@ -564,7 +564,7 @@ export const Header: React.FC<HeaderProps> = ({
               </motion.button>
             )}
               <motion.button
-                onClick={() => { playSfx('ui-tick', 0.5); setActiveTab(item.id); }}
+                onClick={() => setActiveTab(item.id)}
                 aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={`btn-press flex flex-col items-center justify-center flex-1 min-w-0 min-h-[52px] px-1 py-1.5 rounded-xl transition-all ${

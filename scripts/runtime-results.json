@@ -2,29 +2,19 @@
   {
     "screen": "boot",
     "errors": [
-      "WebSocket connection to 'ws://localhost:24678/?token=buxx08SkCPee' failed: Error during WebSocket handshake: Unexpected response code: 400",
-      "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
-      "PAGEERROR: Error: WebSocket closed without opened.",
       "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-      "WebSocket connection to 'ws://localhost:24678/?token=buxx08SkCPee' failed: Error during WebSocket handshake: Unexpected response code: 400",
-      "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
-      "PAGEERROR: Error: WebSocket closed without opened.",
-      "Failed to load resource: net::ERR_FAILED",
       "Failed to load resource: net::ERR_FAILED"
     ],
     "warnings": [],
     "failedRequests": [
       "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_NAME_NOT_RESOLVED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_NAME_NOT_RESOLVED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_FAILED",
       "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_FAILED"
     ]
   },
   {
     "screen": "_modal-detection",
     "hasOnboarding": true,
-    "bodySnippet": "E\nKA RISE\ndim. 23 août • 07:45:50\nE\n1\nJOURS\nFocus\nCoach IA\nPersonnaliser\nDonnées\n\nLe Chasseur Débutant\n\nNIV 1 • 0 XP\n\nSYSTÈME\nQuêtes\nEntraînement\nFocus\nBilan\nHauts Faits\nNotes\nTrésorerie\n1\nNIVEAU\nLe Chasseur Débutant\n\nClasse : Chasseur de Rang E (Débutant)\n\nSANTÉ (HP)\n100 / 100\nÉNERGIE (MP)\n50 / 50\nEXP (XP)\n0 / 100\nStatut\nMissions\nDonjons\nArmée Divine\nForge Royale\nBoutique\nClassement\nJournal\nCustom\nCAPACITÉS DIVINES\nPoints Disponibles :\n0\nFORCE\n10\nVITALITÉ\n10\nAGILITÉ\n10\nINTELLIGENCE\n10\nPERCEPTION\n10\nBADGES DE GLOIRE\nAucun badge débloqué pour le moment.\nÉQUIPEMENT ÉQUIPÉ\nARME\nLame de Khéops\n+15"
+    "bodySnippet": "E\nKA RISE\ndim. 23 août • 08:33:27\nE\n1\nJOURS\nFocus\nCoach IA\nPersonnaliser\nDonnées\n\nLe Chasseur Débutant\n\nNIV 1 • 0 XP\n\nSYSTÈME\nQuêtes\nEntraînement\nFocus\nBilan\nHauts Faits\nNotes\nTrésorerie\n1\nNIVEAU\nLe Chasseur Débutant\n\nClasse : Chasseur de Rang E (Débutant)\n\nSANTÉ (HP)\n100 / 100\nÉNERGIE (MP)\n50 / 50\nEXP (XP)\n0 / 100\nStatut\nMissions\nDonjons\nArmée Divine\nForge Royale\nBoutique\nClassement\nJournal\nCustom\nCAPACITÉS DIVINES\nPoints Disponibles :\n0\nFORCE\n10\nVITALITÉ\n10\nAGILITÉ\n10\nINTELLIGENCE\n10\nPERCEPTION\n10\nBADGES DE GLOIRE\nAucun badge débloqué pour le moment.\nÉQUIPEMENT ÉQUIPÉ\nARME\nLame de Khéops\n+15"
   },
   {
     "screen": "top:system_solo",
@@ -71,13 +61,9 @@
   },
   {
     "screen": "sys:donjons",
-    "errors": [
-      "Failed to load resource: the server responded with a status of 404 ()"
-    ],
+    "errors": [],
     "warnings": [],
-    "failedRequests": [
-      "HTTP 404 https://images.unsplash.com/photo-1608976478335-e102dbd66e76?auto=format&fit=crop&q=80&w=600"
-    ],
+    "failedRequests": [],
     "headings": [
       "Radar de Portes Dimensionnelles",
       "TOMBEAUX & PORTES ÉTABLIS",
