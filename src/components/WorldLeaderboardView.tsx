@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trophy, ShieldAlert, Sparkles, User, HelpCircle, Check, RefreshCw } from './ui/PharaohIcons';
-import { getSupabase } from '../lib/supabaseSync';
+import { getSupabase, isCloudReachable } from '../lib/supabaseSync';
 import { PlayerProfile, LeaderboardEntry, HunterRank } from '../types';
 
 interface WorldLeaderboardViewProps {
@@ -60,6 +60,8 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
   const [onlineEntries, setOnlineEntries] = useState<LeaderboardEntry[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [selfUid, setSelfUid] = useState<string | null>(null);
+  // BUG-005: null = probe in flight; false = cloud dead/unreachable → "coming soon" state.
+  const [cloudAvailable, setCloudAvailable] = useState<boolean | null>(null);
 
   // Compute player's estimated total cumulative XP
   const playerTotalXp = useMemo(() => {
@@ -100,6 +102,9 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
     if (isOffline || !supabase || !player) return;
     setIsSyncing(true);
     try {
+      // BUG-005 gate: skip silently when the project is dead (no DNS spam).
+      const reachable = await isCloudReachable();
+      if (!reachable) return;
       const { data: { user } } = await supabase.auth.getUser();
       setSelfUid(user?.id ?? null);
       const uId = user?.id || 'anonymous_user';
@@ -144,10 +149,20 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
   };
 
   useEffect(() => {
+    // BUG-005: probe cloud liveness once, then only sync when actually alive.
+    let cancelled = false;
+    isCloudReachable().then((ok) => {
+      if (!cancelled) setCloudAvailable(ok);
+    });
     syncScoreToCloud();
+    return () => { cancelled = true; };
   }, [playerTotalXp, isOffline, player]);
 
   if (!player) return null;
+
+  // Cloud dead or unconfigured → explicit "coming soon" state instead of an
+  // empty board silently failing in the console (DISC-007).
+  const cloudDown = cloudAvailable === false || isOffline;
 
   const finalDisplayList = onlineEntries.length > 0 ? onlineEntries : localLeaderboard;
 
@@ -168,7 +183,7 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
           </div>
         </div>
 
-        {!isOffline && (
+        {!cloudDown && (
           <button
             onClick={syncScoreToCloud}
             disabled={isSyncing}
@@ -179,6 +194,24 @@ export const WorldLeaderboardView: React.FC<WorldLeaderboardViewProps> = ({ play
           </button>
         )}
       </div>
+
+      {/* Cloud unavailable — explicit state instead of silent failures (BUG-005/DISC-007) */}
+      {cloudDown && (
+        <div className="bg-lapis/20 border border-gold-dim rounded-2xl px-5 py-4 flex items-start gap-3">
+          <ShieldAlert className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+          <div>
+            <p className="font-display text-xs font-bold text-pharaoh tracking-widest uppercase">
+              Classement mondial — bientôt disponible
+            </p>
+            <p className="text-[11px] text-pharaoh-subtle mt-1">
+              Le classement en ligne sera activé dès que le serveur Ka Rise sera en ligne.
+              {isOffline
+                ? ' Vous êtes actuellement hors ligne.'
+                : ' En attendant, voici votre classement local face aux chasseurs de légende.'}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Real-time calculated placement banner */}
       <div className="bg-lapis/40 border border-gold/30 rounded-3xl p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-gold">

@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const BASE = 'http://localhost:3000';
+const BASE = process.env.QA_BASE || 'http://localhost:3000';
 const OUT = path.join(__dirname, 'shots-state');
 fs.mkdirSync(OUT, { recursive: true });
 

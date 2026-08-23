@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pharaoh-system-v8';
+const CACHE_NAME = 'ka-rise-v9';
 // logo.webp (192 KB) replaces logo-complet.png (1.4 MB) in the pre-cache:
 // the old shell made every fresh install download ~1.5 MB of logo alone.
 const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo.webp'];

@@ -3,6 +3,10 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 import './index.css';
+import { initTheme } from './lib/theme';
+
+// Apply the persisted theme BEFORE first paint (no light-mode flash on boot).
+initTheme();
 
 // Register Service Worker for PWA + Web Push. The module resolves with the
 // ServiceWorkerRegistration so pushNotifications.ts can call pushManager.subscribe()

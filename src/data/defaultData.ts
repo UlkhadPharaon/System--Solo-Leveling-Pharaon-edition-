@@ -95,7 +95,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'Kiii ! L’Ombre Gobeline s’incline devant son nouveau maître.',
     shadowExtractable: true,
     isDefeated: false,
-    imageUrl: 'https://images.unsplash.com/photo-1507041957456-9c397ce39c97?auto=format&fit=crop&q=80&w=600',
+    imageUrl: undefined,
   },
   {
     id: 'dun-d1',
@@ -114,7 +114,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'Grrr... Le féroce Rasaka rejoint l’Armée des Ombres !',
     shadowExtractable: true,
     isDefeated: false,
-    imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=600',
+    imageUrl: undefined,
   },
   {
     id: 'dun-c1',
@@ -133,7 +133,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'Chhh... L’armée arachnide fige vos ennemis dans la toile des ombres !',
     shadowExtractable: true,
     isDefeated: false,
-    imageUrl: 'https://images.unsplash.com/photo-1542401886-65d6c61db217?auto=format&fit=crop&q=80&w=600',
+    imageUrl: undefined,
   },
   {
     id: 'dun-b1',
@@ -152,7 +152,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: '« Mon Épée appartient désormais au Pharaon des Dieux. Mon Seigneur, ordonnez ! »',
     shadowExtractable: true,
     isDefeated: false,
-    imageUrl: 'https://images.unsplash.com/photo-1600577916048-804c9191e36c?auto=format&fit=crop&q=80&w=600',
+    imageUrl: undefined,
   },
   {
     id: 'dun-a1',
@@ -171,7 +171,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: 'ROAAAAR ! Le Dragon Kaisel déploie ses ailes d’Ombre dans les cieux !',
     shadowExtractable: true,
     isDefeated: false,
-    imageUrl: 'https://images.unsplash.com/photo-1608976478335-e102dbd66e76?auto=format&fit=crop&q=80&w=600',
+    imageUrl: undefined,
   },
   {
     id: 'dun-s1',
@@ -190,7 +190,7 @@ export const INITIAL_DUNGEONS: DungeonBoss[] = [
     shadowQuote: '« Mon Roi... Mon précieux Roi ! Je dévorerai quiconque vous manque de respect ! »',
     shadowExtractable: true,
     isDefeated: false,
-    imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=600',
+    imageUrl: undefined,
   },
 ];
 

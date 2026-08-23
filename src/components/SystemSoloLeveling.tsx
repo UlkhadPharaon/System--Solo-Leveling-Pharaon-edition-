@@ -40,13 +40,15 @@ import {
   SystemItem, 
   DungeonBoss, 
   ShadowSoldier,
-  SystemLog
+  SystemLog,
+  Domain
 } from '../types';
 import { PharaohAvatarCustomizer } from './PharaohAvatarCustomizer';
 import { RoyalForge } from './RoyalForge';
 import { ShadowSynergiesList } from './ShadowSynergiesList';
 import { AnubisCharts } from './AnubisCharts';
 import { NarrativeQuestsView } from './NarrativeQuestsView';
+import { DomainQuestBoard } from './DomainQuestBoard';
 import { DungeonTimer } from './DungeonTimer';
 import { WorldLeaderboardView } from './WorldLeaderboardView';
 import { useCountdown, formatRemaining } from './PenaltyQuestCard';
@@ -76,7 +78,7 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
     shadowName: "Héraclius l'Éloquent",
     shadowQuote: "« Ma parole et mes ombres de persuasion s'unissent pour servir le nouveau Pharaon ! »",
-    imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600",
+    imageUrl: undefined,
   },
   {
     id: 'lic-2',
@@ -94,7 +96,7 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
     shadowName: "Sénènmout le Bâtisseur",
     shadowQuote: "« Vos plans de conquête et de développement personnel sont parfaitement échafaudés, mon Roi. »",
-    imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=600",
+    imageUrl: undefined,
   },
   {
     id: 'lic-3',
@@ -112,7 +114,7 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
     shadowName: "Ounas le Maréchal d'Ombre",
     shadowQuote: "« Ma force brute est à votre service. J'écraserai quiconque se dresse contre votre discipline. »",
-    imageUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=600",
+    imageUrl: undefined,
   },
   {
     id: 'lic-4',
@@ -130,7 +132,7 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
     shadowName: "Nephtys l'Ombre Stellaire",
     shadowQuote: "« Vos songes sont sous ma protection divine, mon Pharaon. Reposez-vous en paix. »",
-    imageUrl: "https://images.unsplash.com/photo-1511295742364-92767fa62d9f?auto=format&fit=crop&q=80&w=600",
+    imageUrl: undefined,
   },
   {
     id: 'lic-5',
@@ -148,7 +150,7 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
     shadowName: "Hâpy le Torrent d'Ombre",
     shadowQuote: "« L'énergie coule désormais dans vos veines comme la crue impériale du Nil ! »",
-    imageUrl: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&q=80&w=600",
+    imageUrl: undefined,
   },
   {
     id: 'lic-6',
@@ -166,7 +168,7 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     keyRequiredName: 'Libre accès divin (Aucune clé requise pour les portails de vie)',
     shadowName: "Philopator le Sage",
     shadowQuote: "« Les manuscrits anciens confirment votre destinée divine, mon Souverain. »",
-    imageUrl: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&q=80&w=600",
+    imageUrl: undefined,
   }
 ];
 
@@ -289,6 +291,7 @@ const PortalCountdown: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
 interface SystemSoloLevelingProps {
   player: PlayerProfile;
   dungeons: DungeonBoss[];
+  domains?: Domain[];
   onUpdatePlayer: React.Dispatch<React.SetStateAction<PlayerProfile>>;
   onUpdateDungeons: React.Dispatch<React.SetStateAction<DungeonBoss[]>>;
   onTriggerVictoryConfetti: () => void;
@@ -302,6 +305,7 @@ type SystemTab = 'statut' | 'quetes' | 'donjons' | 'ombres' | 'forge' | 'boutiqu
 export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
   player,
   dungeons,
+  domains,
   onUpdatePlayer,
   onUpdateDungeons,
   onTriggerVictoryConfetti,
@@ -978,6 +982,16 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
               {/* Story Narrative Campaign Quests */}
               <NarrativeQuestsView player={safePlayer} onUpdatePlayer={onUpdatePlayer} />
 
+              {/* Domain starter quests (onboarding v2 / LLM) — mounted in Lot 2 (DISC-002) */}
+              {domains && domains.length > 0 && (
+                <DomainQuestBoard
+                  player={safePlayer}
+                  domains={domains}
+                  onUpdatePlayer={onUpdatePlayer}
+                  onQuestCompleted={onTriggerVictoryConfetti}
+                />
+              )}
+
               <div className="flex items-center justify-between border-b border-sl-gold/20 pb-4 pt-4">
                 <h2 className="text-base md:text-xl font-bold text-pharaoh font-display tracking-widest flex items-center gap-2">
                   <CheckCircle2 className="w-6 h-6 text-sl-gold" /> MISSIONS QUOTIDIENNES DU SYSTÈME
@@ -1257,12 +1271,18 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                   <div key={dungeon.id} className="bg-sl-primary border border-sl-gold/20 rounded-3xl overflow-hidden shadow-gold-sm group hover:border-sl-gold/60 transition-all flex flex-col justify-between">
                     <div>
                       <div className="h-36 relative overflow-hidden">
-                        <img 
-                          src={dungeon.imageUrl || 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?auto=format&fit=crop&q=80&w=600'} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                          alt="" 
-                          referrerPolicy="no-referrer"
-                        />
+                        {dungeon.imageUrl ? (
+                          <img
+                            src={dungeon.imageUrl}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            alt=""
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          /* BUG-006/DISC-001: local themed backdrop — no external
+                             image dependency (offline-safe, cannot 404). */
+                          <div className="w-full h-full dungeon-art-backdrop transition-transform duration-700 group-hover:scale-105" />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-sl-primary to-transparent" />
                         <div className="absolute top-3 right-3 flex flex-wrap items-center gap-2">
                           {dungeon.isLimitedTime && dungeon.expiresAt && !dungeon.isDefeated && (

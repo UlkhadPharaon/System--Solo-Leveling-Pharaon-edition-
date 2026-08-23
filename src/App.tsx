@@ -1172,6 +1172,7 @@ export default function App() {
               <SystemSoloLeveling
                 player={playerProfile}
                 dungeons={dungeons}
+                domains={domains}
                 onUpdatePlayer={setPlayerProfile}
                 onUpdateDungeons={setDungeons}
                 onTriggerVictoryConfetti={triggerVictoryConfetti}
@@ -1277,7 +1278,7 @@ export default function App() {
       <footer className="border-t border-lapis-border/50 bg-obsidian/60 py-6 px-4 lg:px-8 text-center text-xs text-pharaoh-muted">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-60">
-            {personalization.userName.toUpperCase()} OS • AURA MASTERY SYSTEM
+            {personalization.userName.toUpperCase()} OS • KA RISE
           </p>
           <div className="flex items-center gap-3 font-mono text-[11px] flex-wrap justify-center">
             {domains.length > 0

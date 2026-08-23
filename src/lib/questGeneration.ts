@@ -73,6 +73,13 @@ export async function generateInitialQuests(params: {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    // BUG-004: server detected distress in the user's own free text and refused
+    // to generate. Surface the support message once, then serve templates.
+    if (data?.flag_for_human_review) {
+      console.warn('[quests] flag_for_human_review:', data.reason);
+      try { console.info(data.message); } catch { /* noop */ }
+      return buildTemplateQuests(domains);
+    }
     if (!Array.isArray(data.quests) || data.quests.length === 0) throw new Error('empty quests');
     const now = Date.now();
     return data.quests.map((q: any, i: number) => ({

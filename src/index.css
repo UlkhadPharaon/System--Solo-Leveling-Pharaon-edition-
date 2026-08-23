@@ -534,3 +534,212 @@ html.anim-paused *::before,
 html.anim-paused *::after {
   animation-play-state: paused !important;
 }
+
+/* ============================================
+   THEME ENGINE — dark (default) & light ("Papyrus")
+   Every component reads var(--color-*) via Tailwind utilities, so a single
+   [data-theme] attribute swap re-skins the whole app. The gold accent stays
+   in both themes (brand identity); only surfaces, text and glows adapt.
+   ============================================ */
+
+html[data-theme='light'] {
+  color-scheme: light;
+
+  /* Surfaces: warm papyrus/sandstone instead of obsidian */
+  --color-obsidian: #F4EFE3;
+  --color-obsidian-elevated: #FDFAF2;
+  --color-obsidian-hover: #EFE8D8;
+  --color-lapis: #FFFFFF;
+  --color-lapis-light: #FFFDF6;
+  --color-lapis-border: #D9CFAF;
+
+  /* Accent: slightly deepened gold for AA-ish contrast on pale surfaces */
+  --color-gold: #A87E0C;
+  --color-gold-bright: #8A650A;      /* "bright" becomes the readable tone */
+  --color-gold-dim: #C4A94B;
+  --color-gold-glow: rgba(168, 126, 12, 0.22);
+  --color-gold-glow-strong: rgba(168, 126, 12, 0.35);
+
+  /* Semantic hues: darker variants that survive on light backgrounds */
+  --color-blood: #A93226;
+  --color-emerald: #1E8449;
+  --color-sapphire: #1A5F92;
+  --color-amethyst: #6C31C4;
+
+  /* Legacy sl-* compat tokens follow their sources */
+  --color-sl-primary: #FDFAF2;
+  --color-sl-lapis: #FFFFFF;
+  --color-sl-gold: #A87E0C;
+  --color-sl-gold-light: #8A650A;
+  --color-sl-gold-dark: #C4A94B;
+
+  /* Text: dark ink on parchment */
+  --color-text-primary: #241E10;
+  --color-text-secondary: #5C5340;
+  --color-text-muted: #857A60;
+  --color-text-inverse: #FFFDF6;
+
+  /* Shadows: soft, low-opacity — heavy black shadows look dirty on light UI */
+  --shadow-glow-gold: 0 0 30px rgba(168, 126, 12, 0.15), 0 4px 20px rgba(90, 70, 20, 0.12);
+  --shadow-glow-gold-lg: 0 0 60px rgba(168, 126, 12, 0.25), 0 8px 40px rgba(90, 70, 20, 0.16);
+  --shadow-glow-gold-sm: 0 0 15px rgba(168, 126, 12, 0.14), 0 2px 10px rgba(90, 70, 20, 0.10);
+  --shadow-inner-gold: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(120, 100, 50, 0.08);
+  --shadow-card: 0 4px 24px rgba(96, 78, 34, 0.12), 0 1px 3px rgba(96, 78, 34, 0.10);
+  --shadow-card-hover: 0 8px 40px rgba(96, 78, 34, 0.18), 0 0 20px rgba(168, 126, 12, 0.14);
+}
+
+/* Panels / glass gradients are hard-coded dark rgba() in the base theme —
+   re-point them at token-driven values under light mode. */
+html[data-theme='light'] .bg-panel {
+  background: linear-gradient(145deg, #FFFFFF 0%, #FBF7EA 100%);
+}
+html[data-theme='light'] .bg-panel-hover {
+  background: linear-gradient(145deg, #FFFEF8 0%, #F6F0DE 100%);
+}
+html[data-theme='light'] .bg-panel-gold {
+  background: linear-gradient(145deg, rgba(212, 168, 30, 0.18) 0%, rgba(212, 168, 30, 0.06) 100%);
+}
+html[data-theme='light'] .bg-glass {
+  background: rgba(255, 253, 246, 0.75);
+  border-color: rgba(168, 126, 12, 0.20);
+}
+html[data-theme='light'] .bg-glass-strong {
+  background: rgba(255, 253, 246, 0.9);
+  border-color: rgba(168, 126, 12, 0.28);
+}
+
+/* Background pattern: keep the layout, drop the noise/glow intensity */
+html[data-theme='light'] .bg-pharaoh {
+  background-color: var(--color-obsidian);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 168, 30, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(123, 63, 228, 0.04) 0%, transparent 50%);
+}
+
+/* Gold gradient text needs a lighter top stop on pale backgrounds */
+html[data-theme='light'] .text-gradient-gold {
+  background: linear-gradient(135deg, #8A650A 0%, #A87E0C 55%, #6E5008 100%);
+}
+html[data-theme='light'] .text-shimmer {
+  background: linear-gradient(110deg, #A87E0C 20%, #6E5008 40%, #A87E0C 60%);
+  background-size: 200% 100%;
+}
+
+/* Scrollbar + focus ring track colors follow the surface tokens */
+html[data-theme='light'] ::-webkit-scrollbar-track { background: var(--color-obsidian); }
+html[data-theme='light'] ::-webkit-scrollbar-corner { background: var(--color-obsidian); }
+html[data-theme='light'] ::selection { color: #241E10; }
+
+/* Focus ring contrast: obsidian ring is invisible on light bg — use ink */
+html[data-theme='light'] .focus-ring:focus-visible,
+html[data-theme='light'] .btn-press:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-obsidian), 0 0 0 4px var(--color-gold);
+}
+
+/* Smooth cross-fade when toggling themes (colors only — avoids jank) */
+body,
+.bg-panel,
+.bg-panel-hover,
+header.sticky,
+nav.sticky {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: var(--transition-base);
+}
+
+/* GPU-relief override block (pointer:coarse) sets opaque dark rgba() —
+   neutralize it for phones running the light theme. */
+@media (pointer: coarse) {
+  html[data-theme='light'] .bg-panel,
+  html[data-theme='light'] .bg-panel-hover,
+  html[data-theme='light'] .bg-glass,
+  html[data-theme='light'] header.sticky,
+  html[data-theme='light'] nav.sticky {
+    background-color: rgba(250, 246, 235, 0.97);
+  }
+  html[data-theme='light'] .bg-glass-strong {
+    background-color: rgba(252, 249, 240, 0.98);
+  }
+}
+
+/* ============================================
+   BIG SCREEN LAYOUT (lg ≥1024px → ultra-wide)
+   Mobile-first base is untouched. On desktop we widen the content column,
+   densify navigation, cap line length for readability and let grids breathe
+   with more columns instead of stretching cards to absurd widths.
+   ============================================ */
+
+/* Content column scales with the viewport instead of capping at 80rem:
+   1280–1535px → 84rem, ≥1536px (Full-HD+) → 96rem, ≥1920px → 104rem. */
+@media (min-width: 1280px) {
+  header > div:first-child,
+  main.max-w-7xl,
+  footer .max-w-7xl {
+    max-width: 84rem !important;
+  }
+}
+@media (min-width: 1536px) {
+  header > div:first-child,
+  main.max-w-7xl,
+  footer .max-w-7xl {
+    max-width: 96rem !important;
+  }
+}
+@media (min-width: 1920px) {
+  header > div:first-child,
+  main.max-w-7xl,
+  footer .max-w-7xl {
+    max-width: 104rem !important;
+  }
+}
+
+/* Generous gutters once there's room — content never touches screen edges */
+@media (min-width: 1280px) {
+  main.max-w-7xl { padding-left: 3rem; padding-right: 3rem; }
+}
+@media (min-width: 1920px) {
+  main.max-w-7xl { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+}
+
+/* Desktop nav bar: center items and give them room instead of left-clumping
+   across a now much wider strip. */
+@media (min-width: 1280px) {
+  nav.hidden.lg\:flex > div {
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+}
+
+/* Long-form text keeps a comfortable measure on ultra-wide monitors */
+@media (min-width: 1536px) {
+  p:not(.no-measure), h2:not(.no-measure), h3:not(.no-measure) {
+    max-width: 75ch;
+  }
+}
+
+/* Ultra-wide density helper: sections stack tighter vertical rhythm so the
+   page doesn't become one endless scroll on 1440p+ displays. */
+@media (min-width: 1536px) {
+  main .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 2rem;
+  }
+}
+
+/* BUG-006/DISC-001 — local themed backdrop replacing external Unsplash images
+   for dungeon cards. Pure CSS: offline-safe, cannot 404, zero bytes fetched. */
+.dungeon-art-backdrop {
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(30, 58, 138, 0.55), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(212, 175, 55, 0.18), transparent 50%),
+    radial-gradient(ellipse at 60% 20%, rgba(123, 63, 228, 0.22), transparent 45%),
+    linear-gradient(160deg, #0a1a33 0%, #040d1a 100%);
+}
+.dungeon-art-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(212, 175, 55, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 175, 55, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}

@@ -2,27 +2,29 @@
   {
     "screen": "boot",
     "errors": [
+      "WebSocket connection to 'ws://localhost:24678/?token=buxx08SkCPee' failed: Error during WebSocket handshake: Unexpected response code: 400",
+      "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+      "PAGEERROR: Error: WebSocket closed without opened.",
       "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
       "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+      "WebSocket connection to 'ws://localhost:24678/?token=buxx08SkCPee' failed: Error during WebSocket handshake: Unexpected response code: 400",
+      "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+      "PAGEERROR: Error: WebSocket closed without opened.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
     ],
     "warnings": [],
     "failedRequests": [
-      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
-      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED"
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_NAME_NOT_RESOLVED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_NAME_NOT_RESOLVED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_FAILED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/health -> net::ERR_FAILED"
     ]
   },
   {
     "screen": "_modal-detection",
     "hasOnboarding": true,
-    "bodySnippet": "E\nSOLO LEVELING\ndim. 23 août • 06:32:53\nE\n1\nJOURS\nFocus\nCoach IA\nPersonnaliser\nDonnées\n\nLe Chasseur Débutant\n\nNIV 1 • 0 XP\n\nSYSTÈME\nQuêtes\nEntraînement\nFocus\nBilan\nHauts Faits\nNotes\nTrésorerie\n1\nNIVEAU\nLe Chasseur Débutant\n\nClasse : Chasseur de Rang E (Débutant)\n\nSANTÉ (HP)\n100 / 100\nÉNERGIE (MP)\n50 / 50\nEXP (XP)\n0 / 100\nStatut\nMissions\nDonjons\nArmée Divine\nForge Royale\nBoutique\nClassement\nJournal\nCustom\nCAPACITÉS DIVINES\nPoints Disponibles :\n0\nFORCE\n10\nVITALITÉ\n10\nAGILITÉ\n10\nINTELLIGENCE\n10\nPERCEPTION\n10\nBADGES DE GLOIRE\nAucun badge débloqué pour le moment.\nÉQUIPEMENT ÉQUIPÉ\nARME\nLame de Khéo"
+    "bodySnippet": "E\nKA RISE\ndim. 23 août • 07:45:50\nE\n1\nJOURS\nFocus\nCoach IA\nPersonnaliser\nDonnées\n\nLe Chasseur Débutant\n\nNIV 1 • 0 XP\n\nSYSTÈME\nQuêtes\nEntraînement\nFocus\nBilan\nHauts Faits\nNotes\nTrésorerie\n1\nNIVEAU\nLe Chasseur Débutant\n\nClasse : Chasseur de Rang E (Débutant)\n\nSANTÉ (HP)\n100 / 100\nÉNERGIE (MP)\n50 / 50\nEXP (XP)\n0 / 100\nStatut\nMissions\nDonjons\nArmée Divine\nForge Royale\nBoutique\nClassement\nJournal\nCustom\nCAPACITÉS DIVINES\nPoints Disponibles :\n0\nFORCE\n10\nVITALITÉ\n10\nAGILITÉ\n10\nINTELLIGENCE\n10\nPERCEPTION\n10\nBADGES DE GLOIRE\nAucun badge débloqué pour le moment.\nÉQUIPEMENT ÉQUIPÉ\nARME\nLame de Khéops\n+15"
   },
   {
     "screen": "top:system_solo",
@@ -30,14 +32,14 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Le Chasseur Débutant",
       "CAPACITÉS DIVINES",
       "Badges de Gloire",
       "ÉQUIPEMENT ÉQUIPÉ",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 2095,
+    "textLen": 2077,
     "emojiPlaceholders": 0
   },
   {
@@ -132,25 +134,9 @@
   },
   {
     "screen": "sys:classement",
-    "errors": [
-      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
-      "Failed to load resource: net::ERR_FAILED",
-      "Failed to load resource: net::ERR_FAILED",
-      "Failed to load resource: net::ERR_FAILED",
-      "Failed to load resource: net::ERR_FAILED"
-    ],
+    "errors": [],
     "warnings": [],
-    "failedRequests": [
-      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
-      "POST https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
-      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
-      "POST https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED"
-    ],
+    "failedRequests": [],
     "headings": [
       "CLASSEMENT MONDIAL DES CHASSEURS",
       "Bienvenue, Chasseur.",
@@ -160,15 +146,9 @@
   },
   {
     "screen": "sys:journal",
-    "errors": [
-      "Failed to load resource: net::ERR_FAILED",
-      "Failed to load resource: net::ERR_FAILED"
-    ],
+    "errors": [],
     "warnings": [],
-    "failedRequests": [
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED"
-    ],
+    "failedRequests": [],
     "headings": [
       "CHRONIQUES DU SYSTÈME",
       "Bienvenue, Chasseur.",
@@ -191,21 +171,15 @@
   },
   {
     "screen": "top:dashboard",
-    "errors": [
-      "Failed to load resource: net::ERR_FAILED",
-      "Failed to load resource: net::ERR_FAILED"
-    ],
+    "errors": [],
     "warnings": [],
-    "failedRequests": [
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
-      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED"
-    ],
+    "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Panneau des Quêtes (Système) • Chasseur",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 2137,
+    "textLen": 2119,
     "emojiPlaceholders": 0
   },
   {
@@ -214,12 +188,12 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Centre de Musculation & Condition Physique",
       "Prise de masse musculaire (5 mois)",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 2500,
+    "textLen": 2482,
     "emojiPlaceholders": 1
   },
   {
@@ -228,11 +202,11 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Bangre Neo",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 1807,
+    "textLen": 1789,
     "emojiPlaceholders": 0
   },
   {
@@ -241,11 +215,11 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Allocation & Progression Hebdomadaire",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 1710,
+    "textLen": 1692,
     "emojiPlaceholders": 0
   },
   {
@@ -254,11 +228,11 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Registre des Succès & Améliorations",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 1898,
+    "textLen": 1880,
     "emojiPlaceholders": 0
   },
   {
@@ -267,11 +241,11 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Feuille de Route & Phases de Projets",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 1764,
+    "textLen": 1746,
     "emojiPlaceholders": 0
   },
   {
@@ -280,11 +254,11 @@
     "warnings": [],
     "failedRequests": [],
     "h1s": [
-      "SOLO LEVELING",
+      "KA RISE",
       "Hub Budgétaire & Allocation Financière",
       "Bienvenue, Chasseur."
     ],
-    "textLen": 2055,
+    "textLen": 2305,
     "emojiPlaceholders": 0
   }
 ]

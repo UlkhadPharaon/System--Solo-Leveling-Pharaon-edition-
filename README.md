@@ -1,6 +1,7 @@
-# ⚔️ Solo Leveling Self-Dev System — Pharaoh Edition
+# Ka Rise
 
-> *"Only I level up."* — A gamified self-development app inspired by Solo Leveling, built for disciplined growth across fitness, learning, creative work, and life management.
+> Système de développement personnel gamifié (inspiration Solo Leveling), conçu pour la
+> progression disciplinée : fitness, apprentissage, travail créatif et gestion de vie.
 
 ---
 
@@ -10,7 +11,7 @@
 |--------|-------------|
 | **🏋️ Workout Engine** | Ulkhad's 10-month progressive program, RPE-based autoregulation, PR tracking, body metrics |
 | **📚 Study & Skills** | Subject goals, spaced-repetition scheduling, focus sessions with Pomodoro timer |
-| **🎨 Projects & Creative** | Phase-gated project tracking (Cinema, Bangre Neo Lab, etc.), weekly time budgets |
+| **🎨 Projects & Creative** | Phase-gated project tracking, weekly time budgets |
 | **💰 Budget & Finance** | Envelope budgeting, savings goals, transaction logging, cash-flow visualization |
 | **🗡️ Dungeons & Quests** | LLM-generated daily quests (NVIDIA NIM / OpenRouter), XP rewards, difficulty scaling |
 | **🏆 Leaderboard** | Supabase-backed global ranking, seasonal resets, rank badges (E → Pharaoh) |

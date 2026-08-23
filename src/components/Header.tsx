@@ -5,13 +5,14 @@ import {
   Dumbbell, Film, GraduationCap, Code, BookOpen, Briefcase, Wallet, Users, Flame,
   Target, Trophy, FileText, Calendar, Clock, Zap, Sparkles, Plus, Settings, Trash,
   ArrowLeft, ChevronDown, Eye, EyeOff, Star, Skull, Dragon, Wolf, Grid,
-  HelpCircle,
+  HelpCircle, Moon, Sun,
   type PharaohIcon
 } from './ui/PharaohIcons';
 import { RankBadgeInline, getRankFromXP, RANK_DEFINITIONS } from './ui/RankBadge';
 import { motion, AnimatePresence } from 'motion/react';
 import { useActiveFocusSession, activeFocusRemainingMs } from '../lib/activeFocusSession';
 import { playSfx } from '../lib/sfx';
+import { getStoredTheme, applyTheme, type Theme } from '../lib/theme';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -90,6 +91,14 @@ export const Header: React.FC<HeaderProps> = ({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMoreNav, setShowMoreNav] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  // Theme state mirrors the DOM attribute set before first paint (main.tsx).
+  const [theme, setTheme] = useState<Theme>(() => getStoredTheme());
+  const toggleDarkLight = () => {
+    playSfx('ui-tap', 0.5);
+    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    setTheme(next);
+  };
   // Ticking header clock (inlined — was the separate <LiveClock/> that could
   // not shrink and overflowed narrow phones).
   const [clockNow, setClockNow] = useState(new Date());
@@ -179,7 +188,7 @@ export const Header: React.FC<HeaderProps> = ({
               transition={{ duration: 0.2 }}
             >
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-panel-gold flex items-center justify-center shadow-gold relative overflow-hidden">
-                <img src="/logo.webp" alt="Logo Pharaoh" className="w-full h-full object-cover anim-float" width={40} height={40} />
+                <img src="/logo.webp" alt="Logo Ka Rise" className="w-full h-full object-cover anim-float" width={40} height={40} />
                 <div className="absolute inset-0 bg-gradient-to-tr from-gold/20 to-transparent" />
               </div>
               {/* Rank indicator dot */}
@@ -198,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
             </motion.div>
             <div className="min-w-0 flex-1">
               <h1 className="font-display text-base sm:text-lg md:text-xl font-light tracking-widest text-gradient-gold truncate">
-                SOLO LEVELING
+                KA RISE
               </h1>
               <div className="flex items-center gap-2 text-[10px] md:text-xs text-pharaoh-subtle font-mono min-w-0">
                 <motion.span
@@ -259,6 +268,30 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-shrink">
             {/* Live focus-session countdown (#1) — always visible, taps back to the timer */}
             <FocusSessionPill onClick={openFocusTimerQuick} />
+
+            {/* Dark / Light theme toggle — visible on every breakpoint */}
+            <motion.button
+              onClick={toggleDarkLight}
+              aria-label={theme === 'dark' ? 'Activer le thème clair' : 'Activer le thème sombre'}
+              title={theme === 'dark' ? 'Thème clair (Papyrus)' : 'Thème sombre (Obsidienne)'}
+              className="btn-press p-2.5 min-h-[40px] min-w-[40px] rounded-xl bg-panel border border-lapis-border text-pharaoh-muted hover:bg-panel-hover hover:text-gold transition-all"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={theme}
+                  initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                  exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.2 }}
+                  className="block"
+                >
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
 
             {/* Help / "Comment ça marche ?" — re-opens the first-visit tour */}
             {openHelp && (

@@ -44,7 +44,7 @@ function getLlmConfig(): LlmConfig | null {
     provider: 'nvidia_nim',
     apiKey,
     baseUrl: process.env.NVIDIA_NIM_BASE_URL || 'https://integrate.api.nvidia.com/v1',
-    model: process.env.NVIDIA_NIM_MODEL || 'meta/llama-3.1-70b-instruct',
+    model: process.env.NVIDIA_NIM_MODEL || 'meta/llama-3.1-8b-instruct',
   };
 }
 
@@ -68,7 +68,7 @@ async function chatCompletion(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${config.apiKey}`,
       ...(config.provider === 'openrouter'
-        ? { 'HTTP-Referer': 'https://aura-app.local', 'X-Title': 'Aura Solo Leveling' }
+        ? { 'HTTP-Referer': 'https://ka-rise.local', 'X-Title': 'Ka Rise' }
         : {}),
     },
     body: JSON.stringify({
@@ -126,6 +126,45 @@ interface QuestSpec {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// BUG-004 — flag_for_human_review guardrail (SYSTEM_PROMPT contract).
+// Scans the user's OWN free-text (vision, goals, physical constraint) for
+// distress signals BEFORE any generation. On hit: the LLM is bypassed entirely,
+// the client falls back to deterministic template quests, and the request is
+// marked for human review. Never prescribe generated content on flagged input.
+// ─────────────────────────────────────────────────────────────────────────────
+const DISTRESS_PATTERN = new RegExp(
+  [
+    '\\bsuicide\\b',
+    '\\bsuicider\\b',
+    '\\bsuicidal\\b',
+    '\\bautomutilation\\b',
+    '\\bautomutiler\\b',
+    '\\bself[\\s-]?harm(?:ing)?\\b',
+    '\\bje\\s+veux\\s+mourir\\b',
+    '\\bplus\\s+envie\\s+de\\s+vivre\\b',
+    '\\bdépression\\b',
+    '\\bdepression\\b',
+    '\\bdépressif\\b',
+    '\\bdépressive\\b',
+    '\\bdepressed\\b',
+    '\\bdésespéré\\b',
+    '\\bdésespérée\\b',
+    '\\bdésespoir\\b',
+    '\\boverdose\\b',
+  ].join('|'),
+  'i'
+);
+
+function detectDistress(texts: (string | undefined | null)[]): string | null {
+  for (const t of texts) {
+    if (typeof t === 'string' && DISTRESS_PATTERN.test(t)) {
+      return t.slice(0, 160);
+    }
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Web Push Notifications (web-push + VAPID)
 //  - Single-user personal app: the device's push subscription is stored in a
 //    JSON file under ./data (gitignored), not a DB.
@@ -152,7 +191,7 @@ interface ScheduledPush {
 const vapid = {
   publicKey: process.env.VAPID_PUBLIC_KEY || '',
   privateKey: process.env.VAPID_PRIVATE_KEY || '',
-  subject: process.env.VAPID_SUBJECT || 'mailto:pharaon@system-solo-leveling.local',
+  subject: process.env.VAPID_SUBJECT || 'mailto:contact@ka-rise.local',
 };
 const pushEnabled = !!(vapid.publicKey && vapid.privateKey);
 if (pushEnabled) {
@@ -644,18 +683,8 @@ async function startServer() {
       }
 
       // Domain-driven when the client provides its domains (onboarding v2);
-      // otherwise fall back to the legacy hardcoded profile.
-      const legacyInstruction = `The user's core goals & schedule constraints:
-1. Sleep: 6-8h every night.
-2. Morning Routine: 45 min musculation workout every morning, 10 min speeching/public speaking practice, 30 min skincare, grooming & bath.
-3. Priority Work ("Must Do Work"): 3-5 hours/day (studio work, dad's business, commitments to others).
-4. Lunch: 12:00 PM eating break.
-5. Post-Lunch Learning: 30min - 1h reading/podcasts/learning.
-6. Key Weekly Targets:
-   - Bangre Neo Lab: 15h - 20h / week
-   - Movies / Cinema & Screenplay writing / content creation: 10h - 15h / week
-   - School Lessons: 5h - 10h / week focused on SVT, Mathematics, Physics-Chemistry (PC), and History-Geography.`;
-
+      // otherwise explicitly NEUTRAL (BUG-003): never inject a hardcoded profile
+      // that isn't the current user's.
       const domainsInstruction = (context?.domains as any[] | undefined)
         ?.map(
           (d) =>
@@ -663,12 +692,14 @@ async function startServer() {
         )
         .join('\n');
 
-      const systemInstruction = `You are a personalized elite productivity, academic, and creative AI mentor ("Le Mentor du Système") inside a Solo Leveling-themed self-development app.
-${domainsInstruction ? `The user's life domains (defined by the user themselves — never assume other domains):\n${domainsInstruction}` : `The user's core goals & schedule constraints:\n${legacyInstruction}`}
+      const systemInstruction = `You are a personalized elite productivity, academic, and creative AI mentor ("Le Mentor du Système") inside a gamified self-development app.
+${domainsInstruction
+  ? `The user's life domains (defined by the user themselves — never assume other domains):\n${domainsInstruction}`
+  : `IMPORTANT CONTEXT: this user has NOT defined any life domains yet (onboarding not completed). Do NOT assume, invent or reference any specific project, school subject, work schedule or personal goal. Give general, universally applicable advice on discipline, focus and consistency. You may suggest completing the onboarding ("l'Éveil") so your guidance can become truly personalized.`}
 
 RULES:
 1. ALWAYS respond in French — the app's entire UI is French.
-2. Be concise, inspiring, practical. Anchor advice to the user's own domains and live progress context.
+2. Be concise, inspiring, practical. When domains are provided, anchor advice to them and the live progress context; otherwise stay general and never invent specifics about the user.
 3. Never give medical, injury or diet advice.`;
 
       // Agent mode: the mentor proposes structured state mutations (schedule
@@ -682,7 +713,7 @@ Schéma d'une action : {"action": "<type>", "payload": {...}}
 
 Types d'actions autorisés (utilisez-les UNIQUEMENT si l'utilisateur demande explicitement une modification) :
 1. {"action":"update_personalization","payload":{"field":"userName"|"userTagline"|"hunterTitle"|"dailyQuote","value":"nouvelle valeur"}}
-2. {"action":"add_schedule_block","payload":{"day":"Monday".."Sunday","title":"...","startTime":"HH:MM","endTime":"HH:MM","category":"bangre_neo|cinema|school|must_do_work|morning_routine|learning|sleep|personal (ou dom:<id>)","description":"facultatif"}}
+2. {"action":"add_schedule_block","payload":{"day":"Monday".."Sunday","title":"...","startTime":"HH:MM","endTime":"HH:MM","category":"<catégorie libre, idéalement dom:<id d'un domaine existant>, sinon personal|learning|sleep|work>","description":"facultatif"}}
 3. {"action":"delete_schedule_block","payload":{"day":"...","blockId":"<id exact existant>"}}
 4. {"action":"toggle_schedule_block","payload":{"day":"...","blockId":"<id exact existant>"}}
 5. {"action":"add_victory_log","payload":{"successes":["..."], "improvements":["..."], "highlights":"..."}}
@@ -804,6 +835,27 @@ RÈGLES STRICTES :
       };
       if (!Array.isArray(domains) || domains.length === 0) {
         return res.status(400).json({ error: 'domains[] is required' });
+      }
+
+      // BUG-004 guardrail FIRST: distress signals in the user's own free text →
+      // never generate. The client treats this like the timeout fallback
+      // (deterministic templates) and shows a neutral support message.
+      const flaggedText = detectDistress([
+        vision,
+        physicalConstraint,
+        ...domains.map((d) => `${d.goal_text ?? ''}`),
+      ]);
+      if (flaggedText) {
+        console.warn(
+          '[guardrail] flag_for_human_review — distress signal detected in user free-text; generation bypassed.'
+        );
+        return res.status(200).json({
+          flag_for_human_review: true,
+          reason: 'user_text_flagged',
+          message:
+            "Génération désactivée pour cette demande : certains mots appellent un accompagnement humain. Des quêtes neutres vous ont été attribuées. Si tu traverses un moment difficile, parle-en à une personne de confiance ou contacte une ligne d'écoute.",
+          source: 'flagged',
+        });
       }
 
       const userPrompt = `Vision de l'utilisateur (ses mots): "${vision || ''}"

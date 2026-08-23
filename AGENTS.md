@@ -189,7 +189,7 @@ alias glog='git log --oneline -20'
 ## Contact / Context
 
 - **Repo owner**: UlkhadPharaon
-- **App**: Solo Leveling Self-Dev System (Pharaoh Edition)
+- **App**: Ka Rise (ex « Solo Leveling Self-Dev System — Pharaoh Edition »)
 - **Stack**: React 19 + Vite 6 + Express + Tailwind 4 + Supabase + NVIDIA NIM
 - **Deploy target**: AI Studio / Cloud Run (auto-injects `GEMINI_API_KEY`, `APP_URL`)
 

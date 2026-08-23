@@ -86,6 +86,42 @@ export function getSupabase(): SupabaseClient | null {
 
 type Listener = (state: SyncState) => void;
 
+/**
+ * Reachability gate (BUG-005): a configured-but-dead Supabase project must not
+ * produce signup/DNS errors at every boot. One cheap probe, cached 5 min.
+ * Semantics: ANY HTTP response (even 4xx/5xx) means the server exists; only
+ * network-level failure (DNS NXDOMAIN, refusal, timeout) counts as "dead".
+ */
+let reachabilityProbe: { at: number; ok: boolean } | null = null;
+let reachabilityInflight: Promise<boolean> | null = null;
+const REACHABILITY_TTL_MS = 5 * 60 * 1000;
+
+export function isCloudReachable(): Promise<boolean> {
+  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  if (!url) return Promise.resolve(false);
+  if (reachabilityProbe && Date.now() - reachabilityProbe.at < REACHABILITY_TTL_MS) {
+    return Promise.resolve(reachabilityProbe.ok);
+  }
+  // Dedupe concurrent callers (engine init + leaderboard mount) so one probe
+  // serves them all.
+  reachabilityInflight ??= (async () => {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      // GoTrue health endpoint — existence of any response proves liveness.
+      await fetch(`${url}/auth/v1/health`, { signal: controller.signal });
+      clearTimeout(timer);
+      reachabilityProbe = { at: Date.now(), ok: true };
+    } catch {
+      reachabilityProbe = { at: Date.now(), ok: false };
+    } finally {
+      reachabilityInflight = null;
+    }
+    return reachabilityProbe!.ok;
+  })();
+  return reachabilityInflight;
+}
+
 class CloudSyncEngine {
   private state: SyncState = { status: 'local', userId: null, lastSyncAt: null, message: 'Mode local' };
   private listeners = new Set<Listener>();
@@ -109,9 +145,20 @@ class CloudSyncEngine {
       this.setState({ status: 'local', message: 'Cloud non configuré — mode local' });
       return;
     }
+    // BUG-005 gate lives inside the async init below: never attempt sign-in
+    // against a dead/unreachable project. Sync code stays intact.
     this.setState({ status: 'connecting', message: 'Connexion au nuage…' });
     this.initPromise = (async () => {
       try {
+        // BUG-005 gate: a configured-but-dead project must not produce DNS
+        // errors at every boot. Sync stays intact and resumes automatically
+        // once a reachable Supabase URL is configured.
+        const reachable = await isCloudReachable();
+        if (!reachable) {
+          this.setState({ status: 'local', message: 'Cloud injoignable — mode local' });
+          console.info('[sync] Supabase injoignable (projet inexistant ou réseau) — mode local.');
+          return;
+        }
         const { data, error } = await supabase.auth.signInAnonymously();
         if (error || !data?.user) {
           this.setState({ status: 'local', message: 'Cloud indisponible — mode local' });
