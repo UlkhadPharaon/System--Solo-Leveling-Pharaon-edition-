@@ -1,4 +1,5 @@
 import React from 'react';
+import { playSfx } from '../lib/sfx';
 import { CheckCircle2, Circle, Flame } from './ui/PharaohIcons';
 import { Domain, HabitCheck } from '../types';
 import { styleForDomain } from '../lib/domains';
@@ -65,7 +66,7 @@ export const HabitChecklistCard: React.FC<HabitChecklistCardProps> = ({
           return (
             <button
               key={domain.id}
-              onClick={() => onToggleCheck(domain)}
+              onClick={() => { playSfx('ui-tick', 0.7); onToggleCheck(domain); }}
               className={`btn-press w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
                 done
                   ? 'bg-emerald/15 border-emerald/50'

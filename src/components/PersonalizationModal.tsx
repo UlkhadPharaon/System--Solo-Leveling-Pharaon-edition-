@@ -162,48 +162,76 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
       } else {
         setNotificationsEnabled(true);
       }
+
+      // N1 — create the web-push subscription NOW so server pushes reach
+      // this phone even with the app closed (the missing piece before).
+      if (Notification.permission === 'granted') {
+        try {
+          const sub = await subscribeToPush();
+          if (!sub) console.warn('[push] subscription failed after enable');
+        } catch (e) {
+          console.warn('[push] subscribe error', e);
+        }
+      }
     } else {
       setNotificationsEnabled(false);
     }
   };
 
-  const handleTriggerTestNotification = () => {
-    if (typeof window === 'undefined' || !('Notification' in window)) {
-      setTestNotificationFeedback('Les notifications du navigateur ne sont pas prises en charge dans cette fenêtre.');
+  const [pushBusy, setPushBusy] = useState(false);
+
+  /**
+   * N1 — REAL push test. The old implementation used `new Notification()`,
+   * which Android Chrome silently blocks unless the tab is foreground AND
+   * not installed as PWA. The reliable path on phones is Web Push through
+   * the server: ensure a push subscription exists, then POST /api/push/send.
+   */
+  const handleTriggerTestNotification = async () => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+      setTestNotificationFeedback('Notifications non supportées sur ce navigateur.');
       return;
     }
-
-    if (Notification.permission === 'granted') {
-      try {
-        new Notification('Test Alerte Aura 🔔', {
-          body: `Alertes de début de session actives ! Vous serez notifié ${notificationLeadMinutes} minutes avant vos blocs d'étude et de travail.`,
-          icon: '/favicon.ico',
-        });
-        setTestNotificationFeedback('Notification test envoyée ! Vérifiez votre écran.');
-      } catch (err) {
-        setTestNotificationFeedback('Notification déclenchée avec succès.');
+    setPushBusy(true);
+    try {
+      // 1. Permission
+      let perm = Notification.permission;
+      if (perm === 'default') perm = await requestPermission();
+      setPermissionStatus(perm);
+      if (perm !== 'granted') {
+        setTestNotificationFeedback(
+          perm === 'denied'
+            ? 'Notifications bloquées : autorisez-les dans les paramètres du site (icône 🔒 à côté de l\'URL).'
+            : 'Permission refusée.'
+        );
+        return;
       }
-    } else if (Notification.permission === 'default') {
-      Notification.requestPermission().then((res) => {
-        setPermissionStatus(res);
-        if (res === 'granted') {
-          try {
-            new Notification('Test Alerte Aura 🔔', {
-              body: `Alertes de début de session actives ! Vous serez notifié ${notificationLeadMinutes} minutes avant vos blocs.`,
-            });
-          } catch (err) {}
-          setTestNotificationFeedback('Permission accordée & alerte test envoyée !');
-        } else {
-          setTestNotificationFeedback('Permission de notification non accordée.');
-        }
-      });
-    } else {
-      setTestNotificationFeedback('Les notifications sont bloquées dans vos paramètres de navigateur.');
-    }
 
-    setTimeout(() => {
-      setTestNotificationFeedback(null);
-    }, 4500);
+      // 2. Ensure a real push subscription exists and is known to the server.
+      const sub = await subscribeToPush();
+      if (!sub) {
+        setTestNotificationFeedback('Impossible de créer l\'abonnement push. Rechargez la page et réessayez.');
+        return;
+      }
+
+      // 3. Send THROUGH the server (reaches the phone even app closed).
+      const ok = await sendPushViaServer({
+        title: 'Système : Test Réussi ⚡',
+        body: `Les alertes sont actives ! Vous serez notifié ${notificationLeadMinutes} min avant vos sessions.`,
+        tag: 'test-push',
+        url: '/',
+        icon: '/icon-192.png',
+        data: {},
+      });
+
+      setTestNotificationFeedback(
+        ok
+          ? '✅ Push envoyé par le serveur — vérifiez votre écran (même verrouillé).'
+          : '❌ Le serveur n\'a pas pu délivrer le push. Vérifiez que VAPID est configuré côté serveur.'
+      );
+    } finally {
+      setPushBusy(false);
+      setTimeout(() => setTestNotificationFeedback(null), 8000);
+    }
   };
 
   // Cinema Milestone Handlers
@@ -452,10 +480,11 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                       <button
                         type="button"
                         onClick={handleTriggerTestNotification}
-                        className="btn-press w-full sm:w-auto px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold border border-gold/50 text-gold-bright font-mono text-xs tracking-wide font-medium transition-all flex items-center justify-center gap-2"
+                        disabled={pushBusy}
+                        className="btn-press w-full sm:w-auto px-4 py-2 rounded-xl bg-panel-gold hover:shadow-gold border border-gold/50 text-gold-bright font-mono text-xs tracking-wide font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                       >
-                        <Volume2 className="w-3.5 h-3.5" />
-                        Envoyer une Notification Test
+                        <Volume2 className={`w-3.5 h-3.5 ${pushBusy ? 'animate-pulse' : ''}`} />
+                        {pushBusy ? 'Envoi en cours…' : 'Envoyer une Notification Test'}
                       </button>
                     </div>
                   </div>

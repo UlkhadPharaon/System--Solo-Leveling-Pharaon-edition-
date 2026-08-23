@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { VictoryLog } from '../types';
 import { triggerVictoryConfetti } from '../lib/confetti';
+import { playSfx } from '../lib/sfx';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import {
   Trophy,
@@ -87,6 +88,7 @@ export const VictoryJournal: React.FC<VictoryJournalProps> = ({
     };
 
     onAddLog(newLog);
+    playSfx('system-popup', 0.9);
     setShowAddForm(false);
   };
 

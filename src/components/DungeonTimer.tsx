@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { playSfx } from '../lib/sfx';
 import { Play, Square, Flame, Timer, ShieldAlert, Sparkles } from './ui/PharaohIcons';
 import { motion } from 'motion/react';
 import { DungeonBoss, PlayerProfile } from '../types';
@@ -58,6 +59,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
 
   const handleFlee = () => {
     setIsRunning(false);
+    playSfx('ui-tick', 0.6);
     // Inflict penalty damage to the player
     onUpdatePlayer(prev => {
       const damage = 25;
@@ -83,6 +85,7 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
     setIsRunning(false);
     setHasFinished(true);
     onTriggerVictoryConfetti();
+    playSfx('levelup');
 
     // Double/multiplied rewards
     const xpBonus = Math.floor(dungeon.xpReward * 1.5);

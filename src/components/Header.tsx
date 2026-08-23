@@ -11,6 +11,7 @@ import {
 import { RankBadgeInline, getRankFromXP, RANK_DEFINITIONS } from './ui/RankBadge';
 import { motion, AnimatePresence } from 'motion/react';
 import { useActiveFocusSession, activeFocusRemainingMs } from '../lib/activeFocusSession';
+import { playSfx } from '../lib/sfx';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -145,9 +146,10 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'budget', label: 'Trésorerie', icon: Wallet, domainColor: '#1E8A49' },
   ];
 
-  // Mobile bottom bar: 4 primary destinations, the rest behind "Plus".
-  const primaryNavItems = navItems.slice(0, 4);
-  const moreNavItems = navItems.slice(4);
+  // Mobile bottom bar: 4 primary destinations + raised central FAB (Focus —
+  // THE daily ritual), rest behind "Plus".
+  const primaryNavItems = [navItems[0], navItems[1], navItems[3], navItems[4]]; // SYSTÈME, Quêtes, Entraînement, Bilan
+  const moreNavItems = [...navItems.slice(5), navItems[2]]; // Hauts Faits, Notes, Trésorerie, Focus
   const activeTabInMore = moreNavItems.some((item) => item.id === activeTab);
 
   const actionButtons = [
@@ -419,7 +421,7 @@ export const Header: React.FC<HeaderProps> = ({
             return (
               <motion.button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => { playSfx('ui-tick', 0.5); setActiveTab(item.id); }}
                 aria-current={isActive ? 'page' : undefined}
                 className={`btn-press relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap group ${
                   isActive
@@ -511,9 +513,25 @@ export const Header: React.FC<HeaderProps> = ({
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
+              <React.Fragment key={item.id}>
+            {/* Raised central FAB after the 2nd item — the Focus ritual. */}
+            {i === 2 && (
               <motion.button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => { playSfx('system-popup', 0.8); openFocusTimerQuick(); }}
+                aria-label="Session Focus — le rituel quotidien"
+                className="btn-press relative flex flex-col items-center justify-center flex-1 min-w-0 px-1 -mt-6"
+                whileTap={{ scale: 0.92 }}
+              >
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold to-gold-dim border-2 border-gold-bright shadow-gold-lg flex items-center justify-center text-inverse">
+                  <Clock size={26} />
+                </div>
+                <span className="text-[10px] font-display font-bold tracking-widest mt-0.5" style={{ color: 'var(--color-gold-bright)' }}>
+                  FOCUS
+                </span>
+              </motion.button>
+            )}
+              <motion.button
+                onClick={() => { playSfx('ui-tick', 0.5); setActiveTab(item.id); }}
                 aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
                 className={`btn-press flex flex-col items-center justify-center flex-1 min-w-0 min-h-[52px] px-1 py-1.5 rounded-xl transition-all ${
@@ -542,6 +560,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {item.label}
                 </span>
               </motion.button>
+              </React.Fragment>
             );
           })}
 

@@ -1,0 +1,290 @@
+[
+  {
+    "screen": "boot",
+    "errors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED"
+    ],
+    "warnings": [],
+    "failedRequests": [
+      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED",
+      "POST https://tteayfimrsnjoparyzjl.supabase.co/auth/v1/signup -> net::ERR_NAME_NOT_RESOLVED"
+    ]
+  },
+  {
+    "screen": "_modal-detection",
+    "hasOnboarding": true,
+    "bodySnippet": "E\nSOLO LEVELING\ndim. 23 août • 06:32:53\nE\n1\nJOURS\nFocus\nCoach IA\nPersonnaliser\nDonnées\n\nLe Chasseur Débutant\n\nNIV 1 • 0 XP\n\nSYSTÈME\nQuêtes\nEntraînement\nFocus\nBilan\nHauts Faits\nNotes\nTrésorerie\n1\nNIVEAU\nLe Chasseur Débutant\n\nClasse : Chasseur de Rang E (Débutant)\n\nSANTÉ (HP)\n100 / 100\nÉNERGIE (MP)\n50 / 50\nEXP (XP)\n0 / 100\nStatut\nMissions\nDonjons\nArmée Divine\nForge Royale\nBoutique\nClassement\nJournal\nCustom\nCAPACITÉS DIVINES\nPoints Disponibles :\n0\nFORCE\n10\nVITALITÉ\n10\nAGILITÉ\n10\nINTELLIGENCE\n10\nPERCEPTION\n10\nBADGES DE GLOIRE\nAucun badge débloqué pour le moment.\nÉQUIPEMENT ÉQUIPÉ\nARME\nLame de Khéo"
+  },
+  {
+    "screen": "top:system_solo",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Le Chasseur Débutant",
+      "CAPACITÉS DIVINES",
+      "Badges de Gloire",
+      "ÉQUIPEMENT ÉQUIPÉ",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 2095,
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:statut",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "headings": [
+      "CAPACITÉS DIVINES",
+      "Badges de Gloire",
+      "ÉQUIPEMENT ÉQUIPÉ",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:missions",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "headings": [
+      "L'Éveil du Chasseur",
+      "MISSIONS QUOTIDIENNES DU SYSTÈME",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:donjons",
+    "errors": [
+      "Failed to load resource: the server responded with a status of 404 ()"
+    ],
+    "warnings": [],
+    "failedRequests": [
+      "HTTP 404 https://images.unsplash.com/photo-1608976478335-e102dbd66e76?auto=format&fit=crop&q=80&w=600"
+    ],
+    "headings": [
+      "Radar de Portes Dimensionnelles",
+      "TOMBEAUX & PORTES ÉTABLIS",
+      "Porte Rang E : La Caverne des Gobelins",
+      "Porte Rang D : La Tanière des Lycans",
+      "Porte Rang C : Le Nid des Insectes Géants",
+      "Porte Rang B : Le Donjon de la Nécropole",
+      "Porte Rang A : La Forge du Château DÉMON",
+      "Porte Rang S : Raid de l’Île de Jeju",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:armee-divine",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "headings": [
+      "ARMÉE DIVINE DU PHARAON",
+      "SYNERGIES DE L’ARMÉE DIVINE",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:forge-royale",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "headings": [
+      "Vos Réserves de Matériaux Sacrés",
+      "FORGER DES RELIQUES ANCIENNES",
+      "VOS ARMES & ARMURES DANS LE SYSTÈME",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:boutique",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "headings": [
+      "BOUTIQUE DU SYSTÈME",
+      "VOTRE INVENTAIRE",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:classement",
+    "errors": [
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "warnings": [],
+    "failedRequests": [
+      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
+      "POST https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
+      "OPTIONS https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
+      "POST https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?on_conflict=user_id -> net::ERR_NAME_NOT_RESOLVED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED"
+    ],
+    "headings": [
+      "CLASSEMENT MONDIAL DES CHASSEURS",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:journal",
+    "errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "warnings": [],
+    "failedRequests": [
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED"
+    ],
+    "headings": [
+      "CHRONIQUES DU SYSTÈME",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "sys:custom",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "headings": [
+      "SALLE DU TRÔNE DIVIN",
+      "Ambiance Sonore du Temple",
+      "Bienvenue, Chasseur.",
+      "CONNEXION QUOTIDIENNE"
+    ],
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "top:dashboard",
+    "errors": [
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "warnings": [],
+    "failedRequests": [
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED",
+      "GET https://tteayfimrsnjoparyzjl.supabase.co/rest/v1/leaderboard?select=user_id%2Cuser_name%2Clevel%2Crank%2Chunter_class%2Ctotal_xp%2Cavatar&order=total_xp.desc&limit=10 -> net::ERR_FAILED"
+    ],
+    "h1s": [
+      "SOLO LEVELING",
+      "Panneau des Quêtes (Système) • Chasseur",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 2137,
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "top:workout",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Centre de Musculation & Condition Physique",
+      "Prise de masse musculaire (5 mois)",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 2500,
+    "emojiPlaceholders": 1
+  },
+  {
+    "screen": "top:focus_timer",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Bangre Neo",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 1807,
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "top:weekly_targets",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Allocation & Progression Hebdomadaire",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 1710,
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "top:victory_journal",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Registre des Succès & Améliorations",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 1898,
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "top:notepad",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Feuille de Route & Phases de Projets",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 1764,
+    "emojiPlaceholders": 0
+  },
+  {
+    "screen": "top:budget",
+    "errors": [],
+    "warnings": [],
+    "failedRequests": [],
+    "h1s": [
+      "SOLO LEVELING",
+      "Hub Budgétaire & Allocation Financière",
+      "Bienvenue, Chasseur."
+    ],
+    "textLen": 2055,
+    "emojiPlaceholders": 0
+  }
+]

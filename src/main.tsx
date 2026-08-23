@@ -38,6 +38,13 @@ const swReadyPromise: Promise<ServiceWorkerRegistration | null> =
 
 export { swReadyPromise };
 
+// ── SFX priming (src/lib/sfx.ts) ────────────────────────────────────────────
+// Browsers only allow audio after a user gesture: decode the Solo Leveling
+// sound bank on the very first pointerdown so later plays are instant.
+import { primeSfx } from './lib/sfx';
+const primeOnce = () => { void primeSfx(); window.removeEventListener('pointerdown', primeOnce); };
+window.addEventListener('pointerdown', primeOnce, { once: true, passive: true });
+
 // ── Budget-GPU relief (index.css .anim-paused) ──────────────────────────────
 // Pause decorative infinite animations while the tab is hidden: background
 // glow/float/pulse loops otherwise keep the compositor awake and drain

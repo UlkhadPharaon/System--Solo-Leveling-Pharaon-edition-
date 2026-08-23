@@ -68,6 +68,8 @@ import { DataManagementModal } from './components/DataManagementModal';
 import { MiniPlayer } from './components/MiniPlayer';
 import { FloatingRewardLayer } from './components/FloatingReward';
 import { TabSkeleton } from './components/TabSkeleton';
+import { SystemWindowLayer, announceSystem } from './components/SystemWindow';
+import { playSfx } from './lib/sfx';
 import { CelebrationBanner, CelebrationInfo } from './components/CelebrationBanner';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { DailyRitual } from './components/DailyRitual';
@@ -659,6 +661,13 @@ export default function App() {
           celebrationGuardRef.current = `levelup-${progression.level}`;
           triggerVictoryConfetti();
           haptic('levelup');
+          // N3 — the System speaks (authentic SL popup SFX).
+          playSfx('system-popup');
+          announceSystem([
+            `Félicitations, Chasseur.`,
+            `Vous avez atteint le niveau ${progression.level}.`,
+            `+${progression.attributePointsGained} point(s) de statut disponible(s).`,
+          ], 'NOTIFICATION', 'reward');
           setCelebrationInfo({
             show: true,
             title: `VOUS AVEZ MONTE EN NIVEAU ! 🎉 (NIVEAU ${progression.level})`,
@@ -825,6 +834,7 @@ export default function App() {
       const combo = registerComboHit();
       fireReward([`+${reward.xp} XP`, `+${reward.gold} Or`], evt, combo.count);
       haptic('tap');
+      playSfx('ui-success', 0.7);
     }
     const hoursDelta = (target.durationMinutes / 60) * (newStatus ? 1 : -1);
     const wasAllCompletedBefore = currentBlocks.length > 0 && currentBlocks.every((b) => b.isCompleted);
@@ -860,6 +870,12 @@ export default function App() {
     // 3. Full-day completion bonus
     if (!wasAllCompletedBefore && willBeAllCompleted) {
       triggerAllTasksCompletedConfetti();
+      playSfx('system-popup', 0.9);
+      announceSystem([
+        `Toutes les quêtes de la journée sont accomplies.`,
+        `Le Système reconnaît votre discipline.`,
+        `Bonus de journée parfaite attribué.`,
+      ], 'JOURNÉE PARFAITE', 'reward');
       addXPAndGoldToPlayer(XP_RATES.fullDayBonusXp, XP_RATES.fullDayBonusGold, `100% de la journée ${selectedDay} accomplie !`);
       setCelebrationInfo({
         show: true,
@@ -1254,6 +1270,8 @@ export default function App() {
       <MiniPlayer />
       {/* M3 — floating +XP/×combo reward bursts (pointer-events-none). */}
       <FloatingRewardLayer />
+      {/* N3 — Solo Leveling "System" notification windows. */}
+      <SystemWindowLayer />
 
       {/* Footer */}
       <footer className="border-t border-lapis-border/50 bg-obsidian/60 py-6 px-4 lg:px-8 text-center text-xs text-pharaoh-muted">

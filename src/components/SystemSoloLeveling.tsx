@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import {
   Activity,
   CheckCircle2,
@@ -18,7 +18,7 @@ import {
   Camera,
   Music,
   Play,
-  Lock,
+  Pause,
   Sparkles,
   ChevronRight,
   TrendingUp,
@@ -54,6 +54,8 @@ import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils
 import { haptic } from '../lib/haptics';
 import { registerComboHit, comboGoldBonus } from '../lib/comboEngine';
 import { fireReward } from './FloatingReward';
+import { playSfx } from '../lib/sfx';
+import { globalAudio, AMBIENCE_TRACKS, type AmbientId } from '../lib/globalAudio';
 import { INITIAL_PLAYER_PROFILE } from '../data/defaultData';
 import { RankBadge } from './ui/RankBadge';
 
@@ -167,6 +169,94 @@ const LIFE_IMPROVEMENT_CHALLENGES = [
     imageUrl: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&q=80&w=600",
   }
 ];
+
+/**
+ * TempleAmbiance — the "Ambiance Sonore du Temple" cards in Personnalisation.
+ * The previous version was purely decorative (hardcoded array, 2 of 3 tracks
+ * locked with `disabled`, no onClick) which is why "no music worked". Every
+ * card now drives the module-singleton globalAudio engine, so playback
+ * survives tab navigation and shows up in the floating MiniPlayer.
+ */
+const TEMPLE_TRACKS: Array<{ id: AmbientId; name: string; desc: string }> = [
+  { id: 'rain', name: 'Pluie Sacrée', desc: 'Ambiance Calme' },
+  { id: 'waves', name: 'Mystère du Nil', desc: 'Flots du Fleuve Divin' },
+  { id: 'brown_noise', name: 'Sables du Temps', desc: 'Thème Principal' },
+  { id: 'night_owl', name: 'Nuit Éternelle', desc: 'Veille Nocturne' },
+  { id: 'cafe', name: 'Bataille de Gizeh', desc: 'Focus de Combat' },
+];
+
+const TempleAmbiance: React.FC = () => {
+  const audioState = useSyncExternalStore(
+    globalAudio.subscribe,
+    globalAudio.getSnapshot,
+    globalAudio.getSnapshot
+  );
+  const activeId = audioState.mode.kind === 'ambient' ? audioState.mode.id : null;
+  const isActiveTrack = (id: AmbientId) => activeId === id && audioState.playing;
+
+  const handleToggle = (id: AmbientId) => {
+    haptic('tap');
+    playSfx('ui-tap', 0.6);
+    if (activeId === id && audioState.playing) {
+      globalAudio.pause();
+    } else if (activeId === id && !audioState.playing) {
+      void globalAudio.resume();
+    } else {
+      void globalAudio.playAmbient(id);
+    }
+  };
+
+  return (
+    <div className="bg-sl-lapis/20 border border-sl-gold/20 rounded-3xl p-6 mt-8 space-y-6">
+      <h3 className="font-display text-lg text-pharaoh border-l-4 border-sl-gold pl-3 flex items-center gap-2">
+        <Music className="w-5 h-5 text-sl-gold" /> Ambiance Sonore du Temple
+      </h3>
+      <p className="text-xs text-pharaoh-muted font-display italic -mt-3">
+        Chaque piste boucle à l'infini et reste active même en changeant d'onglet.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {TEMPLE_TRACKS.map((track) => {
+          const playing = isActiveTrack(track.id);
+          const selected = activeId === track.id;
+          return (
+            <div
+              key={track.id}
+              className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                playing
+                  ? 'bg-sl-gold/20 border-sl-gold shadow-gold-sm'
+                  : selected
+                    ? 'bg-sl-primary border-sl-gold/40 opacity-90'
+                    : 'bg-sl-primary border-sl-gold/5 opacity-70 hover:opacity-100 hover:border-sl-gold/30'
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Music className={`w-5 h-5 shrink-0 ${playing ? 'text-sl-gold' : 'text-pharaoh-subtle'}`} />
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-pharaoh font-display truncate">{track.name}</div>
+                  <div className="text-[10px] text-pharaoh-subtle font-display truncate">{track.desc}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => handleToggle(track.id)}
+                aria-label={playing ? `Mettre en pause ${track.name}` : `Lire ${track.name}`}
+                aria-pressed={playing}
+                className={`btn-press p-2 rounded-full shrink-0 transition-colors ${
+                  playing ? 'bg-sl-gold text-sl-primary' : 'bg-lapis text-pharaoh-muted hover:text-sl-gold'
+                }`}
+              >
+                {playing ? (
+                  <Pause className="w-4 h-4 fill-current" />
+                ) : (
+                  <Play className={`w-4 h-4 ${selected ? 'fill-current' : ''}`} />
+                )}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const PortalCountdown: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -1073,6 +1163,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                               key={step}
                               onClick={(e) => {
                                 haptic('tap');
+                                playSfx('ui-tap', 0.8);
                                 const combo = registerComboHit();
                                 fireReward([`+${step} ${quest.unit}`], e, combo.count);
                                 handleUpdateQuestProgress(quest.id, step);
@@ -1103,7 +1194,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                        </div>
                        {!quest.isCompleted && quest.currentCount >= quest.targetCount && (
                          <button
-                           onClick={(e) => { haptic('success'); handleClaimQuestReward(quest.id, e); }}
+                           onClick={(e) => { haptic('success'); playSfx('ui-success'); handleClaimQuestReward(quest.id, e); }}
                            className="px-3 py-1 bg-sl-gold text-sl-primary rounded-lg font-display text-[10px] animate-pulse"
                          >
                            RÉCLAMER
@@ -1324,7 +1415,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                             </div>
                          </div>
                          <button 
-                           onClick={() => { haptic('tap'); handleBuyShopItem(item); }}
+                           onClick={() => { haptic('tap'); playSfx('ui-tick', 0.7); handleBuyShopItem(item); }}
                            className="px-4 py-2 bg-sl-gold/10 hover:bg-sl-gold text-sl-gold hover:text-sl-primary border border-sl-gold rounded-xl font-display text-xs transition-all flex items-center gap-2"
                          >
                             <Coins className="w-4 h-4" /> {item.goldValue}
@@ -1429,36 +1520,9 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
                 }}
               />
 
-              {/* Sound Ambiance Section */}
-              <div className="bg-sl-lapis/20 border border-sl-gold/20 rounded-3xl p-6 mt-8 space-y-6">
-                 <h3 className="font-display text-lg text-pharaoh border-l-4 border-sl-gold pl-3 flex items-center gap-2">
-                   <Music className="w-5 h-5 text-sl-gold" /> Ambiance Sonore du Temple
-                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                   {[
-                     { name: 'Sables du Temps', desc: 'Thème Principal', active: true },
-                     { name: 'Mystère du Nil', desc: 'Ambiance Calme', active: false },
-                     { name: 'Bataille de Gizeh', desc: 'Musique de Combat', active: false },
-                   ].map((music, i) => (
-                     <div key={i} className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${music.active ? 'bg-sl-gold/20 border-sl-gold shadow-gold-sm' : 'bg-sl-primary border-sl-gold/5 opacity-50'}`}>
-                       <div className="flex items-center gap-3">
-                         <Music className={`w-5 h-5 ${music.active ? 'text-sl-gold' : 'text-pharaoh-subtle'}`} />
-                         <div>
-                           <div className="text-sm font-bold text-pharaoh font-display">{music.name}</div>
-                           <div className="text-[10px] text-pharaoh-subtle font-display">{music.desc}</div>
-                         </div>
-                       </div>
-                       <button
-                         disabled={!music.active}
-                         aria-label={music.active ? `Lire ${music.name}` : `${music.name} — verrouillé`}
-                         className={`btn-press p-2 rounded-full ${music.active ? 'bg-sl-gold text-sl-primary' : 'bg-lapis text-pharaoh-subtle cursor-not-allowed'}`}
-                       >
-                         {music.active ? <Play className="w-4 h-4 fill-current" /> : <Lock className="w-4 h-4" />}
-                       </button>
-                     </div>
-                   ))}
-                 </div>
-              </div>
+              {/* Sound Ambiance Section — real playback via the module-singleton
+                  globalAudio engine (same store as FocusTimer + MiniPlayer). */}
+              <TempleAmbiance />
             </motion.div>
           )}
 

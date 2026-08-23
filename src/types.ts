@@ -479,6 +479,10 @@ export interface Transaction {
   isRecurring: boolean;
   notes?: string;
   createdAt: string;
+  /** Currency the user typed the amount in (ledger canonical = XOF). */
+  currency?: string;
+  /** Amount exactly as entered, in `currency` — kept for faithful history. */
+  originalAmount?: number;
 }
 
 export interface BudgetBucketGoal {

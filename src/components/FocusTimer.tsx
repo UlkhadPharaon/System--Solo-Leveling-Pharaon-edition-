@@ -12,6 +12,7 @@ import {
 } from '../lib/activeFocusSession';
 import { FocusMusicPlayer } from './FocusMusicPlayer';
 import { globalAudio, AMBIENCE_TRACKS, type AmbientId } from '../lib/globalAudio';
+import { playSfx } from '../lib/sfx';
 import { useSyncExternalStore } from 'react';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import {
@@ -120,6 +121,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
   const handleTogglePlay = () => {
     if (activeSession == null) {
+      playSfx('system-popup', 0.9); // entering the dungeon
       startActiveFocusSession({
         category: selectedCategory,
         schoolSubject: selectedCategory === 'school' ? selectedSchoolSubject : undefined,
@@ -459,7 +461,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               return (
                 <motion.button
                   key={track.id}
-                  onClick={() => handleToggleSound(track.id)}
+                  onClick={() => { playSfx('ui-tick', 0.6); handleToggleSound(track.id); }}
                   className={`btn-press relative px-3 py-2.5 rounded-xl font-mono text-[11px] border transition-all flex flex-col items-start gap-1 ${
                     isAct
                       ? 'bg-panel-gold text-gold-bright border-gold/50 shadow-gold'
