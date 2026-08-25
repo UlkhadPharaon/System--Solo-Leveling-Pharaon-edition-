@@ -625,12 +625,16 @@ html[data-theme='light'] .bg-pharaoh {
     radial-gradient(ellipse 60% 40% at 90% 10%, rgba(108, 49, 196, 0.03) 0%, transparent 50%);
 }
 
-/* Gold gradient text needs a lighter top stop on pale backgrounds */
+/* Gold gradient text needs a lighter top stop on pale backgrounds.
+   BUGFIX (2026-08-25): these MUST use `background-image`, NOT the `background`
+   shorthand — the shorthand resets -webkit-background-clip to border-box,
+   which un-clips the gradient and paints the ENTIRE title box as a solid
+   golden slab ("KA RISE" rendered as a misplaced gold bar on every page). */
 html[data-theme='light'] .text-gradient-gold {
-  background: linear-gradient(135deg, #8A650A 0%, #A87E0C 55%, #6E5008 100%);
+  background-image: linear-gradient(135deg, #8A650A 0%, #A87E0C 55%, #6E5008 100%);
 }
 html[data-theme='light'] .text-shimmer {
-  background: linear-gradient(110deg, #A87E0C 20%, #6E5008 40%, #A87E0C 60%);
+  background-image: linear-gradient(110deg, #A87E0C 20%, #6E5008 40%, #A87E0C 60%);
   background-size: 200% 100%;
 }
 
