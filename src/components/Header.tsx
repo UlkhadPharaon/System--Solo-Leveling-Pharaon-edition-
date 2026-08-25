@@ -157,8 +157,16 @@ export const Header: React.FC<HeaderProps> = ({
 
   // Mobile bottom bar: 4 primary destinations + raised central FAB (Focus —
   // THE daily ritual), rest behind "Plus".
-  const primaryNavItems = [navItems[0], navItems[1], navItems[3], navItems[4]]; // SYSTÈME, Quêtes, Entraînement, Bilan
-  const moreNavItems = [...navItems.slice(5), navItems[2]]; // Hauts Faits, Notes, Trésorerie, Focus
+  // BUGFIX (2026-08-25, "extra Focus button"): selection used FIXED INDEXES
+  // (0,1,3,4). With showWorkoutTab=true index 3 is `focus_timer`, so the bar
+  // rendered the regular Focus chip right next to the Focus FAB — a duplicate
+  // button. Select by ID instead, and keep focus_timer out of both lists:
+  // the raised FAB is its one and only entry point in the bar.
+  const PRIMARY_IDS: ActiveTab[] = ['system_solo', 'dashboard', 'workout', 'weekly_targets'];
+  const primaryNavItems = navItems.filter((item) => PRIMARY_IDS.includes(item.id));
+  const moreNavItems = navItems.filter(
+    (item) => !PRIMARY_IDS.includes(item.id) && item.id !== 'focus_timer'
+  ); // Hauts Faits, Notes, Trésorerie
   const activeTabInMore = moreNavItems.some((item) => item.id === activeTab);
 
   const actionButtons = [
