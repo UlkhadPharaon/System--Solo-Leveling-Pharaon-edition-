@@ -24,9 +24,9 @@
    `useDomainDerivations`. **Non exécuté** : refacto à risque sans filet de tests.
 2. **Aucune suite de tests** — le fallback silencieux a masqué le bug LLM pendant des
    semaines ; les chemins critiques (XP/rangs, validateurs serveur, garde-fous) sont
-   purs et trivialement testables. 📋 Proposé : vitest + ~20 tests unitaires sur
-   `utils.ts`, `validateQuests`, `validateAgentActions`, `detectDistress`,
-   `buildTemplateQuests`, `computeDomainWeights`.
+   purs et trivialement testables. ✅ **Exécuté 2026-08-25** : logique pure extraite
+   dans `src/lib/guardrails.ts` + suite `npm test` (24 cas sur XP/rangs, récompenses,
+   poids de domaines, quêtes templates, détresse, validateurs LLM) — voir section C.
 3. **Duplication XP** — la logique « compléter quête → progression » existe en 3
    exemplaires (App.tsx, SystemSoloLeveling, DomainQuestBoard). 📋 Extraire
    `applyProgression(player, xp, gold)` partagée.
@@ -42,6 +42,7 @@
 | C3 | Catégories de blocs planning de l'agent IA découplées du profil legacy (`dom:<id>` prioritaire) | server.ts |
 | C4 | Fetch taux de change borné 6 s | fx.ts |
 | C5 | Quêtes de domaine montées dans Missions (DISC-002) avec confettis à la complétion | SystemSoloLeveling.tsx / App.tsx |
+| C6 | Suite de tests `npm test` (24 cas) sur les chemins critiques purs ; logique de validation serveur extraite dans `src/lib/guardrails.ts` et consommée par server.ts (~220 lignes dupliquées supprimées) — B2 ci-dessus | guardrails.ts / tests/unit.mts / server.ts |
 
 ## D. Hygiène de dépôt
 
