@@ -4,6 +4,12 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import webpush from 'web-push';
+import {
+  detectDistress,
+  validateQuests,
+  validateAgentActions,
+  type QuestSpec,
+} from './src/lib/guardrails';
 
 dotenv.config();
 if (existsSync('.env.local')) {
@@ -98,12 +104,9 @@ async function llmChatJson(config: LlmConfig, systemPrompt: string, userPrompt: 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Quest generation contract + guardrails (SYSTEM_PROMPT rules):
-//  - structured JSON output only
-//  - no free-form health/medical advice; for physical domains the app's own
-//    set/rep/RPE templates stay authoritative — the LLM only frames the quest
-//  - XP rewards are clamped server-side; penalties stay within the categories
-//    the user allowed at onboarding
+// Quest generation contract + guardrails: the pure validation logic lives in
+// src/lib/guardrails.ts (shared + unit-tested); only the LLM-facing prompt
+// stays here.
 // ─────────────────────────────────────────────────────────────────────────────
 const QUEST_SYSTEM_PROMPT = `You are the quest-generation engine of a gamified self-development app (Solo Leveling style).
 You receive a user's vision (their own words), their life domains (label, tracking type, goal in their own words, weekly time budget) and coaching calibration.
@@ -117,52 +120,14 @@ RULES (non-negotiable):
 6. Write in French. Tone: motivating, concise, game-like ("Le Système vous assigne…").
 7. xpReward between 20 and 120.`;
 
-interface QuestSpec {
-  domainId: string;
-  title: string;
-  description: string;
-  xpReward: number;
-  difficulty: string;
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // BUG-004 — flag_for_human_review guardrail (SYSTEM_PROMPT contract).
+// detectDistress lives in src/lib/guardrails.ts (shared + unit-tested).
 // Scans the user's OWN free-text (vision, goals, physical constraint) for
 // distress signals BEFORE any generation. On hit: the LLM is bypassed entirely,
 // the client falls back to deterministic template quests, and the request is
 // marked for human review. Never prescribe generated content on flagged input.
 // ─────────────────────────────────────────────────────────────────────────────
-const DISTRESS_PATTERN = new RegExp(
-  [
-    '\\bsuicide\\b',
-    '\\bsuicider\\b',
-    '\\bsuicidal\\b',
-    '\\bautomutilation\\b',
-    '\\bautomutiler\\b',
-    '\\bself[\\s-]?harm(?:ing)?\\b',
-    '\\bje\\s+veux\\s+mourir\\b',
-    '\\bplus\\s+envie\\s+de\\s+vivre\\b',
-    '\\bdépression\\b',
-    '\\bdepression\\b',
-    '\\bdépressif\\b',
-    '\\bdépressive\\b',
-    '\\bdepressed\\b',
-    '\\bdésespéré\\b',
-    '\\bdésespérée\\b',
-    '\\bdésespoir\\b',
-    '\\boverdose\\b',
-  ].join('|'),
-  'i'
-);
-
-function detectDistress(texts: (string | undefined | null)[]): string | null {
-  for (const t of texts) {
-    if (typeof t === 'string' && DISTRESS_PATTERN.test(t)) {
-      return t.slice(0, 160);
-    }
-  }
-  return null;
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Web Push Notifications (web-push + VAPID)
@@ -327,183 +292,6 @@ if (typeof setInterval !== 'undefined') {
   }, 60 * 1000);
 }
 
-function validateQuests(raw: any, validDomainIds: Set<string>): QuestSpec[] {
-  const quests: QuestSpec[] = [];
-  const list = Array.isArray(raw?.quests) ? raw.quests : [];
-  for (const q of list) {
-    if (!q || typeof q.domainId !== 'string' || !validDomainIds.has(q.domainId)) continue;
-    const xp = Math.min(120, Math.max(20, Math.round(Number(q.xpReward) || 40)));
-    const difficulty = ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium';
-    quests.push({
-      domainId: q.domainId,
-      title: String(q.title || 'Quête').slice(0, 120),
-      description: String(q.description || '').slice(0, 600),
-      xpReward: xp,
-      difficulty,
-    });
-  }
-  return quests;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// AI Mentor "agent" actions — structured mutations the LLM proposes and the
-// client turns into real state changes (after user confirmation). Mirror of the
-// validateQuests pipeline: whitelist the action type, coerce/clamp every field,
-// drop anything that fails. Bad output must never crash the client.
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Local copy of the client-side AgentAction shape (server.ts is bundled
-// standalone and intentionally does not import src/types.ts).
-interface AgentAction {
-  action: string;
-  payload: any;
-}
-
-const AGENT_ACTION_TYPES = new Set([
-  'update_personalization',
-  'add_schedule_block',
-  'delete_schedule_block',
-  'toggle_schedule_block',
-  'add_victory_log',
-  'add_quest',
-  'update_weekly_target',
-  'add_habit_check',
-  'add_note',
-  'update_note',
-  'delete_note',
-  'award_xp',
-]);
-
-const DAYS_OF_WEEK = new Set(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
-
-const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-/** Clamp hours to 0..168 and round to 0.5 steps (sane weekly budgets). */
-function clampHours(n: number): number {
-  const val = Math.max(0, Math.min(168, Math.round(Number(n) * 2) / 2));
-  return val;
-}
-
-function sliceStr(v: any, max: number): string {
-  return typeof v === 'string' ? v.trim().slice(0, max) : '';
-}
-
-function noBadChars(s: string): boolean {
-  // Allow letters (incl. accents), digits, spaces, and common punctuation —
-  // reject anything dangerous like <script> or control chars.
-  return !/[<>{}\\]/u.test(s);
-}
-
-function validateAgentActions(raw: any, validDomainIds: Set<string>): AgentAction[] {
-  if (!raw || !Array.isArray(raw.actions)) return [];
-  const out: AgentAction[] = [];
-
-  for (const a of raw.actions) {
-    if (!a || typeof a !== 'object') continue;
-    const type = a.action;
-    if (typeof type !== 'string' || !AGENT_ACTION_TYPES.has(type)) continue;
-    const p = a.payload && typeof a.payload === 'object' ? a.payload : {};
-
-    switch (type) {
-      case 'update_personalization': {
-        const field = p.field;
-        const value = sliceStr(p.value, 80);
-        if (!['userName', 'userTagline', 'hunterTitle', 'dailyQuote'].includes(field) || !value || !noBadChars(value)) continue;
-        out.push({ action: type, payload: { field, value } });
-        break;
-      }
-      case 'add_schedule_block': {
-        const day = p.day;
-        const startTime = sliceStr(p.startTime, 5);
-        const endTime = sliceStr(p.endTime, 5);
-        const category = sliceStr(p.category, 60);
-        const title = sliceStr(p.title, 90);
-        if (!DAYS_OF_WEEK.has(day) || !TIME_RE.test(startTime) || !TIME_RE.test(endTime) || !title || !noBadChars(title)) continue;
-        // Category is either a fixed value or `dom:<id>` — accept both.
-        out.push({
-          action: type,
-          payload: {
-            day,
-            title,
-            startTime,
-            endTime,
-            category,
-            description: sliceStr(p.description, 300),
-          },
-        });
-        break;
-      }
-      case 'delete_schedule_block':
-      case 'toggle_schedule_block': {
-        const day = p.day;
-        const blockId = sliceStr(p.blockId, 80);
-        if (!DAYS_OF_WEEK.has(day) || !blockId) continue;
-        out.push({ action: type, payload: { day, blockId } });
-        break;
-      }
-      case 'add_victory_log': {
-        const successes = Array.isArray(p.successes) ? p.successes.map((s: any) => sliceStr(s, 200)).filter(Boolean) : [];
-        const improvements = Array.isArray(p.improvements) ? p.improvements.map((s: any) => sliceStr(s, 200)).filter(Boolean) : [];
-        if (successes.length === 0) continue;
-        out.push({ action: type, payload: { successes, improvements, highlights: sliceStr(p.highlights, 300) } });
-        break;
-      }
-      case 'add_quest': {
-        const title = sliceStr(p.title, 120);
-        const description = sliceStr(p.description, 600);
-        const xpReward = Math.min(120, Math.max(5, Math.round(Number(p.xpReward) || 20)));
-        const difficulty = ['easy', 'medium', 'hard'].includes(p.difficulty) ? p.difficulty : 'medium';
-        const domainId = typeof p.domainId === 'string' && validDomainIds.has(p.domainId) ? p.domainId : undefined;
-        if (!title || !noBadChars(title)) continue;
-        out.push({ action: type, payload: { title, description, xpReward, difficulty, domainId } });
-        break;
-      }
-      case 'update_weekly_target': {
-        const targetId = sliceStr(p.targetId, 80);
-        if (!targetId) continue;
-        const payload: any = { targetId };
-        if (typeof p.minHours === 'number' && isFinite(p.minHours)) payload.minHours = clampHours(p.minHours);
-        if (typeof p.maxHours === 'number' && isFinite(p.maxHours)) payload.maxHours = clampHours(p.maxHours);
-        if (typeof p.targetHours === 'number' && isFinite(p.targetHours)) payload.targetHours = clampHours(p.targetHours);
-        out.push({ action: type, payload });
-        break;
-      }
-      case 'add_habit_check': {
-        const domainId = sliceStr(p.domainId, 80);
-        if (!validDomainIds.has(domainId)) continue;
-        out.push({ action: type, payload: { domainId } });
-        break;
-      }
-      case 'add_note':
-      case 'update_note':
-      case 'delete_note': {
-        const id = sliceStr(p.id, 80);
-        const title = sliceStr(p.title, 120);
-        const content = sliceStr(p.content, 2000);
-        const tags = Array.isArray(p.tags) ? p.tags.map((t: any) => sliceStr(t, 40)).filter(Boolean).slice(0, 10) : [];
-        if (type === 'delete_note' || type === 'update_note') {
-          if (!id) continue;
-          out.push({ action: type, payload: { id, title, content, tags } });
-        } else {
-          if (!title || !content) continue;
-          out.push({ action: type, payload: { id: id || undefined, title, content, tags } });
-        }
-        break;
-      }
-      case 'award_xp': {
-        const xp = Math.min(200, Math.max(1, Math.round(Number(p.xp) || 10)));
-        const gold = Math.max(0, Math.round(Number(p.gold) || 0));
-        const reason = sliceStr(p.reason, 200);
-        if (!reason || !noBadChars(reason)) continue;
-        out.push({ action: type, payload: { xp, gold, reason } });
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  return out;
-}
 
 async function startServer() {
   const app = express();
