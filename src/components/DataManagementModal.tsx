@@ -1,7 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Download, Upload, Trash2, X, Cloud } from './ui/PharaohIcons';
+import { Download, Upload, Trash2, X, Cloud, Shield } from './ui/PharaohIcons';
 import { ConfirmDialog } from './ui/ConfirmDialog';
 import { cloudSync, SyncState } from '../lib/supabaseSync';
+import {
+  captureSafetySnapshot,
+  getSafetySnapshotInfo,
+  restoreSafetySnapshot,
+  requestDurableStorage,
+  type SnapshotInfo,
+} from '../lib/dataSafety';
 
 interface DataManagementModalProps {
   isOpen: boolean;
@@ -33,6 +40,29 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
   }, []);
 
   const [exportDone, setExportDone] = useState(false);
+
+  // Safety-net state: one rolling snapshot + UI info. Refreshed every time the
+  // modal opens so the banner never shows a stale timestamp. The durable
+  // storage request is also (re-)issued here — it needs no user gesture and
+  // protects months of local progress against silent browser eviction.
+  const [snapshotInfo, setSnapshotInfo] = useState<SnapshotInfo | null>(null);
+  const [snapshotFailed, setSnapshotFailed] = useState(false);
+  const [confirmRestore, setConfirmRestore] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSnapshotInfo(getSafetySnapshotInfo());
+      setSnapshotFailed(false);
+      requestDurableStorage();
+    }
+  }, [isOpen]);
+
+  /** Capture before ANY destructive action; surfaces quota failures. */
+  const guardDestructiveAction = (reason: string): boolean => {
+    const ok = captureSafetySnapshot(reason);
+    if (!ok) setSnapshotFailed(true);
+    return ok;
+  };
 
   const exportData = () => {
     // Capture EVERY aura_* key dynamically — a hardcoded list silently drops
@@ -140,6 +170,32 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
         {importError && (
           <p className="text-blood text-[11px] font-mono" role="alert">{importError}</p>
         )}
+        {snapshotFailed && (
+          <p className="text-blood text-[11px] font-mono" role="alert">
+            ⚠ Instantané de secours impossible (stockage saturé) — exportez un fichier avant de continuer.
+          </p>
+        )}
+
+        {/* Safety-net banner — restore point for destructive operations. */}
+        {snapshotInfo && (
+          <div className="rounded-xl border border-emerald/30 bg-emerald/5 p-3 space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-xs font-semibold text-pharaoh flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald shrink-0" />
+                Point de restauration disponible
+              </p>
+              <button
+                onClick={() => setConfirmRestore(true)}
+                className="btn-press shrink-0 px-3 py-1.5 rounded-xl font-mono text-[10px] bg-emerald/20 border border-emerald/40 text-emerald hover:bg-emerald/30 transition-all"
+              >
+                RESTAURER
+              </button>
+            </div>
+            <p className="font-mono text-[10px] text-pharaoh-subtle">
+              État du {new Date(snapshotInfo.capturedAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · capturé {snapshotInfo.reason.toLowerCase()} · {snapshotInfo.keyCount} sections.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <button
@@ -208,30 +264,57 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
         </div>
 
         {/* Full reset guard — the most destructive action in the app gets the
-            same ConfirmDialog treatment as simple record deletes. */}
+            same ConfirmDialog treatment as simple record deletes. A snapshot
+            is captured first so the wipe is always reversible. */}
         <ConfirmDialog
           isOpen={confirmReset}
           title="Tout réinitialiser ?"
-          message="Toute votre progression (streaks, succès, niveau, quêtes, notes, budget) sera définitivement effacée pour repartir d'une base vierge."
+          message="Toute votre progression (streaks, succès, niveau, quêtes, notes, budget) sera définitivement effacée pour repartir d'une base vierge. Un point de restauration sera créé juste avant l'effacement."
           confirmLabel="Tout effacer"
           cancelLabel="Annuler"
-          onConfirm={resetAllData}
+          onConfirm={() => {
+            guardDestructiveAction('avant une réinitialisation complète');
+            resetAllData();
+          }}
           onCancel={() => setConfirmReset(false)}
         />
 
         {/* Import overwrite guard — importing replaces ALL current data,
-            so it gets the same confirmation treatment as a full reset. */}
+            so it gets the same confirmation treatment as a full reset.
+            A snapshot is captured first so a bad import can be undone. */}
         <ConfirmDialog
           isOpen={!!confirmImport}
           title="Importer cette sauvegarde ?"
-          message={`Vos données actuelles seront remplacées par celles du fichier (${confirmImport?.keys ?? 0} sections sauvegardées). Cette action est irréversible.`}
+          message={`Vos données actuelles seront remplacées par celles du fichier (${confirmImport?.keys ?? 0} sections sauvegardées). Un point de restauration sera créé juste avant le remplacement.`}
           confirmLabel="Remplacer mes données"
           cancelLabel="Annuler"
           onConfirm={() => {
-            if (confirmImport) applyImport(confirmImport.content);
+            if (confirmImport) {
+              guardDestructiveAction("avant l'import d'une sauvegarde");
+              applyImport(confirmImport.content);
+            }
             setConfirmImport(null);
           }}
           onCancel={() => setConfirmImport(null)}
+        />
+
+        {/* Restore guard — restoring replaces current state with the snapshot,
+            itself captured before a destructive op; confirm symmetrically. */}
+        <ConfirmDialog
+          isOpen={confirmRestore}
+          title="Restaurer ce point ?"
+          message={`L'état actuel sera remplacé par celui capturé ${snapshotInfo?.reason.toLowerCase() ?? ''} (${snapshotInfo ? new Date(snapshotInfo.capturedAt).toLocaleString('fr-FR') : ''}). Cette action est irréversible.`}
+          confirmLabel="Restaurer mes données"
+          cancelLabel="Annuler"
+          onConfirm={() => {
+            if (restoreSafetySnapshot()) {
+              window.location.reload();
+            } else {
+              setSnapshotFailed(true);
+            }
+            setConfirmRestore(false);
+          }}
+          onCancel={() => setConfirmRestore(false)}
         />
 
         <input type="file" ref={fileInputRef} onChange={importData} accept=".json,application/json" className="hidden" />
