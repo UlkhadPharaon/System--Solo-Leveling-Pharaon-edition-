@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { WeeklyCategoryTarget, SubjectGoal, UserPersonalization, LessonStatus, StreakDayRecord, Domain } from '../types';
+import { WeeklyCategoryTarget, SubjectGoal, UserPersonalization, LessonStatus, StreakDayRecord, Domain, FocusSession, CompletedWorkoutSession } from '../types';
 import { domainsForTracking, DOMAIN_CATEGORY_STYLES } from '../lib/domains';
 import { StreakCalendar } from './StreakCalendar';
 import { formatHoursDecimal, getCategoryStyle } from '../lib/utils';
+import { buildWeeklyTrends } from '../lib/trends';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, CartesianGrid
 } from 'recharts';
@@ -29,6 +30,9 @@ interface ProgressDashboardProps {
   onToggleDayStreak?: (id: string) => void;
   totalXP?: number;
   playerProfile?: { name?: string; level?: number };
+  /** F5 — multi-week trend chart sources. */
+  focusSessions?: FocusSession[];
+  workoutSessions?: CompletedWorkoutSession[];
 }
 
 const DomainIconMap: Record<string, PharaohIcon> = {
@@ -61,12 +65,26 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
   domains = [],
   totalXP = 0,
   playerProfile,
+  focusSessions = [],
+  workoutSessions = [],
 }) => {
   const [chartCategoryFilter, setChartCategoryFilter] = useState<'core' | 'all'>('core');
   const [showRankDetail, setShowRankDetail] = useState(false);
 
   const rank = getRankFromXP(totalXP);
   const rankInfo = RANK_DEFINITIONS[rank];
+
+  // F5 — 8-week trajectory: focus + workout hours per ISO week. Data already
+  // exists; only the long-term view was missing.
+  const trendData = useMemo(
+    () => buildWeeklyTrends(focusSessions, workoutSessions, 8).map((p) => ({
+      label: p.label,
+      'Focus (h)': Math.round((p.focusMinutes / 60) * 10) / 10,
+      'Entraînement (h)': Math.round((p.workoutMinutes / 60) * 10) / 10,
+    })),
+    [focusSessions, workoutSessions],
+  );
+  const hasTrendData = trendData.some((p) => p['Focus (h)'] > 0 || p['Entraînement (h)'] > 0);
 
   const hasLegacyCinema = domains.length === 0 || domains.some((d) => d.legacyCategory === 'cinema');
   const hasLegacyBangre = domains.length === 0 || domains.some((d) => d.legacyCategory === 'bangre_neo');
@@ -572,6 +590,49 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({
           </ResponsiveContainer>
         </div>
       </motion.div>
+
+      {/* F5 — 8-week trajectory: focus & workout hours per ISO week */}
+      {hasTrendData && (
+        <motion.div
+          className="bg-panel border border-lapis-border rounded-2xl p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-xl bg-panel-gold">
+              <BarChart3 size={20} color="var(--color-gold)" />
+            </div>
+            <div>
+              <h3 className="font-display text-xl font-light text-pharaoh">Trajectoire — 8 Dernières Semaines</h3>
+              <p className="text-pharaoh-subtle text-sm">Heures de focus et d'entraînement par semaine</p>
+            </div>
+          </div>
+
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={trendData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-lapis-light, #2a3a5e)" vertical={false} />
+                <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--color-pharaoh-muted, #9aa7c7)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-pharaoh-muted, #9aa7c7)' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  cursor={{ fill: 'rgba(212,175,55,0.06)' }}
+                  contentStyle={{
+                    background: 'var(--color-panel, #101a30)',
+                    border: '1px solid var(--color-lapis-border, #2a3a5e)',
+                    borderRadius: 12,
+                    fontSize: 12,
+                  }}
+                  formatter={(value) => `${value} h`}
+                />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="Focus (h)" fill="#00C2FF" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="Entraînement (h)" fill="#D4AF37" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      )}
 
       {/* Subject Goals */}
       {subjectGoals.length > 0 && (

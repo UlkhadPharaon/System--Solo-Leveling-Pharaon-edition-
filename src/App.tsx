@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
 import { 
   RoutineBlock, 
@@ -93,8 +93,25 @@ import {
 } from './lib/domains';
 import { generateInitialQuests, buildTemplateQuests } from './lib/questGeneration';
 import { HabitChecklistCard } from './components/HabitChecklistCard';
+import { ExamModeBanner } from './components/ExamModeBanner';
+import { AdaptiveTargetsCard } from './components/AdaptiveTargetsCard';
 import { OnboardingModal, OnboardingV2Result, ONBOARDING_V2_ENABLED } from './components/OnboardingModal';
 import { SystemIntroOverlay } from './components/SystemIntroOverlay';
+// F4 — Exam mode (state + target scaling)
+import {
+  loadExamMode,
+  saveExamMode,
+  examDaysRemaining,
+  isExamWindowExpired,
+  scaleTargetsForExam,
+  type ExamModeState,
+} from './lib/examMode';
+// F6 — Intelligent push scheduling
+import { planQuestReminder, planStreakRescue } from './lib/smartPush';
+import { schedulePush, cancelScheduledPush } from './lib/pushNotifications';
+// F4b — Adaptive weekly targets (snapshot + suggestion engine)
+import { pushWeeklySnapshot, computeRecalibrations, WEEKLY_SNAPSHOTS_KEY, type WeeklySnapshot } from './lib/adaptiveTargets';
+import { runAutoBackupIfDue } from './lib/diskBackup';
 
 /** Safe localStorage JSON loader — falls back to default when corrupt (#13). */
 function loadJson<T>(key: string, fallback: T): T {
@@ -530,6 +547,43 @@ export default function App() {
     return loadJson('aura_body_metrics', INITIAL_BODY_METRICS);
   });
 
+  // F4 — Exam Mode: persisted toggle; auto-expires the day after the exam
+  // date so a forgotten mode can't skew targets forever.
+  const [examMode, setExamMode] = useState<ExamModeState>(() => loadExamMode());
+
+  useEffect(() => {
+    if (isExamWindowExpired(examMode)) {
+      const off = { ...examMode, isActive: false };
+      setExamMode(off);
+      saveExamMode(off);
+    }
+  }, [examMode]);
+
+  const handleUpdateExamMode = (next: ExamModeState) => {
+    setExamMode(next);
+    saveExamMode(next);
+  };
+
+  // Exam mode scales what the dashboard shows as "target" — raw state stays
+  // untouched, so deactivating instantly restores real budgets.
+  const trackingTypeOfTargetId = useCallback(
+    (id: string) => {
+      if (!id.startsWith('dom:')) return null;
+      const domId = id.slice(4);
+      const dom = domains.find((d) => d.id === domId);
+      if (!dom) return null;
+      return dom.tracking_type === 'study_subjects' || dom.tracking_type === 'workout_log'
+        ? dom.tracking_type
+        : null;
+    },
+    [domains],
+  );
+
+  const displayCategoryTargets = useMemo(
+    () => scaleTargetsForExam(categoryTargets, trackingTypeOfTargetId, examMode),
+    [categoryTargets, trackingTypeOfTargetId, examMode],
+  );
+
   // F4 — Weekly report ("Palier de la Semaine"): pure aggregation of the
   // same state the app already renders; recomputed only when inputs change.
   const weeklyReport = useMemo(
@@ -664,6 +718,72 @@ export default function App() {
     cloudSync.schedulePush();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, syncTick);
+
+  // ── F4b — Weekly completion snapshot for adaptive targets ────────────────
+  // One snapshot per ISO day; taken when the day changes so history accrues
+  // even if the user only opens the app a few times a week.
+  const snapshotDayRef = useRef<string>('');
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    if (snapshotDayRef.current === today) return;
+    snapshotDayRef.current = today;
+    try {
+      const history: WeeklySnapshot[] = loadJson<WeeklySnapshot[]>(WEEKLY_SNAPSHOTS_KEY, []);
+      localStorage.setItem(WEEKLY_SNAPSHOTS_KEY, JSON.stringify(pushWeeklySnapshot(history, categoryTargets, today)));
+    } catch {
+      /* storage full — adaptive suggestions just stay on old data */
+    }
+    // Snapshot once per day, not on every categoryTargets change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── F6 — Intelligent push scheduling ─────────────────────────────────────
+  // Re-registers the contextual reminders whenever the underlying state or
+  // the notification settings change; no-ops entirely when push is off.
+  useEffect(() => {
+    if (!personalization.notificationsEnabled) return;
+
+    const dayNames: DayOfWeek[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const todayName = dayNames[new Date().getDay()];
+    const registered: string[] = [];
+
+    const questPlan = planQuestReminder(
+      daySchedules[todayName],
+      personalization.questReminderHour ?? 19,
+    );
+    if (questPlan && (personalization.notifyStreakWarning ?? true)) {
+      schedulePush(questPlan.payload, questPlan.fireAt);
+      registered.push(questPlan.id);
+    }
+
+    // Streak rescue rides the same permission gate; opt-out via its toggle.
+    const rescuePlan = planStreakRescue(dailyStreak.currentStreak, dailyStreak.lastActiveDate);
+    if (rescuePlan && (personalization.notifyStreakRescue ?? false)) {
+      schedulePush(rescuePlan.payload, rescuePlan.fireAt);
+      registered.push(rescuePlan.id);
+    }
+
+    return () => {
+      // State changed → yesterday's plans are stale; server entries are
+      // keyed by id so re-registration later today simply overwrites them.
+      registered.forEach((id) => cancelScheduledPush(id));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    personalization.notificationsEnabled,
+    personalization.questReminderHour,
+    personalization.notifyStreakWarning,
+    personalization.notifyStreakRescue,
+    dailyStreak.currentStreak,
+    dailyStreak.lastActiveDate,
+    daySchedules,
+  ]);
+
+  // F5b — Disk auto-backup maintenance (Chromium only; silent elsewhere).
+  useEffect(() => {
+    runAutoBackupIfDue();
+  }, []);
+
 
   // System XP & Gold Reward Grant Helper
   // Side effects (confetti / banner) are computed from current state BEFORE the
@@ -1172,6 +1292,11 @@ export default function App() {
           <Suspense fallback={<TabSkeleton tab={activeTab} />}>
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
+                <ExamModeBanner
+                  examMode={examMode}
+                  daysRemaining={examDaysRemaining(examMode.examDate)}
+                  onUpdate={handleUpdateExamMode}
+                />
                 <DailyRitual onInvokeBlessing={handleInvokeRitualBlessing} />
                 <HabitChecklistCard
                   habitDomains={domainsForTracking(domains, 'habit_checklist')}
@@ -1184,6 +1309,7 @@ export default function App() {
                   selectedDay={selectedDay}
                   onSelectDay={setSelectedDay}
                   personalization={personalization}
+                  weekSchedule={daySchedules}
                   onToggleComplete={handleToggleBlockComplete}
                   onAddBlock={handleAddBlock}
                   onEditBlock={handleEditBlock}
@@ -1228,8 +1354,25 @@ export default function App() {
             {activeTab === 'weekly_targets' && (
               <div className="space-y-6">
               <WeeklyReportCard report={weeklyReport} />
-              <ProgressDashboard
+              <AdaptiveTargetsCard
                 categoryTargets={categoryTargets}
+                onApplySuggestion={(targetId, newTarget) =>
+                  setCategoryTargets((prev) =>
+                    prev.map((c) =>
+                      c.id === targetId
+                        ? {
+                            ...c,
+                            targetHours: newTarget,
+                            minHours: Math.max(1, Math.round(newTarget * 0.7)),
+                            maxHours: Math.round(newTarget * 1.2),
+                          }
+                        : c,
+                    ),
+                  )
+                }
+              />
+              <ProgressDashboard
+                categoryTargets={displayCategoryTargets}
                 subjectGoals={subjectGoals}
                 personalization={personalization}
                 streakRecords={streakRecords}
@@ -1241,6 +1384,8 @@ export default function App() {
                 onUpdatePersonalization={setPersonalization}
                 onToggleDayStreak={handleToggleDayStreak}
                 domains={domains}
+                focusSessions={focusSessions}
+                workoutSessions={completedWorkoutSessions}
               />
               </div>
             )}
@@ -1342,6 +1487,8 @@ export default function App() {
         onClose={() => setIsPersonalizationOpen(false)}
         personalization={personalization}
         onUpdatePersonalization={setPersonalization}
+        examMode={examMode}
+        onUpdateExamMode={handleUpdateExamMode}
       />
 
       {/* Data Management Modal */}

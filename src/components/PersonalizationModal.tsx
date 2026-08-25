@@ -29,12 +29,17 @@ import {
   ArrowRight,
 } from './ui/PharaohIcons';
 import { requestPermission, subscribeToPush, getSubscriptionStatus, sendPushViaServer, urlBase64ToUint8Array } from '../lib/pushNotifications';
+import type { ExamModeState } from '../lib/examMode';
+import { examDaysRemaining } from '../lib/examMode';
 
 interface PersonalizationModalProps {
   isOpen: boolean;
   personalization: UserPersonalization;
   onUpdatePersonalization: (updated: UserPersonalization) => void;
   onClose: () => void;
+  /** F4 — Exam Mode lives in its own storage slice; edited here, banner on dashboard. */
+  examMode?: ExamModeState;
+  onUpdateExamMode?: (next: ExamModeState) => void;
 }
 
 export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
@@ -42,6 +47,8 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
   personalization,
   onUpdatePersonalization,
   onClose,
+  examMode,
+  onUpdateExamMode,
 }) => {
   if (!isOpen) return null;
 
@@ -417,6 +424,67 @@ export const PersonalizationModal: React.FC<PersonalizationModalProps> = ({
                 />
               </div>
             </div>
+
+            {/* F4 — Exam Mode panel: temporary recalibration for exam periods.
+                Applied immediately (its own storage slice), independent of "Save All". */}
+            {examMode && onUpdateExamMode && (
+              <div className="bg-lapis/40 p-4 rounded-xl border border-amethyst/40 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`p-1.5 rounded-lg border shrink-0 ${examMode.isActive ? 'bg-amethyst/20 border-amethyst/50 text-amethyst' : 'bg-obsidian/40 border-lapis text-pharaoh-subtle'}`}>
+                      <GraduationCap className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-pharaoh">Mode Examen</p>
+                      <p className="font-mono text-[10px] text-pharaoh-subtle mt-0.5">
+                        {examMode.isActive
+                          ? `ACTIF · ${(() => { const d = examDaysRemaining(examMode.examDate); return d === null ? 'sans date' : d >= 0 ? `J-${d}` : 'expiré'; })()}`
+                          : 'Cibles d\'étude renforcées, entraînement allégé'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onUpdateExamMode({ ...examMode, isActive: !examMode.isActive })}
+                    aria-label={examMode.isActive ? 'Désactiver le mode examen' : 'Activer le mode examen'}
+                    className={`btn-press shrink-0 px-3 py-1.5 rounded-xl font-mono text-[10px] font-bold border transition-all ${
+                      examMode.isActive
+                        ? 'bg-amethyst/20 border-amethyst/50 text-amethyst'
+                        : 'bg-lapis/40 border-lapis text-pharaoh-muted'
+                    }`}
+                  >
+                    {examMode.isActive ? 'ACTIF' : 'INACTIF'}
+                  </button>
+                </div>
+
+                {examMode.isActive && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Intitulé</label>
+                      <input
+                        type="text"
+                        placeholder="ex. Bac Blanc"
+                        value={examMode.label}
+                        onChange={(e) => onUpdateExamMode({ ...examMode, label: e.target.value })}
+                        maxLength={40}
+                        className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-mono text-[10px] uppercase opacity-70 mb-1">Date de l'examen</label>
+                      <input
+                        type="date"
+                        value={examMode.examDate ?? ''}
+                        onChange={(e) => onUpdateExamMode({ ...examMode, examDate: e.target.value || null })}
+                        className="w-full min-w-0 bg-obsidian/40 border border-lapis rounded-xl px-3 py-2 text-white focus:outline-none focus:border-gold text-xs"
+                      />
+                    </div>
+                    <p className="sm:col-span-2 font-mono text-[10px] text-pharaoh-subtle leading-relaxed">
+                      Étude ×{examMode.studyMultiplier} · Entraînement ×{examMode.workoutMultiplier} — appliqué aux cibles hebdo affichées. Le mode se désactive seul le lendemain de la date.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Session Notification Settings Panel */}
             <div className="bg-lapis/40 p-4 md:p-5 rounded-xl border border-gold/40 space-y-4">

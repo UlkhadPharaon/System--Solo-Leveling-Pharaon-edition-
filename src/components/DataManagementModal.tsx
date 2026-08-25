@@ -9,6 +9,7 @@ import {
   requestDurableStorage,
   type SnapshotInfo,
 } from '../lib/dataSafety';
+import { isDiskBackupSupported, chooseBackupDirectory, writeBackupNow } from '../lib/diskBackup';
 
 interface DataManagementModalProps {
   isOpen: boolean;
@@ -49,13 +50,31 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
   const [snapshotFailed, setSnapshotFailed] = useState(false);
   const [confirmRestore, setConfirmRestore] = useState(false);
 
+  // F5b — Disk auto-backup (Chromium only): pick a folder once, backups then
+  // happen silently every few days AND on demand via "Sauvegarder maintenant".
+  const [diskBackupOn, setDiskBackupOn] = useState(false);
+  const [backupFeedback, setBackupFeedback] = useState<string | null>(null);
+
   useEffect(() => {
     if (isOpen) {
       setSnapshotInfo(getSafetySnapshotInfo());
       setSnapshotFailed(false);
+      setDiskBackupOn(isDiskBackupSupported());
       requestDurableStorage();
     }
   }, [isOpen]);
+
+  const handleChooseBackupDir = async () => {
+    const ok = await chooseBackupDirectory();
+    setBackupFeedback(ok ? 'Sauvegardes automatiques activées pour ce dossier.' : 'Aucun dossier sélectionné.');
+    setTimeout(() => setBackupFeedback(null), 4000);
+  };
+
+  const handleBackupNow = async () => {
+    const res = await writeBackupNow();
+    setBackupFeedback(res.ok ? `✓ ${res.fileName} écrite.` : 'Échec : configurez d\'abord un dossier.');
+    setTimeout(() => setBackupFeedback(null), 4000);
+  };
 
   /** Capture before ANY destructive action; surfaces quota failures. */
   const guardDestructiveAction = (reason: string): boolean => {
@@ -194,6 +213,31 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
             <p className="font-mono text-[10px] text-pharaoh-subtle">
               État du {new Date(snapshotInfo.capturedAt).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · capturé {snapshotInfo.reason.toLowerCase()} · {snapshotInfo.keyCount} sections.
             </p>
+          </div>
+        )}
+
+        {/* F5b — Disk auto-backup: durable history beyond the rolling snapshot */}
+        {diskBackupOn && (
+          <div className="rounded-xl border border-sapphire/40 bg-sapphire/5 p-3 space-y-2">
+            <p className="text-xs font-semibold text-pharaoh">Sauvegarde Disque Automatique</p>
+            <p className="font-mono text-[10px] text-pharaoh-subtle">
+              Choisissez un dossier : une copie JSON complète y sera écrite tous les 3 jours, sans action.
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleChooseBackupDir}
+                className="btn-press px-3 py-1.5 rounded-xl font-mono text-[10px] bg-sapphire/20 border border-sapphire/50 text-sapphire hover:bg-sapphire/30 transition-all"
+              >
+                CHOISIR UN DOSSIER
+              </button>
+              <button
+                onClick={handleBackupNow}
+                className="btn-press px-3 py-1.5 rounded-xl font-mono text-[10px] bg-gold/10 border border-gold/40 text-gold-bright hover:bg-gold/20 transition-all"
+              >
+                SAUVEGARDER MAINTENANT
+              </button>
+            </div>
+            {backupFeedback && <p className="font-mono text-[10px] text-emerald" role="status">{backupFeedback}</p>}
           </div>
         )}
 

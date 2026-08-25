@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { RoutineBlock, Category, DayOfWeek, UserPersonalization , Domain } from '../types';
 import { getCategoryStyle, formatMinutes } from '../lib/utils';
+import { buildScheduleIcs } from '../lib/scheduleExport';
 import { 
   CheckCircle2, 
   Circle, 
@@ -30,6 +31,8 @@ interface ScheduleViewProps {
   selectedDay: DayOfWeek;
   onSelectDay: (day: DayOfWeek) => void;
   personalization: UserPersonalization;
+  /** Full week — required for the .ics export (F7). */
+  weekSchedule?: Partial<Record<DayOfWeek, RoutineBlock[]>>;
   domains?: Domain[];
   onToggleComplete: (id: string, evt?: React.MouseEvent) => void;
   onAddBlock: (block: RoutineBlock) => void;
@@ -44,6 +47,7 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   selectedDay,
   onSelectDay,
   personalization,
+  weekSchedule,
   onToggleComplete,
   domains = [],
   onAddBlock,
@@ -55,6 +59,26 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [currentTimeStr, setCurrentTimeStr] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [icsFeedback, setIcsFeedback] = useState<string | null>(null);
+
+  /** F7 — download the whole week as an .ics calendar file. */
+  const handleExportIcs = () => {
+    const ics = buildScheduleIcs(weekSchedule ?? {}, { calendarName: `Ka Rise — ${personalization.userName}` });
+    if (!ics) {
+      setIcsFeedback('Aucun bloc à exporter.');
+      setTimeout(() => setIcsFeedback(null), 3000);
+      return;
+    }
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ka-rise-semaine.ics';
+    a.click();
+    URL.revokeObjectURL(url);
+    setIcsFeedback('Calendrier exporté — importez-le dans Google Calendar.');
+    setTimeout(() => setIcsFeedback(null), 4000);
+  };
 
   // Today name
   const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek;
@@ -235,6 +259,22 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
                 <Sliders className="w-3.5 h-3.5 text-gold" />
                 <span>Personnaliser le Programme & Projets</span>
               </button>
+            )}
+
+            {/* F7 — weekly .ics export: kills double-entry with external calendars */}
+            {weekSchedule && (
+              <div className="w-full space-y-1">
+                <button
+                  onClick={handleExportIcs}
+                  className="btn-press w-full py-2 px-3 rounded-xl bg-lapis/40 hover:bg-lapis text-pharaoh-muted hover:text-pharaoh border border-lapis hover:border-gold/50 font-mono text-xs flex items-center justify-center gap-2 transition-all"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Exporter la semaine (.ics)</span>
+                </button>
+                {icsFeedback && (
+                  <p className="font-mono text-[10px] text-emerald text-center" role="status">{icsFeedback}</p>
+                )}
+              </div>
             )}
           </div>
         </div>
