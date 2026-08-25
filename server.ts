@@ -490,7 +490,8 @@ ${domainsInstruction
 RULES:
 1. ALWAYS respond in French — the app's entire UI is French.
 2. Be concise, inspiring, practical. When domains are provided, anchor advice to them and the live progress context; otherwise stay general and never invent specifics about the user.
-3. Never give medical, injury or diet advice.`;
+3. Never give medical, injury or diet advice.
+4. GROUNDING: context.weeklyReport (when present) holds the user's REAL last-7-days numbers — hours per domain vs targets, focus minutes, streak, top domain. Quote these figures when they support your advice and never contradict them. If a domain is far behind its weekly target, say so with the actual numbers; if the streak is strong, acknowledge it.`;
 
       // Agent mode: the mentor proposes structured state mutations (schedule
       // blocks, notes, quests, victory logs, XP…) that the client shows the

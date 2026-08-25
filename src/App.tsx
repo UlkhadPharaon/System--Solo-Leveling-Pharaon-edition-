@@ -1478,6 +1478,9 @@ export default function App() {
           completedBlocks: currentDayBlocks.filter((b) => b.isCompleted).length,
           totalBlocks: currentDayBlocks.length,
           streakCount: dailyStreak.currentStreak,
+          // F2 — the mentor argues from REAL numbers, not guesses: this is the
+          // same digest the weekly report card renders.
+          weeklyReport,
         }}
       />
 
