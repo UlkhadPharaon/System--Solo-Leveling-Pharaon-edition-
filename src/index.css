@@ -364,6 +364,11 @@ body {
   opacity: 0.5;
 }
 
+/* BUGFIX (2026-08-25, "bandes dorées"): the scanline overlay is a dark-theme
+   texture — on pale papyrus the repeating gold lines read as misplaced golden
+   stripes across whole sections. Hide it in light mode. */
+html[data-theme='light'] .deco-scanline { display: none; }
+
 /* ============================================
    MOBILE-FIRST & MOTION ENHANCEMENTS
    ============================================ */
@@ -580,9 +585,9 @@ html[data-theme='light'] {
   --color-text-inverse: #FFFDF6;
 
   /* Shadows: soft, low-opacity — heavy black shadows look dirty on light UI */
-  --shadow-glow-gold: 0 0 30px rgba(168, 126, 12, 0.15), 0 4px 20px rgba(90, 70, 20, 0.12);
-  --shadow-glow-gold-lg: 0 0 60px rgba(168, 126, 12, 0.25), 0 8px 40px rgba(90, 70, 20, 0.16);
-  --shadow-glow-gold-sm: 0 0 15px rgba(168, 126, 12, 0.14), 0 2px 10px rgba(90, 70, 20, 0.10);
+  --shadow-glow-gold: 0 0 30px rgba(168, 126, 12, 0.10), 0 4px 20px rgba(90, 70, 20, 0.12);
+  --shadow-glow-gold-lg: 0 0 60px rgba(168, 126, 12, 0.18), 0 8px 40px rgba(90, 70, 20, 0.16);
+  --shadow-glow-gold-sm: 0 0 15px rgba(168, 126, 12, 0.09), 0 2px 10px rgba(90, 70, 20, 0.10);
   --shadow-inner-gold: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(120, 100, 50, 0.08);
   --shadow-card: 0 4px 24px rgba(96, 78, 34, 0.12), 0 1px 3px rgba(96, 78, 34, 0.10);
   --shadow-card-hover: 0 8px 40px rgba(96, 78, 34, 0.18), 0 0 20px rgba(168, 126, 12, 0.14);
@@ -597,7 +602,7 @@ html[data-theme='light'] .bg-panel-hover {
   background: linear-gradient(145deg, #FFFEF8 0%, #F6F0DE 100%);
 }
 html[data-theme='light'] .bg-panel-gold {
-  background: linear-gradient(145deg, rgba(212, 168, 30, 0.18) 0%, rgba(212, 168, 30, 0.06) 100%);
+  background: linear-gradient(145deg, rgba(168, 126, 12, 0.10) 0%, rgba(168, 126, 12, 0.03) 100%);
 }
 html[data-theme='light'] .bg-glass {
   background: rgba(255, 253, 246, 0.75);
@@ -608,12 +613,16 @@ html[data-theme='light'] .bg-glass-strong {
   border-color: rgba(168, 126, 12, 0.28);
 }
 
-/* Background pattern: keep the layout, drop the noise/glow intensity */
+/* Background pattern: keep the layout, drop the noise/glow intensity.
+   BUGFIX (2026-08-25, "bandes dorées"): the top-center radial used the OLD
+   bright-gold rgb(212,168,30) at 10% — on pale papyrus it painted a visible
+   golden band across the top of EVERY page. Use the deepened light-theme
+   gold token value (rgb 168,126,12) at a whisper level instead. */
 html[data-theme='light'] .bg-pharaoh {
   background-color: var(--color-obsidian);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 168, 30, 0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(123, 63, 228, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(168, 126, 12, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(108, 49, 196, 0.03) 0%, transparent 50%);
 }
 
 /* Gold gradient text needs a lighter top stop on pale backgrounds */
@@ -733,7 +742,10 @@ nav.sticky {
 }
 
 /* BUG-006/DISC-001 — local themed backdrop replacing external Unsplash images
-   for dungeon cards. Pure CSS: offline-safe, cannot 404, zero bytes fetched. */
+   for dungeon cards. Pure CSS: offline-safe, cannot 404, zero bytes fetched.
+   BUGFIX (2026-08-25): this backdrop was dark-only hard-coded — in the light
+   theme the gold grid lines + navy base rendered as misplaced golden bands
+   inside dungeon cards. Provide a papyrus-toned variant. */
 .dungeon-art-backdrop {
   background:
     radial-gradient(ellipse at 20% 30%, rgba(30, 58, 138, 0.55), transparent 55%),
@@ -749,4 +761,16 @@ nav.sticky {
     linear-gradient(rgba(212, 175, 55, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(212, 175, 55, 0.06) 1px, transparent 1px);
   background-size: 28px 28px;
+}
+html[data-theme='light'] .dungeon-art-backdrop {
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(168, 126, 12, 0.10), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(29, 95, 146, 0.08), transparent 50%),
+    radial-gradient(ellipse at 60% 20%, rgba(108, 49, 196, 0.06), transparent 45%),
+    linear-gradient(160deg, #FBF7EA 0%, #F1E9D2 100%);
+}
+html[data-theme='light'] .dungeon-art-backdrop::after {
+  background-image:
+    linear-gradient(rgba(168, 126, 12, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 126, 12, 0.07) 1px, transparent 1px);
 }

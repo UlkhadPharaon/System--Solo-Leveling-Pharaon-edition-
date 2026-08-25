@@ -274,7 +274,9 @@ export const UlkhadProgramView: React.FC<Props> = ({ onCompleteSession, triggerV
       {/* --- Carte phase actuelle --- */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-2xl border border-gold/30 bg-panel p-5">
-        <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${microStyle.ring}`} />
+        {/* Phase accent strip — h-px + /60 alphas: full h-1 saturated gradients
+            read as misplaced golden bars in the light theme (bug 2026-08-25). */}
+        <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${microStyle.ring}`} />
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-mono text-[11px] font-semibold uppercase tracking-widest text-gold">Programme Ulkhad · 10 mois</p>

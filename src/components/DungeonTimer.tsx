@@ -155,8 +155,9 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
     <div className="fixed inset-0 z-50 bg-obsidian/90 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-lapis/95 border border-gold max-w-md w-full rounded-3xl p-6 md:p-8 space-y-6 shadow-gold relative overflow-hidden anim-in">
         
-        {/* Shimmer Effect */}
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold/0 via-gold to-gold/0 animate-pulse" />
+        {/* Shimmer Effect — h-px (full h-1 gold bar read as a misplaced golden
+            band in the light theme, bug 2026-08-25) */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-gold/0 via-gold/60 to-gold/0 animate-pulse" />
 
         <div className="text-center space-y-2">
           <span className="font-mono text-[10px] text-gold tracking-widest uppercase">

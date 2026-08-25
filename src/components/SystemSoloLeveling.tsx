@@ -862,7 +862,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
 
       <div className="wide-container p-4 md:p-6 lg:p-8">
         {shopSuccessMsg && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-sl-gold-dark/40 to-sl-lapis/80 border-2 border-sl-gold/80 text-pharaoh font-display font-bold text-center text-xs tracking-wider rounded-2xl shadow-gold flex items-center justify-center gap-3">
+          <div className="mb-6 p-4 bg-gradient-to-r from-sl-gold/10 to-sl-lapis/60 border border-sl-gold/40 text-pharaoh font-display font-bold text-center text-xs tracking-wider rounded-2xl shadow-gold-sm flex items-center justify-center gap-3">
             <Sparkles className="w-5 h-5 text-sl-gold animate-bounce" />
             <span>{shopSuccessMsg}</span>
           </div>
@@ -1616,8 +1616,9 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             className="bg-sl-primary border-2 border-sl-gold max-w-lg w-full rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden shadow-gold"
           >
-            {/* Decorative Background Aura */}
-            <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-sl-gold/10 to-transparent pointer-events-none" />
+            {/* Decorative Background Aura — h-24 + /5 (the full h-40 gold wash
+                read as a misplaced golden band in the light theme, bug 2026-08-25) */}
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-sl-gold/5 to-transparent pointer-events-none" />
             
             <div className="text-center space-y-3 relative z-10">
               <div className="w-16 h-16 bg-sl-gold/10 border-2 border-sl-gold rounded-2xl flex items-center justify-center mx-auto shadow-gold-sm">

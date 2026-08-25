@@ -71,8 +71,9 @@ export const CelebrationBanner: React.FC<CelebrationBannerProps> = ({ info, onCl
               : 'bg-gradient-to-r from-amethyst/30 via-obsidian-elevated to-gold/15 border-gold'
           }`}
         >
-          {/* Animated top shimmer bar */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald via-gold to-amethyst animate-pulse" />
+          {/* Animated top shimmer bar — h-px (full h-1 saturated gradient read
+              as a misplaced golden band in the light theme, bug 2026-08-25) */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-emerald/70 via-gold/70 to-amethyst/70 animate-pulse" />
 
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3.5">

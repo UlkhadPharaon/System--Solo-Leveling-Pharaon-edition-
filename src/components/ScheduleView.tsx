@@ -282,7 +282,9 @@ export const ScheduleView: React.FC<ScheduleViewProps> = ({
 
         {/* Active Stage Banner for Cinema & Bangre Neo Lab — legacy profile only */}
         <div className={`relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 ${domains.length > 0 ? 'hidden' : ''}`}>
-          <div className="p-3.5 rounded-xl bg-gradient-to-r from-gold/20 to-transparent border border-gold/40 border-l-4 border-l-gold flex items-center gap-3 hover-lift transition-all">
+          {/* border-l + /10 wash (full gold-20 gradient read as misplaced golden
+              band in the light theme, bug 2026-08-25) */}
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-gold/10 to-transparent border border-gold/40 border-l border-l-gold flex items-center gap-3 hover-lift transition-all">
             <div className="p-2 rounded-xl bg-gold/20 border border-gold/40 text-gold-bright">
               <Film className="w-4 h-4" />
             </div>
