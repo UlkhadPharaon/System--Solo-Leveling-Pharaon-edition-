@@ -176,3 +176,16 @@ export function migrateLegacyDomainsIfNeeded(): Domain[] {
   saveDomains(seeded);
   return seeded;
 }
+
+/**
+ * Resolve the categoryTargets id that workout hours should be credited to.
+ *
+ * Since onboarding v2 the user's workout domain lives under `dom:<id>`;
+ * crediting the hardcoded legacy `morning_routine` slice instead silently
+ * drops those hours from every domain card, chart and weekly target. The
+ * legacy slice stays authoritative ONLY for profiles that never migrated.
+ */
+export function workoutTargetId(domains: Domain[]): string {
+  const workoutDomain = domains.find((d) => d.tracking_type === 'workout_log');
+  return workoutDomain ? `dom:${workoutDomain.id}` : 'morning_routine';
+}

@@ -18,7 +18,7 @@ import {
   workoutReward,
   formatMinutes,
 } from '../src/lib/utils.ts';
-import { computeDomainWeights } from '../src/lib/domains.ts';
+import { computeDomainWeights, workoutTargetId } from '../src/lib/domains.ts';
 import { buildTemplateQuests } from '../src/lib/questGeneration.ts';
 import {
   detectDistress,
@@ -124,7 +124,22 @@ test('falsy budgets fall back to the 2h default, negatives to the 0.5h floor', (
   deepStrictEqual(empty, {});
 });
 
-// ── buildTemplateQuests ──────────────────────────────────────────────────────
+// ── workoutTargetId ──────────────────────────────────────────────────────────
+
+test('workout hours route to the dom:<id> slice when a workout domain exists', () => {
+  equal(
+    workoutTargetId([
+      { id: 'dom_musculation', label: 'Musculation', tracking_type: 'workout_log' },
+      { id: 'dom_ecole', label: 'École', tracking_type: 'study_subjects' },
+    ] as any),
+    'dom:dom_musculation'
+  );
+});
+
+test('workout hours fall back to legacy morning_routine without a workout domain', () => {
+  equal(workoutTargetId([{ id: 'dom_ecole', label: 'École', tracking_type: 'study_subjects' }] as any), 'morning_routine');
+  equal(workoutTargetId([] as any), 'morning_routine');
+});
 
 test('template quests: 2 per domain, tagged template, unique ids', () => {
   const quests = buildTemplateQuests([

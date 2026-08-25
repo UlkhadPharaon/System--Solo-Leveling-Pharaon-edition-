@@ -89,6 +89,7 @@ import {
   computeDomainWeights,
   domainsForTracking,
   styleForDomain,
+  workoutTargetId,
 } from './lib/domains';
 import { generateInitialQuests, buildTemplateQuests } from './lib/questGeneration';
 import { HabitChecklistCard } from './components/HabitChecklistCard';
@@ -1063,10 +1064,13 @@ export default function App() {
       },
     }));
 
-    // Credit Morning Routine hours
+    // Credit workout hours to the user's REAL workout domain (dom:<id> since
+    // onboarding v2); the legacy morning_routine slice only remains the target
+    // for profiles without a migrated workout domain.
+    const workoutTarget = workoutTargetId(domains);
     setCategoryTargets((prev) =>
       prev.map((c) => {
-        if (c.id === 'morning_routine') {
+        if (c.id === workoutTarget) {
           return { ...c, completedHours: c.completedHours + session.durationMinutes / 60 };
         }
         return c;
