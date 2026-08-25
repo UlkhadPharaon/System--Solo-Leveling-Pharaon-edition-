@@ -1,8 +1,9 @@
-const CACHE_NAME = 'ka-rise-v9';
+const CACHE_NAME = 'ka-rise-v10';
 // logo.webp (192 KB) replaces logo-complet.png (1.4 MB) in the pre-cache:
 // the old shell made every fresh install download ~1.5 MB of logo alone.
 const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo.webp'];
 const DEFAULT_ICON = '/icon-192.png';
+const DEFAULT_BADGE = '/icon-192.png';
 
 // Install Event - Caching the app shell + tous les bundles hashés référencés
 // par index.html (JS/CSS générés par Vite) pour un offline complet dès
@@ -105,80 +106,129 @@ self.addEventListener('fetch', (event) => {
 // Push Notifications
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Receives server-relayed pushes (delivered even when the app/browser is closed)
-// and surfaces them as system notifications on the device.
+/**
+ * Canonical payload (server/pushManager.ts normalizePayload):
+ *   { title, body, tag, icon, badge, url, category, actions?, data }
+ * Every field is defensively defaulted so a malformed push can never crash
+ * the handler — a crashed push handler makes Chrome report delivery failure
+ * and eventually kill the subscription.
+ */
 self.addEventListener('push', (event) => {
-  let data = { title: 'Le Système', body: '', tag: '', url: '/', icon: DEFAULT_ICON, extras: {} };
+  let data = { title: 'Le Système', body: '', tag: '', url: '/', icon: DEFAULT_ICON, badge: DEFAULT_BADGE, actions: [], extras: {} };
   try {
     if (event.data) {
       const parsed = typeof event.data.json === 'function' ? event.data.json() : JSON.parse(event.data.text());
       if (parsed && typeof parsed === 'object') {
         data = {
-          title: parsed.title || data.title,
-          body: parsed.body || '',
-          tag: parsed.tag || '',
-          url: parsed.url || '/',
-          icon: parsed.icon || DEFAULT_ICON,
-          extras: parsed.data || {},
+          title: typeof parsed.title === 'string' && parsed.title ? parsed.title : data.title,
+          body: typeof parsed.body === 'string' ? parsed.body : '',
+          tag: typeof parsed.tag === 'string' ? parsed.tag : '',
+          url: typeof parsed.url === 'string' ? parsed.url : '/',
+          icon: typeof parsed.icon === 'string' ? parsed.icon : DEFAULT_ICON,
+          badge: typeof parsed.badge === 'string' ? parsed.badge : DEFAULT_BADGE,
+          actions: Array.isArray(parsed.actions) ? parsed.actions.slice(0, 3) : [],
+          extras: parsed.data && typeof parsed.data === 'object' ? parsed.data : {},
         };
       }
     }
   } catch (e) {
-    // Malformed payload — show a generic fallback.
+    // Malformed payload — show a generic fallback rather than nothing:
+    // userVisibleOnly subscriptions REQUIRE a visible notification per push.
   }
 
   const options = {
     body: data.body,
     icon: data.icon,
-    badge: DEFAULT_ICON,
-    tag: data.tag,
+    badge: data.badge,
+    tag: data.tag || undefined,
     renotify: !!data.tag,
-    data: { url: data.url, ...data.extras },
+    timestamp: Date.now(),
+    requireInteraction: false,
+    vibrate: [80, 40, 80],
+    data: { url: data.url, category: data.category || 'system', ...data.extras },
+    ...(data.actions.length ? { actions: data.actions } : {}),
   };
 
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    self.registration.showNotification(data.title, options).catch((err) => {
+      console.error('[SW] showNotification failed:', err);
+      // Last-resort generic notification so the push is never silently lost.
+      return self.registration.showNotification('Le Système', {
+        body: 'Nouvelle alerte — ouvrez l’application.',
+        icon: DEFAULT_ICON,
+        badge: DEFAULT_BADGE,
+      });
+    })
+  );
 });
 
 // Handles in-app local notifications relayed from the client tab via postMessage.
 self.addEventListener('message', (event) => {
   const msg = event.data;
-  if (msg && msg.type === 'show-notification' && msg.payload) {
+  if (!msg || typeof msg !== 'object') return;
+
+  if (msg.type === 'show-notification' && msg.payload) {
     const p = msg.payload || {};
     event.waitUntil(
-      self.registration.showNotification(p.title || 'Le Système', {
-        body: p.body || '',
-        icon: p.icon || DEFAULT_ICON,
-        badge: DEFAULT_ICON,
-        tag: p.tag || '',
+      self.registration.showNotification(String(p.title || 'Le Système'), {
+        body: typeof p.body === 'string' ? p.body : '',
+        icon: typeof p.icon === 'string' ? p.icon : DEFAULT_ICON,
+        badge: DEFAULT_BADGE,
+        tag: typeof p.tag === 'string' && p.tag ? p.tag : undefined,
         renotify: !!p.tag,
-        data: { url: p.url || '/' },
-      })
+        vibrate: [80, 40, 80],
+        data: { url: typeof p.url === 'string' ? p.url : '/' },
+      }).catch(() => {})
     );
+  }
+
+  // Skip-waiting request from an updated page (future update UX).
+  if (msg.type === 'skip-waiting') {
+    self.skipWaiting();
   }
 });
 
-// Notification click — open (or focus) the app on the route encoded in the payload.
+// Notification click — open (or focus) the PWA on the route encoded in the
+// payload. Matching rule: same ORIGIN first (any route), because query-string
+// matching (?tab=…) breaks on SPA boot URLs; then fall back to openWindow.
 self.addEventListener('notificationclick', (event) => {
-  const notification = event.notification;
-  notification.close();
+  event.notification.close();
 
-  const targetUrl = (notification.data && notification.data.url) || '/';
+  const targetUrl = new URL(
+    (event.notification.data && event.notification.data.url) || '/',
+    self.location.origin
+  );
+  const action = event.action; // undefined for plain clicks
+
+  // Action buttons deep-link to their own routes when provided as data.
+  const actionUrl =
+    action && event.notification.data && event.notification.data.actionUrls &&
+    event.notification.data.actionUrls[action];
+  const finalUrl = actionUrl ? new URL(actionUrl, self.location.origin) : targetUrl;
+
   event.waitUntil(
     (async () => {
       const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      // 1. Any window of this origin → focus it and tell it where to navigate.
       for (const client of allClients) {
-        // Focus an existing tab pointing at the desired route.
-        if (client.url.includes(targetUrl)) {
+        if (client.url.startsWith(self.location.origin)) {
           await client.focus();
+          client.postMessage({ type: 'navigate', url: finalUrl.href });
           return;
         }
       }
-      // Otherwise open a new window for the route, falling back to the app root.
+      // 2. No window → open one at the exact deep link.
       try {
-        await self.clients.openWindow(targetUrl);
+        await self.clients.openWindow(finalUrl.href);
       } catch {
         await self.clients.openWindow('/');
       }
     })()
   );
+});
+
+// The page asks which route a focused window should land on after boot from
+// a notification (defensive duplicate of the postMessage above kept simple).
+self.addEventListener('notificationclose', (event) => {
+  // Hook available for future analytics — intentionally silent today.
 });
