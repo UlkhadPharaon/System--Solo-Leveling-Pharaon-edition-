@@ -60,11 +60,15 @@ const NotepadWorkspace = lazy(() => import('./components/NotepadWorkspace').then
 const BudgetTracker = lazy(() => import('./components/BudgetTracker').then(m => ({ default: m.BudgetTracker })));
 const WorkoutSystem = lazy(() => import('./components/WorkoutSystem').then(m => ({ default: m.WorkoutSystem })));
 const PersonalizationModal = lazy(() => import('./components/PersonalizationModal').then(m => ({ default: m.PersonalizationModal })));
+/* Bundle-size guard (CI ≤520 kB): the three heaviest always-mounted modals are
+   lazy chunks now. They render null when closed, so a null Suspense fallback
+   is invisible; OnboardingModal stays static because first launch needs it. */
+const AIAssistantModal = lazy(() => import('./components/AIAssistantModal').then(m => ({ default: m.AIAssistantModal })));
+const DataManagementModal = lazy(() => import('./components/DataManagementModal').then(m => ({ default: m.DataManagementModal })));
+const DailyBonusModal = lazy(() => import('./components/DailyBonusModal').then(m => ({ default: m.DailyBonusModal })));
 import { WeeklyReportCard } from './components/WeeklyReportCard';
 // Landing tab + lightweight modals stay in the main bundle.
 import { SystemSoloLeveling } from './components/SystemSoloLeveling';
-import { AIAssistantModal } from './components/AIAssistantModal';
-import { DataManagementModal } from './components/DataManagementModal';
 import { MiniPlayer } from './components/MiniPlayer';
 import { FloatingRewardLayer } from './components/FloatingReward';
 import { TabSkeleton } from './components/TabSkeleton';
@@ -79,7 +83,6 @@ import { haptic } from './lib/haptics';
 import { buildWeeklyReport } from './lib/weeklyReport';
 import { registerComboHit } from './lib/comboEngine';
 import { fireReward } from './components/FloatingReward';
-import { DailyBonusModal } from './components/DailyBonusModal';
 import { registerTodayActivity, shouldShowDailyPopup, DailyStreakState } from './lib/dailyEngine';
 import { cloudSync } from './lib/supabaseSync';
 import {
@@ -1467,8 +1470,10 @@ export default function App() {
         </div>
       </footer>
 
-      {/* AI Coach Assistant Modal */}
-      <AIAssistantModal
+      {/* AI Coach / Data / Daily-bonus modals — lazy chunks; null fallback is
+          invisible since each renders null when closed. */}
+      <Suspense fallback={null}>
+        <AIAssistantModal
         isOpen={isAICoachOpen}
         onClose={() => setIsAICoachOpen(false)}
         contextData={{
@@ -1499,6 +1504,7 @@ export default function App() {
         isOpen={isDataManagementOpen}
         onClose={() => setIsDataManagementOpen(false)}
       />
+      </Suspense>
 
       {/* Onboarding Modal */}
       <OnboardingModal
@@ -1527,15 +1533,17 @@ export default function App() {
 
       {/* Daily Connection Bonus — engagement loop */}
       {showDailyBonus && (
-        <DailyBonusModal
-          streak={dailyStreak.currentStreak}
-          personalMotto={personalization.dailyQuote}
-          onClaim={(xp, gold) => {
-            addXPAndGoldToPlayer(xp, gold, 'Bonus de Connexion Quotidienne');
-            setDailyStreak((prev) => ({ ...prev, lastBonusClaimedDate: new Date().toISOString().split('T')[0] }));
-          }}
-          onClose={() => setShowDailyBonus(false)}
-        />
+        <Suspense fallback={null}>
+          <DailyBonusModal
+            streak={dailyStreak.currentStreak}
+            personalMotto={personalization.dailyQuote}
+            onClaim={(xp, gold) => {
+              addXPAndGoldToPlayer(xp, gold, 'Bonus de Connexion Quotidienne');
+              setDailyStreak((prev) => ({ ...prev, lastBonusClaimedDate: new Date().toISOString().split('T')[0] }));
+            }}
+            onClose={() => setShowDailyBonus(false)}
+          />
+        </Suspense>
       )}
 
       {/* PWA Install Banner */}
