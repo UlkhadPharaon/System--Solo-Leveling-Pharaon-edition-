@@ -38,7 +38,7 @@ import {
   planQuestReminder,
   planStreakRescue,
 } from '../src/lib/smartPush.ts';
-import { applyQuestCompletion } from '../src/lib/progression.ts';
+import { applyQuestCompletion, syncProfileMirrors } from '../src/lib/progression.ts';
 
 let passed = 0;
 let failed = 0;
@@ -555,7 +555,20 @@ test('quest completion grants XP/gold AND increments questsCompleted', () => {
   equal(next.level, 2);
   equal(next.gold, 90);
   equal(next.questsCompleted, 1);
+  equal(next.totalXP, 100); // lifetime XP gate accrues too
   ok(next.logs[0].text.includes('Première séance'));
+});
+
+test('totalXP accrues across quests toward the 25k chapter gate', () => {
+  let p: any = BASE_PLAYER;
+  for (let i = 0; i < 5; i++) p = applyQuestCompletion(p, 60, 10, `Q${i}`).next;
+  equal(p.totalXP, 300);
+});
+
+test('syncProfileMirrors raises streakDays from the daily engine, never lowers', () => {
+  const p: any = { streakDays: 12, logs: [] };
+  equal(syncProfileMirrors(p, { currentStreak: 20 }).streakDays, 20); // engine ahead → raise
+  equal(syncProfileMirrors(p, { currentStreak: 3 }).streakDays, 12);  // engine behind (new profile) → keep best
 });
 
 test('narrative campaign gates become reachable: counter accrues across quests', () => {

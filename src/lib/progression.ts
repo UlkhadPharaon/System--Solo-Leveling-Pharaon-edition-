@@ -25,7 +25,7 @@ export interface QuestCompletionResult {
  * Apply a quest reward to the player profile:
  * XP through the level engine, gold added, rank/class resynced,
  * questsCompleted +1 (the counter the narrative campaign gates on),
- * and a system log entry prepended.
+ * totalXP accumulated (lifetime XP gate), and a system log entry prepended.
  */
 export function applyQuestCompletion(
   prev: PlayerProfile | undefined | null,
@@ -47,6 +47,7 @@ export function applyQuestCompletion(
     hunterClass: rankInfo.hunterClass,
     gold: (base.gold || 0) + gold,
     questsCompleted: (base.questsCompleted || 0) + 1,
+    totalXP: (base.totalXP || 0) + xp,
     logs: [
       {
         id: `log-quest-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -63,5 +64,24 @@ export function applyQuestCompletion(
     leveledUp: progression.leveledUp,
     levelsGained: progression.levelsGained,
     newLevel: progression.level,
+  };
+}
+
+/**
+ * Sync profile mirror fields from their engines' source of truth.
+ *
+ * The narrative campaign gates on p.streakDays, but the REAL streak lives in
+ * the daily engine (aura_daily_streak) and was never written back to the
+ * profile — chapter gates on streak were unreachable. Called once at boot
+ * (and cheap enough to call after any streak change).
+ */
+export function syncProfileMirrors(
+  prev: PlayerProfile | undefined | null,
+  mirrors: { currentStreak: number; totalXPFromRewards?: number },
+): PlayerProfile {
+  const base: PlayerProfile = prev ?? ({ logs: [] } as unknown as PlayerProfile);
+  return {
+    ...base,
+    streakDays: Math.max(base.streakDays || 0, mirrors.currentStreak || 0),
   };
 }

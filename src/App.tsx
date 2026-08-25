@@ -81,6 +81,7 @@ import { triggerVictoryConfetti, triggerAllTasksCompletedConfetti } from './lib/
 import { calculateLevelProgression, getRankAndClassForLevel, blockReward, focusSessionReward, workoutReward, XP_RATES } from './lib/utils';
 import { haptic } from './lib/haptics';
 import { buildWeeklyReport } from './lib/weeklyReport';
+import { syncProfileMirrors } from './lib/progression';
 import { registerComboHit } from './lib/comboEngine';
 import { fireReward } from './components/FloatingReward';
 import { registerTodayActivity, shouldShowDailyPopup, DailyStreakState } from './lib/dailyEngine';
@@ -787,6 +788,16 @@ export default function App() {
     runAutoBackupIfDue();
   }, []);
 
+  // Narrative-campaign mirror: profile.streakDays gates chapter objectives but
+  // the real streak lives in the daily engine. One-way sync (max), so an old
+  // best-streak in the profile is never erased by a newer shorter run.
+  useEffect(() => {
+    setPlayerProfile((prev) => {
+      const synced = syncProfileMirrors(prev, { currentStreak: dailyStreak.currentStreak });
+      return synced.streakDays === prev?.streakDays ? prev : synced;
+    });
+  }, [dailyStreak.currentStreak]);
+
 
   // System XP & Gold Reward Grant Helper
   // Side effects (confetti / banner) are computed from current state BEFORE the
@@ -832,6 +843,7 @@ export default function App() {
         rank: rankInfo.rank,
         hunterClass: rankInfo.hunterClass,
         gold: newGold,
+        totalXP: (prev?.totalXP || 0) + xpGained, // lifetime gate (narrative campaign)
         logs: [
           {
             id: `log-xp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
