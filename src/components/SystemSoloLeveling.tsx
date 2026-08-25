@@ -52,6 +52,7 @@ import { DomainQuestBoard } from './DomainQuestBoard';
 import { DungeonTimer } from './DungeonTimer';
 import { WorldLeaderboardView } from './WorldLeaderboardView';
 import { useCountdown, formatRemaining } from './PenaltyQuestCard';
+import { applyQuestCompletion } from '../lib/progression';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
 import { haptic } from '../lib/haptics';
 import { registerComboHit, comboGoldBonus } from '../lib/comboEngine';
@@ -713,32 +714,21 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
       const quest = (prev?.dailyQuests || []).find(q => q.id === questId);
       if (!quest || quest.isCompleted) return prev;
 
-      const updatedQuests = (prev?.dailyQuests || []).map(q => 
+      const updatedQuests = (prev?.dailyQuests || []).map(q =>
         q.id === questId ? { ...q, isCompleted: true, currentCount: q.targetCount } : q
       );
 
-      const progression = calculateLevelProgression(prev?.xp, prev?.level, prev?.xpToNextLevel, quest.xpReward);
-      const rankInfo = getRankAndClassForLevel(progression.level);
+      // Central reducer (B3): XP/level/rank + questsCompleted++ (narrative gates)
+      const { next } = applyQuestCompletion(
+        prev,
+        quest.xpReward,
+        quest.goldReward + (bonusGold || 0),
+        quest.title,
+      );
 
       return {
-        ...prev,
-        xp: progression.xp,
-        level: progression.level,
-        xpToNextLevel: progression.xpToNextLevel,
-        attributePoints: (prev?.attributePoints || 0) + progression.attributePointsGained,
-        rank: rankInfo.rank,
-        hunterClass: rankInfo.hunterClass,
-        gold: (prev?.gold || 0) + quest.goldReward + (bonusGold || 0),
+        ...next,
         dailyQuests: updatedQuests,
-        logs: [
-          {
-            id: `log-quest-${Date.now()}`,
-            text: `[MISSION] Récompense obtenue pour « ${quest.title} » : +${quest.xpReward} XP, +${quest.goldReward} Or.`,
-            type: 'xp',
-            timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-          },
-          ...(prev?.logs || [])
-        ]
       };
     });
   };

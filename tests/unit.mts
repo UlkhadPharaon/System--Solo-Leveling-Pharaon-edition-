@@ -38,6 +38,7 @@ import {
   planQuestReminder,
   planStreakRescue,
 } from '../src/lib/smartPush.ts';
+import { applyQuestCompletion } from '../src/lib/progression.ts';
 
 let passed = 0;
 let failed = 0;
@@ -534,6 +535,46 @@ test('pending/blocks helpers count and summarize correctly', () => {
   const { count, titles } = questReminderBody(BLOCKS_DONE.filter((b) => !b.isCompleted));
   equal(count, 2);
   ok(titles.startsWith('Restante 1, Restante 2'));
+});
+
+// ── Central quest-completion reducer (B3 + narrative-campaign fix) ──────────
+
+const BASE_PLAYER: any = {
+  xp: 0,
+  level: 1,
+  xpToNextLevel: 100,
+  attributePoints: 0,
+  gold: 50,
+  questsCompleted: 0,
+  logs: [],
+};
+
+test('quest completion grants XP/gold AND increments questsCompleted', () => {
+  const { next, leveledUp } = applyQuestCompletion(BASE_PLAYER, 100, 40, 'Première séance');
+  equal(leveledUp, true); // 0+100 = exactly level 2 threshold
+  equal(next.level, 2);
+  equal(next.gold, 90);
+  equal(next.questsCompleted, 1);
+  ok(next.logs[0].text.includes('Première séance'));
+});
+
+test('narrative campaign gates become reachable: counter accrues across quests', () => {
+  let p: any = BASE_PLAYER;
+  for (let i = 0; i < 10; i++) p = applyQuestCompletion(p, 20, 10, `Q${i}`).next;
+  equal(p.questsCompleted, 10); // chapter-2 gate (≥10) now reachable
+});
+
+test('missing/legacy profiles without the field still work (undefined → 1)', () => {
+  const legacy: any = { xp: 300, level: 2, xpToNextLevel: 150, gold: 10, logs: [] };
+  const { next } = applyQuestCompletion(legacy, 10, 5, 'Quête legacy');
+  equal(next.questsCompleted, 1);
+  equal(next.gold, 15);
+});
+
+test('null profile tolerated (defensive path)', () => {
+  const { next } = applyQuestCompletion(null as any, 30, 5, 'Edge');
+  equal(next.questsCompleted, 1);
+  ok(Number.isFinite(next.xp));
 });
 
 // ── summary ──────────────────────────────────────────────────────────────────

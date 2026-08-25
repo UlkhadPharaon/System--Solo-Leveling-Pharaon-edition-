@@ -4,6 +4,7 @@ import { Play, Square, Flame, Timer, ShieldAlert, Sparkles } from './ui/PharaohI
 import { motion } from 'motion/react';
 import { DungeonBoss, PlayerProfile } from '../types';
 import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
+import { applyQuestCompletion } from '../lib/progression';
 
 interface DungeonTimerProps {
   dungeon: DungeonBoss;
@@ -121,26 +122,21 @@ export const DungeonTimer: React.FC<DungeonTimerProps> = ({
         });
       }
 
-      const log = {
-        id: `vic-chron-${Date.now()}`,
-        text: `[CHRONO NETTOYÉ] FOCUS SUPRÊME ! Vaincu le Boss ${dungeon.bossName}. +${xpBonus} XP, +${goldBonus} Or, Obtenu : 1x ${drop.name}.`,
-        type: 'loot' as const,
-        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      };
-
-      const progression = calculateLevelProgression(prev?.xp, prev?.level, prev?.xpToNextLevel, xpBonus);
-      const rankInfo = getRankAndClassForLevel(progression.level);
+      // Central reducer (B3): XP/level/rank + questsCompleted++ (dungeon clears count).
+      const { next } = applyQuestCompletion(prev, xpBonus, goldBonus, `Boss ${dungeon.bossName} vaincu`);
 
       return {
-        ...prev,
-        xp: progression.xp,
-        level: progression.level,
-        xpToNextLevel: progression.xpToNextLevel,
-        attributePoints: (prev?.attributePoints || 0) + progression.attributePointsGained,
-        rank: rankInfo.rank,
-        hunterClass: rankInfo.hunterClass,
+        ...next,
         inventory: updatedInv,
-        logs: [log, ...(prev?.logs || [])]
+        logs: [
+          {
+            id: `vic-chron-${Date.now()}`,
+            text: `[CHRONO NETTOYÉ] FOCUS SUPRÊME ! Vaincu le Boss ${dungeon.bossName}. +${xpBonus} XP, +${goldBonus} Or, Obtenu : 1x ${drop.name}.`,
+            type: 'loot' as const,
+            timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+          },
+          ...(next.logs || [])
+        ]
       };
     });
   };

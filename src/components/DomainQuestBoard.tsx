@@ -4,7 +4,9 @@
  * The generated first quests (LLM or deterministic template) were written to
  * playerProfile.generatedQuests at onboarding but never rendered anywhere. This
  * board surfaces them: each domain's starter quests can be completed for XP/gold
- * (derived half-XP) and a system log entry, completing the quest loop.
+ * and a system log entry, completing the quest loop. Completion flows through
+ * the central reducer (lib/progression) which also increments questsCompleted
+ * — the counter the narrative campaign gates on.
  */
 import React from 'react';
 import { motion } from 'motion/react';
@@ -12,7 +14,7 @@ import {
   Check, CheckCircle2, Sparkles, Sword, Target, ScrollText, Plus, X,
 } from './ui/PharaohIcons';
 import { Domain, GeneratedQuest, PlayerProfile } from '../types';
-import { calculateLevelProgression, getRankAndClassForLevel } from '../lib/utils';
+import { applyQuestCompletion } from '../lib/progression';
 import { buildTemplateQuests } from '../lib/questGeneration';
 
 interface DomainQuestBoardProps {
@@ -58,32 +60,11 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
           ? { ...q, status: 'completed' as const, completedAt: new Date().toISOString().slice(0, 10) }
           : q
       );
-      const progression = calculateLevelProgression(
-        prev?.xp,
-        prev?.level,
-        prev?.xpToNextLevel,
-        quest.xpReward
-      );
-      const rankInfo = getRankAndClassForLevel(progression.level);
+      // Central reducer (B3): XP/level/rank + questsCompleted++ (narrative gates)
+      const { next } = applyQuestCompletion(prev, quest.xpReward, gold, quest.title);
       return {
-        ...prev,
-        xp: progression.xp,
-        level: progression.level,
-        xpToNextLevel: progression.xpToNextLevel,
-        attributePoints: (prev?.attributePoints || 0) + progression.attributePointsGained,
-        rank: rankInfo.rank,
-        hunterClass: rankInfo.hunterClass,
-        gold: (prev?.gold || 0) + gold,
+        ...next,
         generatedQuests: nextQuests,
-        logs: [
-          {
-            id: `log-domain-quest-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            text: `[QUÊTE DE DOMAINE] « ${quest.title} » accomplie : +${quest.xpReward} XP, +${gold} Or.`,
-            type: 'quest',
-            timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-          },
-          ...(prev?.logs || []),
-        ],
       };
     });
   };
@@ -157,77 +138,47 @@ export const DomainQuestBoard: React.FC<DomainQuestBoardProps> = ({
               style={domain ? { borderColor: `${domain.color_accent}55` } : undefined}
             >
               <div className="flex justify-between items-start gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className="text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border"
-                      style={{
-                        color: domain?.color_accent || 'var(--color-gold)',
-                        borderColor: `${domain?.color_accent || 'var(--color-gold)'}66`,
-                        background: `${domain?.color_accent || 'var(--color-gold)'}14`,
-                      }}
-                    >
-                      {domain?.label || 'Domaine'}
-                    </span>
-                    <span className={`text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border ${DIFFICULTY_COLOR[quest.difficulty]}`}>
-                      {DIFFICULTY_LABEL[quest.difficulty]}
-                    </span>
-                    {quest.source === 'llm' ? (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border border-amethyst/40 bg-amethyst/10 text-amethyst">
-                        <Sparkles className="w-3 h-3" /> SYSTEME LLM
-                      </span>
-                    ) : (
-                      <span className="text-[9px] font-display uppercase tracking-widest px-2 py-0.5 rounded border border-lapis/50 bg-lapis/20 text-pharaoh-subtle">
-                        MODÈLE
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-bold text-pharaoh font-display text-sm tracking-wide mt-2 leading-snug">
-                    {quest.title}
-                  </h3>
-                  <p className="text-[11px] text-sl-gold-light/70 italic font-display mt-1 leading-relaxed">
-                    {quest.description}
-                  </p>
+                <div className="min-w-0 space-y-1.5">
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded-full font-display text-[9px] tracking-widest border ${DIFFICULTY_COLOR[quest.difficulty]}`}
+                  >
+                    {DIFFICULTY_LABEL[quest.difficulty]}
+                  </span>
+                  <h3 className="font-display text-sm font-bold text-pharaoh leading-snug">{quest.title}</h3>
                 </div>
+                <button
+                  onClick={() => handleAbandon(quest)}
+                  aria-label="Abandonner cette quête"
+                  className="btn-press shrink-0 p-1 rounded-lg text-pharaoh-subtle hover:text-blood hover:bg-blood/10 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-sl-gold/10 mt-auto">
-                <div className="flex items-center gap-3 font-mono text-xs">
-                  <span className="text-sl-gold">+{quest.xpReward} XP</span>
-                  <span className="text-emerald">+{Math.max(5, Math.round(quest.xpReward / 2))} Or</span>
+              <p className="text-[11px] text-pharaoh-muted leading-relaxed flex-1">{quest.description}</p>
+
+              {domain && (
+                <div className="flex items-center gap-1.5 font-mono text-[10px]" style={{ color: domain.color_accent }}>
+                  <Sparkles className="w-3 h-3" />
+                  {domain.label}
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleAbandon(quest)}
-                    className="btn-press p-1.5 rounded-lg text-pharaoh-subtle hover:text-blood hover:bg-blood/10 transition-all"
-                    title="Abandonner"
-                    aria-label="Abandonner la quête"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleComplete(quest)}
-                    className="btn-press inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald/20 border border-emerald/40 text-emerald hover:bg-emerald hover:text-inverse text-[10px] font-display tracking-wider transition-all"
-                  >
-                    <CheckCircle2 className="w-4 h-4" /> ACCOMPLIR
-                  </button>
-                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-1 border-t border-sl-gold/10">
+                <span className="font-mono text-[11px] text-sl-gold-light/80">
+                  +{quest.xpReward} XP · +{Math.max(5, Math.round(quest.xpReward / 2))} Or
+                </span>
+                <button
+                  onClick={() => handleComplete(quest)}
+                  className="btn-press inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald/15 border border-emerald/40 text-emerald hover:bg-emerald hover:text-inverse text-[10px] font-display tracking-wider transition-all"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> ACCOMPLIR
+                </button>
               </div>
             </motion.div>
           );
         })}
       </motion.div>
-
-      {domains.length > 0 && (
-        <div className="flex justify-end">
-          <button
-            onClick={handleGenerate}
-            className="btn-press inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-sl-gold/5 border border-sl-gold/20 text-sl-gold hover:bg-sl-gold hover:text-sl-primary text-[10px] font-display tracking-wider transition-all"
-          >
-            <Check className="w-4 h-4" /> PROCHAINES QUÊTES
-          </button>
-        </div>
-      )}
     </div>
   );
 };
