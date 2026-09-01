@@ -11,6 +11,64 @@
   "theme_color": "#D4AF37",
   "lang": "fr",
   "categories": ["productivity", "lifestyle"],
+  "display_override": ["window-controls-overlay", "standalone"],
+  "launch_handler": { "client_mode": "focus-existing" },
+  "handle_links": "preferred",
+  "edge_side_panel": { "preferred_width": 380 },
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ka Rise — tableau de bord du Chasseur"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ka Rise — mobile"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Statut Chasseur",
+      "description": "Niveau, rang, XP et série — en un coup d’œil.",
+      "tag": "ka-rise-status",
+      "template": "widgets/status-template.html",
+      "msAcTemplate": "widgets/status-template.json",
+      "data": "/api/widgets/data?tag=ka-rise-status",
+      "type": "application/json",
+      "update": 900,
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }],
+      "screenshots": [{ "src": "/icon-512.png", "sizes": "512x512", "label": "Statut du Chasseur" }]
+    },
+    {
+      "name": "Quêtes du Jour",
+      "description": "Vos 4 prochaines sessions aujourd’hui.",
+      "tag": "ka-rise-today",
+      "template": "widgets/today-template.html",
+      "msAcTemplate": "widgets/today-template.json",
+      "data": "/api/widgets/data?tag=ka-rise-today",
+      "type": "application/json",
+      "update": 900,
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }],
+      "screenshots": [{ "src": "/icon-512.png", "sizes": "512x512", "label": "Aujourd’hui" }]
+    },
+    {
+      "name": "Objectifs Hebdo",
+      "description": "Progression hebdomadaire par domaine de vie.",
+      "tag": "ka-rise-weekly",
+      "template": "widgets/weekly-template.html",
+      "msAcTemplate": "widgets/weekly-template.json",
+      "data": "/api/widgets/data?tag=ka-rise-weekly",
+      "type": "application/json",
+      "update": 1800,
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }],
+      "screenshots": [{ "src": "/icon-512.png", "sizes": "512x512", "label": "Objectifs hebdomadaires" }]
+    }
+  ],
   "shortcuts": [
     {
       "name": "Quêtes du jour",

@@ -830,6 +830,21 @@ export const Award = createIcon((
 ));
 export const ListFilter = Filter;
 
+export const Smartphone = createIcon((
+  <>
+    <rect x="5" y="2" width="14" height="20" rx="2" />
+    <line x1="12" y1="18" x2="12.01" y2="18" />
+  </>
+));
+
+export const Monitor = createIcon((
+  <>
+    <rect x="2" y="3" width="20" height="14" rx="2" />
+    <line x1="8" y1="21" x2="16" y2="21" />
+    <line x1="12" y1="17" x2="12" y2="21" />
+  </>
+));
+
 // Export all as a namespace for easy importing
 export const PharaohIcons = {
   // Navigation
@@ -859,6 +874,7 @@ export const PharaohIcons = {
   // Aliases
   Trash2, Edit2, Edit3, CheckCircle2, RefreshCw, Volume2,
   ArrowUpRight, ArrowDownRight, ShieldCheck, ShoppingBag, Tag, PiggyBank, Sun, Award, ListFilter,
+  Smartphone, Monitor,
 };
 
 export type PharaohIconName = keyof typeof PharaohIcons;

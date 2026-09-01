@@ -1,0 +1,25 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        { "type": "Column", "width": "stretch", "items": [{ "type": "TextBlock", "text": "STATUT CHASSEUR", "size": "Small", "weight": "Bolder", "color": "accent", "spacing": "None" }] },
+        { "type": "Column", "width": "auto", "items": [{ "type": "TextBlock", "text": "${player.rank}", "size": "Small", "weight": "Bolder", "color": "accent" }] }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        { "type": "Column", "width": "auto", "items": [{ "type": "TextBlock", "text": "NIV ${player.level}", "size": "Large", "weight": "Bolder" }] },
+        { "type": "Column", "width": "stretch", "items": [{ "type": "TextBlock", "text": "🔥 ${streakDays}j · ${player.gold} Or", "size": "Small", "color": "Light", "horizontalAlignment": "Right" }] }
+      ]
+    },
+    { "type": "TextBlock", "text": "${player.xp} / ${player.xpToNextLevel} XP", "size": "Small", "color": "Light", "spacing": "Small" }
+  ],
+  "actions": [
+    { "type": "Action.OpenUrl", "title": "Ouvrir le Système", "url": "/?tab=system_solo", "verb": "system" }
+  ]
+}

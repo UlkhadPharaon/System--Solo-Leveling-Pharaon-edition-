@@ -1,0 +1,21 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    { "type": "TextBlock", "text": "AUJOURD'HUI — ${today.completedSessions}/${today.totalSessions}", "weight": "Bolder", "color": "accent" },
+    { "type": "TextBlock", "text": "Vos prochaines sessions", "size": "Small", "color": "Light", "isSubtle": true },
+    {
+      "type": "FactSet",
+      "facts": [
+        { "title": "${today.sessions[0].start}", "value": "${today.sessions[0].title}" },
+        { "title": "${today.sessions[1].start}", "value": "${today.sessions[1].title}" },
+        { "title": "${today.sessions[2].start}", "value": "${today.sessions[2].title}" }
+      ]
+    }
+  ],
+  "actions": [
+    { "type": "Action.OpenUrl", "title": "Emploi du temps", "url": "/?tab=dashboard", "verb": "today" },
+    { "type": "Action.OpenUrl", "title": "Focus", "url": "/?tab=focus_timer", "verb": "focus" }
+  ]
+}

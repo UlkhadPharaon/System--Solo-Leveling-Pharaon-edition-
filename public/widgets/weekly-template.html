@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:12px;font-family:Inter,system-ui;background:#040D1A;color:#fff">
+  <div id="root">Objectifs Hebdo</div>
+  <script>
+    fetch('/api/widgets/data?tag=ka-rise-weekly').then(r=>r.json()).then(d=>{
+      const targets=(d.weeklyTargets||[]).slice(0,4);
+      const rows=targets.map(t=>{
+        const pct=Math.min(100,Math.round((t.hours||0)/Math.max(0.5,t.target||1)*100));
+        const col=pct>=100?'#10b981':'#D4AF37';
+        return `<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:10px;color:#94a3b8"><span>${t.label}</span><span>${t.hours}/${t.target}h</span></div><div style="height:4px;background:#0f2040;border-radius:999px;overflow:hidden;margin-top:2px"><div style="height:100%;width:${pct}%;background:${col}"></div></div></div>`;
+      }).join('')||'<div style="font-size:11px;color:#64748b;font-style:italic">Aucun objectif</div>';
+      document.getElementById('root').innerHTML=`<div style="font-size:11px;letter-spacing:.1em;color:#D4AF37">OBJECTIFS HEBDO</div><div style="margin-top:6px">${rows}</div>`;
+    }).catch(()=>{});
+  </script>
+</body>
+</html>

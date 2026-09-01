@@ -29,6 +29,11 @@ import {
 } from './types';
 // Push notification helpers
 import { sendPushViaServer, showLocalNotification, subscribeToPush } from './lib/pushNotifications';
+// Homescreen widgets + popup system
+import { WidgetStudio } from './components/WidgetStudio';
+import { PopupStack } from './components/PopupStack';
+import { firePopup, notifyLevelUp } from './lib/popupManager';
+import { syncWidgetData, registerPeriodicWidgetRefresh } from './lib/homescreenWidget';
 import { 
   INITIAL_DAY_SCHEDULES,
   INITIAL_PERSONALIZATION,
@@ -199,6 +204,7 @@ export default function App() {
   const [isDataManagementOpen, setIsDataManagementOpen] = useState<boolean>(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
   const [celebrationInfo, setCelebrationInfo] = useState<CelebrationInfo | null>(null);
+  const [isWidgetStudioOpen, setIsWidgetStudioOpen] = useState<boolean>(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
@@ -798,6 +804,58 @@ export default function App() {
     });
   }, [dailyStreak.currentStreak]);
 
+  // ── Homescreen widget data sync ──────────────────────────────────────────
+  // Pushes a compact snapshot to both CacheStorage (offline instant paint) and
+  // /api/widgets/data (OS widget runtime fetch) whenever core state changes.
+  // Debounced inside syncWidgetData so rapid toggles don't spam.
+  useEffect(() => {
+    try {
+      const dayNames: DayOfWeek[] = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const todayName = dayNames[new Date().getDay()];
+      const todayBlocks = daySchedules[todayName] || [];
+      syncWidgetData({
+        player: { level: playerProfile.level, rank: playerProfile.rank, xp: playerProfile.xp, xpToNextLevel: playerProfile.xpToNextLevel, gold: playerProfile.gold },
+        streakDays: dailyStreak.currentStreak,
+        today: {
+          date: new Date().toISOString().slice(0,10),
+          sessions: todayBlocks.map(b => ({ title: b.title, start: b.startTime, end: b.endTime, done: !!b.isCompleted })),
+          completedSessions: todayBlocks.filter(b=>b.isCompleted).length,
+          totalSessions: todayBlocks.length,
+        },
+        weeklyTargets: categoryTargets.map(t => ({ label: t.label, hours: Math.round((t.completedHours||0)*10)/10, target: t.targetHours })),
+        focus: { minutesToday: focusSessions.filter(s=>s.date===new Date().toISOString().slice(0,10)).reduce((a,b)=>a+b.durationMinutes,0), sessionsTotal: focusSessions.length },
+        notes: notes.length,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerProfile.level, playerProfile.rank, playerProfile.xp, playerProfile.xpToNextLevel, playerProfile.gold, dailyStreak.currentStreak, daySchedules, categoryTargets, focusSessions, notes.length]);
+
+  useEffect(() => {
+    registerPeriodicWidgetRefresh().catch(()=>{});
+  }, []);
+
+  // ── Notification / widget deep-link: service worker → window.postMessage ──
+  // Both push clicks and homescreen widget taps arrive here (see sw.js
+  // notificationclick + widgetclick). We parse ?tab=… and switch without reload.
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const data = event.data as any;
+      if (!data || data.type !== 'navigate' || typeof data.url !== 'string') return;
+      try {
+        const u = new URL(data.url, window.location.origin);
+        const tab = u.searchParams.get('tab') as ActiveTab | null;
+        const valid: ActiveTab[] = ['system_solo','dashboard','workout','focus_timer','weekly_targets','victory_journal','notepad','budget'];
+        if (tab && valid.includes(tab)) setActiveTab(tab);
+        // Scroll to top after navigation so widget taps don't land mid-page
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {}
+    };
+    navigator.serviceWorker?.addEventListener('message', handler as any);
+    // Also handle the case where the SW posted before we mounted (controllerchange reload fallback already covers cold boot)
+    return () => navigator.serviceWorker?.removeEventListener('message', handler as any);
+  }, []);
+
 
   // System XP & Gold Reward Grant Helper
   // Side effects (confetti / banner) are computed from current state BEFORE the
@@ -831,6 +889,8 @@ export default function App() {
             message: `Félicitations Chasseur ! Vous avez franchi un nouveau seuil de puissance. +${progression.attributePointsGained} Points de statut attribués !`,
             type: 'victory',
           });
+          // Popup layer: level-up popup (in-app toast + system notification)
+          void notifyLevelUp(progression.level);
         });
       }
 
@@ -857,13 +917,18 @@ export default function App() {
     });
   };
 
-  // Background Session Start Alert Engine
+  // Background Session Start Alert Engine — now via popupManager (in-app toast + system push coalesced)
   const notifiedBlocksRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!personalization.notificationsEnabled) return;
-    if (typeof window === 'undefined' || !('Notification' in window)) return;
-    if (Notification.permission !== 'granted') return;
+    if (typeof window === 'undefined') return;
+    // Gate on EITHER the legacy toggle OR the new popup master switch so a user
+    // who enabled popups in the new Studio still gets session alerts even if the
+    // older "notificationsEnabled" flag is off.
+    const legacyOn = personalization.notificationsEnabled;
+    let popupOn = true;
+    try { popupOn = JSON.parse(localStorage.getItem('aura_popup_prefs') || '{}')?.enabled !== false; } catch {}
+    if (!legacyOn && !popupOn) return;
 
     const checkUpcomingSessions = () => {
       const now = new Date();
@@ -874,52 +939,34 @@ export default function App() {
 
       todayBlocks.forEach((block) => {
         if (block.isCompleted) return;
-
         const [hours, minutes] = block.startTime.split(':').map(Number);
         if (isNaN(hours) || isNaN(minutes)) return;
-
         const blockStartTime = new Date(now);
         blockStartTime.setHours(hours, minutes, 0, 0);
-
         const diffMs = blockStartTime.getTime() - now.getTime();
         const diffMins = diffMs / (1000 * 60);
-
-        // Alert if session starts within leadMins and hasn't started more than 1 minute ago
         if (diffMins > -1 && diffMins <= leadMins) {
           const notificationKey = `${now.toDateString()}-${todayName}-${block.id}-${block.startTime}`;
           if (!notifiedBlocksRef.current.has(notificationKey)) {
             notifiedBlocksRef.current.add(notificationKey);
-
             const displayMins = Math.max(1, Math.ceil(diffMins));
             const categoryLabel = block.category.replace('_', ' ').toUpperCase();
-
-            try {
-              new Notification(`Session à venir : ${block.title}`, {
-                body: `Début dans ${displayMins} min (${block.startTime}). Catégorie : ${categoryLabel}`,
-                icon: '/icon.jpg',
-                tag: notificationKey,
-              });
-              // Also fire server-relayed push (works even when tab is closed)
-              sendPushViaServer({
-                title: `Session à venir : ${block.title}`,
-                body: `Début dans ${displayMins} min (${block.startTime}). Catégorie : ${categoryLabel}`,
-                tag: notificationKey,
-                url: '/',
-                icon: '/icon.jpg',
-                data: {},
-              }).catch(() => {/* non-fatal */});
-            } catch (err) {
-              console.error('Notification trigger error:', err);
-            }
+            void firePopup({
+              title: `Session à venir : ${block.title}`,
+              body: `Début dans ${displayMins} min (${block.startTime}). Catégorie : ${categoryLabel}`,
+              category: 'session',
+              tag: notificationKey,
+              url: '/?tab=dashboard',
+              icon: '/icon-192.png',
+            });
           }
         }
       });
     };
 
     checkUpcomingSessions();
-    const intervalId = setInterval(checkUpcomingSessions, 20000);
-
-    return () => clearInterval(intervalId);
+    const intervalId = window.setInterval(checkUpcomingSessions, 20000);
+    return () => window.clearInterval(intervalId);
   }, [personalization.notificationsEnabled, personalization.notificationLeadMinutes, daySchedules]);
 
   const handleToggleDayStreak = (id: string) => {
@@ -1287,6 +1334,7 @@ export default function App() {
         openPersonalizationModal={() => setIsPersonalizationOpen(true)}
         openDataManagement={() => setIsDataManagementOpen(true)}
         openHelp={() => setShowSystemIntro(true)}
+        openWidgetStudio={() => setIsWidgetStudioOpen(true)}
         isOffline={isOffline}
         showWorkoutTab={domains.length === 0 || domainsForTracking(domains, 'workout_log').length > 0}
       />
@@ -1560,6 +1608,12 @@ export default function App() {
 
       {/* PWA Install Banner */}
       <PWAInstallBanner />
+
+      {/* Homescreen Widget & Popup Studio */}
+      <WidgetStudio isOpen={isWidgetStudioOpen} onClose={() => setIsWidgetStudioOpen(false)} />
+
+      {/* Popup notification stack (in-app toasts) — always mounted */}
+      <PopupStack />
     </div>
   );
 }

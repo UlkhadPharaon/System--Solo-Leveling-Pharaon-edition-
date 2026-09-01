@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:12px;font-family:Inter,system-ui;background:#040D1A;color:#fff">
+  <div id="root">Ka Rise — Statut</div>
+  <script>
+    // Data is injected by the widget runtime via /api/widgets/data JSON.
+    // This HTML is a fallback for browsers that render widget via iframe.
+    fetch('/api/widgets/data?tag=ka-rise-status').then(r=>r.json()).then(d=>{
+      const p=d.player||{level:1,rank:'E',xp:0,xpToNextLevel:100,gold:0};
+      const pct=Math.min(100,Math.round(p.xp/Math.max(1,p.xpToNextLevel)*100));
+      document.getElementById('root').innerHTML=`
+        <div style="display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;color:#D4AF37">STATUT CHASSEUR <span style="border:1px solid #D4AF37;border-radius:6px;padding:2px 6px">${p.rank}</span></div>
+        <div style="font-size:22px;margin:6px 0">NIV ${p.level} <span style="font-size:11px;color:#94a3b8">🔥 ${d.streakDays||0}j</span></div>
+        <div style="height:6px;background:#0f2040;border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#D4AF37,#FFD700)"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:6px;color:#cbd5e1"><span>${p.xp}/${p.xpToNextLevel} XP</span><span>${p.gold} Or</span></div>
+      `;
+    }).catch(()=>{});
+  </script>
+</body>
+</html>

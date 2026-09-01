@@ -140,6 +140,7 @@ export const RoyalForge: React.FC<RoyalForgeProps> = ({ player, onUpdatePlayer }
       return {
         ...prev,
         gold: (prev?.gold || 0) - craft.goldCost,
+        goldSpent: (prev?.goldSpent || 0) + craft.goldCost, // narrative ch.2 gate
         inventory: updatedInventory,
         logs: [log, ...(prev?.logs || [])]
       };

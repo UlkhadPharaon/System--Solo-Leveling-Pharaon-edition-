@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:12px;font-family:Inter,system-ui;background:#040D1A;color:#fff">
+  <div id="root">Aujourd'hui</div>
+  <script>
+    fetch('/api/widgets/data?tag=ka-rise-today').then(r=>r.json()).then(d=>{
+      const s=d.today||{sessions:[],completedSessions:0,totalSessions:0};
+      const rows=(s.sessions||[]).slice(0,4).map(b=>`<div style="display:flex;gap:8px;font-size:11px;margin:4px 0"><span style="width:6px;height:6px;border-radius:50%;background:${b.done?'#10b981':'#D4AF37'};margin-top:4px;display:inline-block"></span><span style="font-family:monospace;color:${b.done?'#64748b':'#fff'}">${b.start||''}</span><span style="${b.done?'text-decoration:line-through;color:#64748b':''}">${b.title||''}</span></div>`).join('') || '<div style="font-size:11px;color:#64748b;font-style:italic">Aucune session</div>';
+      document.getElementById('root').innerHTML=`
+        <div style="display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;color:#D4AF37">AUJOURD'HUI <span style="font-family:monospace;color:#94a3b8">${s.completedSessions}/${s.totalSessions}</span></div>
+        <div style="margin-top:8px">${rows}</div>
+      `;
+    }).catch(()=>{});
+  </script>
+</body>
+</html>

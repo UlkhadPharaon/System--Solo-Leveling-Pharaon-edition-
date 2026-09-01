@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useActiveFocusSession, activeFocusRemainingMs } from '../lib/activeFocusSession';
 import { playSfx } from '../lib/sfx';
 import { getStoredTheme, applyTheme, type Theme } from '../lib/theme';
+import { NotificationCenterBell } from './NotificationCenter';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -26,6 +27,7 @@ interface HeaderProps {
   openDataManagement?: () => void;
   /** Re-opens the "Comment ça marche ?" tour overlay at any time. */
   openHelp?: () => void;
+  openWidgetStudio?: () => void;
   isOffline?: boolean;
   showWorkoutTab?: boolean;
   totalXP?: number;
@@ -84,6 +86,7 @@ export const Header: React.FC<HeaderProps> = ({
   openPersonalizationModal,
   openDataManagement,
   openHelp,
+  openWidgetStudio,
   isOffline,
   showWorkoutTab = true,
   totalXP = 0,
@@ -277,6 +280,23 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Live focus-session countdown (#1) — always visible, taps back to the timer */}
             <FocusSessionPill onClick={openFocusTimerQuick} />
 
+            {/* Notification Center (popups history) */}
+            <NotificationCenterBell onOpenWidgets={openWidgetStudio} />
+
+            {/* Widget Studio entry — homescreen + gallery */}
+            {openWidgetStudio && (
+              <motion.button
+                onClick={openWidgetStudio}
+                aria-label="Widgets & popups — ajouter à l’écran d’accueil"
+                title="Widgets & Écran d’accueil"
+                className="btn-press p-2.5 min-h-[40px] min-w-[40px] rounded-xl bg-panel border border-lapis-border text-pharaoh-muted hover:bg-panel-hover hover:text-gold transition-all hidden sm:flex"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Grid size={18} />
+              </motion.button>
+            )}
+
             {/* Dark / Light theme toggle — visible on every breakpoint */}
             <motion.button
               onClick={toggleDarkLight}
@@ -424,6 +444,15 @@ export const Header: React.FC<HeaderProps> = ({
                           <Settings size={18} />
                           <span>Personnalisation</span>
                         </button>
+                        {openWidgetStudio && (
+                          <button
+                            onClick={() => { setShowUserMenu(false); openWidgetStudio(); }}
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-pharaoh-muted hover:bg-panel-hover hover:text-pharaoh transition-all"
+                          >
+                            <Grid size={18} />
+                            <span>Widgets & Écran d’accueil</span>
+                          </button>
+                        )}
                         {openDataManagement && (
                           <button
                             onClick={() => { setShowUserMenu(false); openDataManagement(); }}

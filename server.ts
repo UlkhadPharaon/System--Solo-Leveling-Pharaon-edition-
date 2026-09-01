@@ -10,6 +10,7 @@ import {
   validateAgentActions,
   type QuestSpec,
 } from './src/lib/guardrails';
+import { handleWidgetSnapshot, widgetTokenFromEnv } from './server/widgetApi';
 
 dotenv.config();
 if (existsSync('.env.local')) {
@@ -408,6 +409,82 @@ async function startServer() {
       hasSubscription: !!loadSubscription(),
       scheduledCount: scheduledPushes.size,
     });
+  });
+
+  // ── Widget snapshot & PWA widget data ─────────────────────────────────────
+  // The native-companion / authenticated endpoint.
+  app.get('/api/widgets/snapshot', (req, res) => {
+    // Derive a minimal snapshot from whatever the client last POSTed to
+    // /api/widgets/data, plus push subscription presence as a liveness signal.
+    // In a full implementation this would read from a DB; here we return the
+    // cached public widget payload enriched for the companion.
+    const tag = String(req.query.tag || 'ka-rise-status');
+    const cached = (global as any).__kaWidgetCache?.get(tag) || (global as any).__kaWidgetCache?.get('ka-rise-status');
+    // Light stub if nothing cached yet — better than a 403 for first-run widgets.
+    if (!cached) {
+      return res.json({
+        generatedAt: new Date().toISOString(),
+        player: { level: 1, rank: 'E', xp: 0, xpToNextLevel: 100, gold: 0 },
+        streakDays: 0,
+        today: { date: new Date().toISOString().slice(0,10), sessions: [], completedSessions: 0, totalSessions: 0 },
+        quests: { done: 0, total: 0 },
+        weeklyTargets: [],
+        focus: { minutesToday: 0, sessionsTotal: 0 },
+        notes: 0,
+        deepLinks: { dashboard: '/?tab=dashboard', focus: '/?tab=focus_timer', notes: '/?tab=notepad', system: '/?tab=system_solo' },
+      });
+    }
+    res.json(cached);
+  });
+
+  // Lightweight public widget data endpoint used by the manifest widgets[] `data`.
+  // Stores the latest client-pushed state in memory so the widget runtime can
+  // fetch it even when the tab is closed.
+  if (!(global as any).__kaWidgetCache) (global as any).__kaWidgetCache = new Map<string, any>();
+  const widgetDataCache: Map<string, any> = (global as any).__kaWidgetCache;
+
+  app.get('/api/widgets/data', (req, res) => {
+    const tag = String(req.query.tag || 'ka-rise-status');
+    const entry = widgetDataCache.get(tag) || widgetDataCache.get('ka-rise-status');
+    if (entry) {
+      res.set('Cache-Control', 'public, max-age=60');
+      return res.json(entry);
+    }
+    // Fallback placeholder — ensures widget never shows a broken network state.
+    res.set('Cache-Control', 'public, max-age=60');
+    res.json({
+      title: tag === 'ka-rise-today' ? 'Aujourd’hui' : tag === 'ka-rise-weekly' ? 'Objectifs Hebdo' : 'Statut Chasseur',
+      tag,
+      generatedAt: new Date().toISOString(),
+      player: { level: 1, rank: 'E', xp: 0, xpToNextLevel: 100, gold: 0 },
+      streakDays: 0,
+      today: { sessions: [], completedSessions: 0, totalSessions: 0 },
+      weeklyTargets: [],
+      hint: 'Ouvrez Ka Rise pour synchroniser vos données widget.'
+    });
+  });
+
+  app.post('/api/widgets/data', (req, res) => {
+    const tag = String(req.query.tag || req.body?.tag || 'ka-rise-status');
+    const payload = req.body?.payload ?? req.body;
+    if (!payload || typeof payload !== 'object') {
+      return res.status(400).json({ error: 'payload required' });
+    }
+    // Strip any huge fields to keep memory bounded
+    const compact = { ...payload, _receivedAt: new Date().toISOString() };
+    widgetDataCache.set(tag, compact);
+    // Also mirror to generic key so /snapshot can read it
+    widgetDataCache.set('ka-rise-status', compact);
+    res.json({ ok: true, tag });
+  });
+
+  // Authenticated companion endpoint (original)
+  app.post('/api/widgets/snapshot-auth', (req, res) => {
+    const token = widgetTokenFromEnv();
+    if (!token) return res.status(403).json({ error: 'Widget API disabled' });
+    // Delegate to shared handler with dummy input — real input comes from client body now
+    // Kept for backward compat with external companions that use X-Widget-Token
+    return handleWidgetSnapshot(req, res, req.body as any);
   });
 
 

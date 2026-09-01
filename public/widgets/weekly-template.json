@@ -1,0 +1,19 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    { "type": "TextBlock", "text": "OBJECTIFS HEBDO", "weight": "Bolder", "color": "accent" },
+    {
+      "type": "FactSet",
+      "facts": [
+        { "title": "${weeklyTargets[0].label}", "value": "${weeklyTargets[0].hours}/${weeklyTargets[0].target}h" },
+        { "title": "${weeklyTargets[1].label}", "value": "${weeklyTargets[1].hours}/${weeklyTargets[1].target}h" },
+        { "title": "${weeklyTargets[2].label}", "value": "${weeklyTargets[2].hours}/${weeklyTargets[2].target}h" }
+      ]
+    }
+  ],
+  "actions": [
+    { "type": "Action.OpenUrl", "title": "Bilan", "url": "/?tab=weekly_targets", "verb": "weekly" }
+  ]
+}

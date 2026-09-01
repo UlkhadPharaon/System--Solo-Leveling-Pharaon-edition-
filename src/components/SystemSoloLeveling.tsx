@@ -522,6 +522,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
       return {
         ...prev,
         gold: Math.max(0, (prev?.gold || 0) - item.goldValue),
+        goldSpent: (prev?.goldSpent || 0) + item.goldValue, // narrative ch.2 gate
         inventory: updatedInv,
         logs: [
           {
@@ -584,7 +585,7 @@ export const SystemSoloLeveling: React.FC<SystemSoloLevelingProps> = ({
     onUpdatePlayer(prev => {
       if (granted || (prev?.gold || 0) < 100) return prev;
       granted = true;
-      const base = { ...prev, gold: (prev?.gold || 0) - 100 };
+      const base = { ...prev, gold: (prev?.gold || 0) - 100, goldSpent: (prev?.goldSpent || 0) + 100 };
       const rng = Math.random();
       if (rng < 0.1) {
         prize = "Clé de Donjon de Rang A";

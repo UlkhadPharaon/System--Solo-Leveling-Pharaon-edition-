@@ -85,3 +85,19 @@ export function syncProfileMirrors(
     streakDays: Math.max(base.streakDays || 0, mirrors.currentStreak || 0),
   };
 }
+
+/**
+ * Deduct gold for a purchase/craft and accrue goldSpent — the counter the
+ * narrative chapter-2 objective ("Dépenser 1000 Or") gates on. Callers have
+ * ALREADY validated affordability; this only applies the mutation.
+ */
+export function applyGoldSpend(
+  prev: PlayerProfile | undefined | null,
+  amount: number,
+): { next: PlayerProfile; goldSpentDelta: number } {
+  const base: PlayerProfile = prev ?? ({ logs: [] } as unknown as PlayerProfile);
+  return {
+    next: { ...base, gold: Math.max(0, (base.gold || 0) - amount) },
+    goldSpentDelta: amount,
+  };
+}

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'ka-rise-v10';
+const CACHE_NAME = 'ka-rise-v11';
 // logo.webp (192 KB) replaces logo-complet.png (1.4 MB) in the pre-cache:
 // the old shell made every fresh install download ~1.5 MB of logo alone.
-const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo.webp'];
+const APP_SHELL = ['/', '/index.html', '/manifest.json', '/favicon.ico', '/favicon.svg', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/logo.webp', '/widgets/status-template.html', '/widgets/today-template.html', '/widgets/weekly-template.html', '/widgets/status-template.json', '/widgets/today-template.json', '/widgets/weekly-template.json'];
 const DEFAULT_ICON = '/icon-192.png';
 const DEFAULT_BADGE = '/icon-192.png';
 
@@ -231,4 +231,123 @@ self.addEventListener('notificationclick', (event) => {
 // a notification (defensive duplicate of the postMessage above kept simple).
 self.addEventListener('notificationclose', (event) => {
   // Hook available for future analytics — intentionally silent today.
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PWA Homescreen Widgets — Adaptive Cards runtime
+// ─────────────────────────────────────────────────────────────────────────────
+// Chrome 113+ (Desktop/ Android) dispatches `widgetinstall` when the user pins
+// one of the manifest `widgets[]` entries to the OS homescreen. We render the
+// card from the latest `localStorage`-backed widget data mirrored via
+// /api/widgets/data, with a cache-first strategy so the widget paints even
+// offline. `widgetclick` routes verb clicks back into the PWA deep link.
+//
+// In browsers that don't support the widget API the handlers simply never fire
+// — no harm; the installed PWA + its shortcuts still provide a widget-like
+// surface on every platform.
+
+self.addEventListener('widgetinstall', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const tag = event.widget?.definition?.tag || 'ka-rise-status';
+      const dataUrl = `/api/widgets/data?tag=${encodeURIComponent(tag)}`;
+      let data = null;
+      try {
+        const fetched = await fetch(dataUrl).then((r) => r.ok ? r.json() : null).catch(() => null);
+        data = fetched;
+      } catch {}
+      if (!data) {
+        const cached = await caches.match(dataUrl).then((r) => r ? r.json().catch(() => null) : null).catch(() => null);
+        data = cached;
+      }
+      if (data && event.widget && typeof event.widget.updateByTag === 'function') {
+        // Template is resolved by the browser from manifest.widgets[].msAcTemplate
+        // We supply just the data payload
+        await event.widget.updateByTag(tag, JSON.stringify(data)).catch(() => {});
+      }
+    } catch (e) {
+      console.warn('[SW] widgetinstall failed', e);
+    }
+  })());
+});
+
+self.addEventListener('widgetclick', (event) => {
+  const verb = event.action || '';
+  const widgetTag = event.widget?.definition?.tag || '';
+  let targetUrl = '/';
+  if (widgetTag === 'ka-rise-today' || verb === 'today') targetUrl = '/?tab=dashboard';
+  else if (widgetTag === 'ka-rise-weekly' || verb === 'weekly') targetUrl = '/?tab=weekly_targets';
+  else if (verb === 'focus') targetUrl = '/?tab=focus_timer';
+  else if (verb === 'notepad') targetUrl = '/?tab=notepad';
+  else targetUrl = '/?tab=system_solo';
+
+  event.waitUntil(
+    (async () => {
+      const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of allClients) {
+        if (client.url.startsWith(self.location.origin)) {
+          await client.focus();
+          client.postMessage({ type: 'navigate', url: new URL(targetUrl, self.location.origin).href });
+          return;
+        }
+      }
+      try { await self.clients.openWindow(new URL(targetUrl, self.location.origin).href); } catch {}
+    })()
+  );
+});
+
+// Periodic Background Sync for widget data refresh (where supported)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'widget-refresh') {
+    event.waitUntil((async () => {
+      try {
+        const tags = ['ka-rise-status', 'ka-rise-today', 'ka-rise-weekly'];
+        for (const tag of tags) {
+          try {
+            const res = await fetch(`/api/widgets/data?tag=${tag}`, { cache: 'no-store' });
+            if (res.ok) {
+              const cache = await caches.open(CACHE_NAME);
+              await cache.put(`/api/widgets/data?tag=${tag}`, res.clone());
+              // If widget API exists, push update
+              if (self.widgets && typeof self.widgets.updateByTag === 'function') {
+                const data = await res.clone().json().catch(() => null);
+                if (data) await self.widgets.updateByTag(tag, JSON.stringify(data)).catch(() => {});
+              }
+            }
+          } catch {}
+        }
+      } catch {}
+    })());
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Popup notification helpers — in-app + system coalesced
+// ─────────────────────────────────────────────────────────────────────────────
+// The app can request a "popup" style notification that should:
+//  1. Show as a system notification if the tab is hidden/backgrounded
+//  2. Show as an in-app toast if visible (so user doesn't miss it behind)
+// We handle both via the same showNotification path with `requireInteraction`
+// hints for important categories.
+self.addEventListener('message', (event) => {
+  // Already have a message handler above; this is merged via fallthrough
+  // Keep for widget data mirroring from the app
+  const msg = event.data;
+  if (!msg || typeof msg !== 'object') return;
+  if (msg.type === 'widget-data-update' && msg.tag && msg.payload) {
+    event.waitUntil(
+      (async () => {
+        try {
+          const dataUrl = `/api/widgets/data?tag=${msg.tag}`;
+          const blob = new Blob([JSON.stringify(msg.payload)], { type: 'application/json' });
+          const resp = new Response(blob, { headers: { 'Content-Type': 'application/json' } });
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(dataUrl, resp);
+          if (self.widgets && typeof self.widgets.updateByTag === 'function') {
+            await self.widgets.updateByTag(msg.tag, JSON.stringify(msg.payload)).catch(() => {});
+          }
+        } catch {}
+      })()
+    );
+  }
 });

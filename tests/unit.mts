@@ -38,7 +38,7 @@ import {
   planQuestReminder,
   planStreakRescue,
 } from '../src/lib/smartPush.ts';
-import { applyQuestCompletion, syncProfileMirrors } from '../src/lib/progression.ts';
+import { applyQuestCompletion, syncProfileMirrors, applyGoldSpend } from '../src/lib/progression.ts';
 
 let passed = 0;
 let failed = 0;
@@ -569,6 +569,19 @@ test('syncProfileMirrors raises streakDays from the daily engine, never lowers',
   const p: any = { streakDays: 12, logs: [] };
   equal(syncProfileMirrors(p, { currentStreak: 20 }).streakDays, 20); // engine ahead → raise
   equal(syncProfileMirrors(p, { currentStreak: 3 }).streakDays, 12);  // engine behind (new profile) → keep best
+});
+
+test('applyGoldSpend deducts and returns the accrual delta', () => {
+  const p: any = { gold: 1500, goldSpent: 400, logs: [] };
+  const { next, goldSpentDelta } = applyGoldSpend(p, 600);
+  equal(next.gold, 900);
+  equal(goldSpentDelta, 600);
+});
+
+test('applyGoldSpend clamps at zero even on over-spend', () => {
+  const p: any = { gold: 50, goldSpent: 0, logs: [] };
+  const { next } = applyGoldSpend(p, 600);
+  equal(next.gold, 0);
 });
 
 test('narrative campaign gates become reachable: counter accrues across quests', () => {
